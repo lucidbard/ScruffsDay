@@ -4,7 +4,8 @@
     "lines": [
       { "text": "Hmm, these invasive plants are everywhere...", "condition": null },
       { "text": "I should gather some native plant materials to help my friends.", "condition": null },
-      { "text": "I can tap to move around, and tap items to pick them up!", "condition": null }
+      { "text": "I can tap to move around, and tap items to pick them up!", "condition": null },
+      { "text": "Did you know? Florida scrub jays like me are found ONLY in Florida. We're the state's only endemic bird species!", "condition": null }
     ],
     "next": null
   },
@@ -13,7 +14,8 @@
     "lines": [
       { "text": "Oh dear, oh dear... my burrow entrance is completely blocked!", "condition": null },
       { "text": "Those invasive Brazilian pepper plants grew right over it.", "condition": null },
-      { "text": "If only I had some nice saw palmetto fronds to rebuild...", "condition": null }
+      { "text": "If only I had some nice saw palmetto fronds to rebuild...", "condition": null },
+      { "text": "Did you know? We gopher tortoises are a keystone species. Over 350 other animals use our burrows for shelter!", "condition": null }
     ],
     "next": null
   },
@@ -22,6 +24,7 @@
     "lines": [
       { "text": "Are those... saw palmetto fronds?! Oh, thank you!", "condition": null },
       { "text": "Now I can rebuild my burrow entrance properly.", "condition": null },
+      { "text": "Did you know? Saw palmetto is one of the most important native plants in Florida scrub. Its berries feed bears, deer, and birds!", "condition": null },
       { "text": "Say, my friend Pip the mouse lives underground. Let me show you the way!", "condition": null }
     ],
     "next": null,
@@ -31,7 +34,8 @@
   "shelly_after": {
     "speaker": "Shelly",
     "lines": [
-      { "text": "My burrow is looking great! Pip is down below if you need him.", "condition": null }
+      { "text": "My burrow is looking great! Pip is down below if you need him.", "condition": null },
+      { "text": "Did you know? Gopher tortoise burrows can be up to 40 feet long and 10 feet deep. That's a lot of digging!", "condition": null }
     ],
     "next": null
   },
@@ -40,6 +44,7 @@
     "lines": [
       { "text": "Hoo-hoo! Welcome to the Central Trail, young jay.", "condition": null },
       { "text": "The preserve needs our help. Many of our animal friends are struggling.", "condition": null },
+      { "text": "Did you know? Lyonia Preserve protects over 400 acres of ancient Florida scrub — one of the rarest habitats on Earth!", "condition": null },
       { "text": "Try visiting the Pine Clearing to the west, and the Sandy Barrens to the east.", "condition": null },
       { "text": "Come back when you've helped everyone. I'll be watching from above!", "condition": null }
     ],
@@ -51,7 +56,8 @@
       { "text": "Tap-tap-tap! Hey there, blue jay!", "condition": null },
       { "text": "See that big sand pine? Those invasive air potato vines are strangling it!", "condition": null },
       { "text": "I've been pecking at them all day but I can't keep up alone.", "condition": null },
-      { "text": "Can you help me cut them down? But careful - don't cut the native grape vines!", "condition": null }
+      { "text": "Can you help me cut them down? But careful - don't cut the native grape vines!", "condition": null },
+      { "text": "Did you know? Air potato vines can grow up to 8 inches per day! That's why they smother our native trees so quickly.", "condition": null }
     ],
     "next": null
   },
@@ -59,6 +65,7 @@
     "speaker": "Flicker",
     "lines": [
       { "text": "Tap-tap-TAP! The tree is breathing again, thanks to you!", "condition": null },
+      { "text": "Did you know? Sand pines depend on fire to release their seeds. Without natural fires, the scrub can't regenerate!", "condition": null },
       { "text": "Here, take one of my feathers. It might come in handy!", "condition": null }
     ],
     "next": null
@@ -69,7 +76,8 @@
       { "text": "EEK! Oh... oh, you scared me! I'm Pip!", "condition": null },
       { "text": "I live down here in Shelly's burrow. It's nice and safe!", "condition": null },
       { "text": "But I'm SO hungry... all my favorite scrub hickory nuts are gone.", "condition": null },
-      { "text": "The invasive plants crowded them out. Do you have any?", "condition": null }
+      { "text": "The invasive plants crowded them out. Do you have any?", "condition": null },
+      { "text": "Did you know? Florida mice like me are one of many species that depend on gopher tortoise burrows for survival!", "condition": null }
     ],
     "next": null
   },
@@ -78,6 +86,7 @@
     "lines": [
       { "text": "SCRUB HICKORY NUTS! Oh my oh my oh my!", "condition": null },
       { "text": "*munch munch munch* These are PERFECT!", "condition": null },
+      { "text": "Did you know? Scrub hickory only grows in the sandy soils of Florida scrub. Each nut helps plant a new tree when we bury them!", "condition": null },
       { "text": "Here, take this map I found. It shows where the rare plants grow!", "condition": null }
     ],
     "next": null
@@ -86,6 +95,7 @@
     "speaker": "Pip",
     "lines": [
       { "text": "*munch* Still working on these nuts! They're so good!", "condition": null },
+      { "text": "Did you know? By burying nuts and forgetting where we put them, mice like me accidentally plant new trees. We're nature's gardeners!", "condition": null },
       { "text": "That map should help you find what you need. Good luck up there!", "condition": null }
     ],
     "next": null
@@ -96,7 +106,8 @@
       { "text": "*yaaawn* Oh... hello there, little bird...", "condition": null },
       { "text": "I'm so cold... all this overgrowth is blocking the sun from the sand.", "condition": null },
       { "text": "I need open, warm sand to bask on. These invasive plants ruined my spot.", "condition": null },
-      { "text": "If only someone could plant some native ground cover to replace them...", "condition": null }
+      { "text": "If only someone could plant some native ground cover to replace them...", "condition": null },
+      { "text": "Did you know? Sand skinks like me have tiny legs and 'swim' through loose sand. We need open, sunny patches to survive!", "condition": null }
     ],
     "next": null
   },
@@ -105,6 +116,7 @@
     "lines": [
       { "text": "Ooh, is that a feather from Flicker? And rosemary cuttings too!", "condition": null },
       { "text": "You've been busy helping the preserve! I trust you.", "condition": null },
+      { "text": "Did you know? Florida rosemary is a pioneer plant. It's one of the first to grow back after a natural fire clears the scrub!", "condition": null },
       { "text": "Let's plant these native seeds from above. You fly, I'll guide you!", "condition": null }
     ],
     "next": null
@@ -114,6 +126,7 @@
     "lines": [
       { "text": "*stretches luxuriously* Ahhhh, warm sand at last!", "condition": null },
       { "text": "The native plants are settling in nicely. Thank you, friend!", "condition": null },
+      { "text": "Did you know? Healthy Florida scrub needs periodic fires to stay open and sunny. Land managers use controlled burns to mimic natural fire cycles!", "condition": null },
       { "text": "The path to the overlook is clear now. Sage is waiting for you up there!", "condition": null }
     ],
     "next": null
@@ -133,6 +146,7 @@
     "lines": [
       { "text": "Remarkable! You truly have restored the preserve!", "condition": null },
       { "text": "The lyonia flowers... the acorns... Flicker's feather... and Pip's map!", "condition": null },
+      { "text": "Did you know? Great horned owls like me are called the 'tigers of the sky.' We help keep the ecosystem balanced by controlling rodent populations!", "condition": null },
       { "text": "Let's do one final survey together. The night watch begins!", "condition": null }
     ],
     "next": null
@@ -141,7 +155,8 @@
     "speaker": "Sage",
     "lines": [
       { "text": "The preserve is thriving once more, thanks to you.", "condition": null },
-      { "text": "You're a true friend of Lyonia Preserve, Scruff!", "condition": null }
+      { "text": "You're a true friend of Lyonia Preserve, Scruff!", "condition": null },
+      { "text": "Did you know? Conservation efforts at places like Lyonia Preserve help protect endangered species and preserve Florida's unique natural heritage for future generations!", "condition": null }
     ],
     "next": null
   },
@@ -150,6 +165,7 @@
     "lines": [
       { "text": "Magnificent! Every animal is safe in their restored habitat!", "condition": null },
       { "text": "The native plants are flourishing, and the invasives are in retreat.", "condition": null },
+      { "text": "Did you know? You can visit real places like Lyonia Preserve in Deltona, Florida! Volunteers help remove invasive plants and protect native wildlife every day.", "condition": null },
       { "text": "Thank you, Scruff. Lyonia Preserve will remember what you did today.", "condition": null }
     ],
     "next": null
