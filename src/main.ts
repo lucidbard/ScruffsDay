@@ -1,9 +1,10 @@
-import { Application, Container, Graphics } from 'pixi.js';
+import { Application, Container, Graphics, Text, TextStyle } from 'pixi.js';
 import { GameState } from './game/GameState';
 import { TweenManager } from './game/Tween';
 import { SceneManager } from './game/SceneManager';
 import { InputManager } from './game/InputManager';
 import { InventoryUI } from './game/InventoryUI';
+import { MenuOverlay } from './game/MenuOverlay';
 import { ScrubThicket } from './scenes/ScrubThicket';
 import { TortoiseBurrow } from './scenes/TortoiseBurrow';
 import { CentralTrail } from './scenes/CentralTrail';
@@ -41,9 +42,39 @@ async function init() {
   const inputManager = new InputManager(hitArea);
   const inventoryUI = new InventoryUI(gameState, tweens, new Map());
 
-  // Layer order: scenes behind, UI in front
+  // Menu overlay
+  const menuOverlay = new MenuOverlay(gameState);
+
+  // Layer order: scenes behind, UI in front, menu on top
   gameContainer.addChild(sceneManager.container);
   gameContainer.addChild(inventoryUI.container);
+
+  // Menu button (top-right corner)
+  const menuBtn = new Container();
+  const menuBtnBg = new Graphics();
+  menuBtnBg.roundRect(-20, -20, 40, 40, 8);
+  menuBtnBg.fill({ color: 0x3e2723, alpha: 0.6 });
+  menuBtnBg.stroke({ width: 2, color: 0xfff8dc });
+  const menuIcon = new Text({
+    text: '\u2630',
+    style: new TextStyle({ fontSize: 24, fill: '#FFF8DC' }),
+  });
+  menuIcon.anchor.set(0.5, 0.5);
+  menuBtn.addChild(menuBtnBg, menuIcon);
+  menuBtn.position.set(GAME_WIDTH - 40, 40);
+  menuBtn.eventMode = 'static';
+  menuBtn.cursor = 'pointer';
+  menuBtn.on('pointertap', () => {
+    if (menuOverlay.isVisible()) {
+      menuOverlay.hide();
+    } else {
+      menuOverlay.show();
+    }
+  });
+  gameContainer.addChild(menuBtn);
+
+  // Menu overlay on top of everything
+  gameContainer.addChild(menuOverlay.container);
 
   inventoryUI.layout(GAME_WIDTH, GAME_HEIGHT);
 
