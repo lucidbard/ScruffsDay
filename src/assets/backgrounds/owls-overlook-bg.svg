@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <!-- Owl's Overlook Background - High vantage point, twilight/sunset panoramic view, Sage's perch in foreground -->
+
+  <!-- Sunset sky gradient -->
+  <defs>
+    <linearGradient id="sky-gradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1B1464"/>
+      <stop offset="25%" stop-color="#4B2A7A"/>
+      <stop offset="45%" stop-color="#8B4A8A"/>
+      <stop offset="60%" stop-color="#D4687A"/>
+      <stop offset="75%" stop-color="#F0946A"/>
+      <stop offset="90%" stop-color="#FFB84D"/>
+      <stop offset="100%" stop-color="#FFD700"/>
+    </linearGradient>
+    <radialGradient id="sun-glow" cx="50%" cy="78%" r="25%">
+      <stop offset="0%" stop-color="#FFE080" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#FFE080" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Sky -->
+  <rect x="0" y="0" width="1280" height="720" fill="url(#sky-gradient)"/>
+
+  <!-- Sun glow on horizon -->
+  <rect x="0" y="0" width="1280" height="720" fill="url(#sun-glow)"/>
+
+  <!-- Setting sun -->
+  <circle cx="640" cy="520" r="60" fill="#FFD700" opacity="0.7"/>
+  <circle cx="640" cy="520" r="45" fill="#FFE44D" opacity="0.5"/>
+
+  <!-- Stars in upper sky -->
+  <g id="stars" fill="white">
+    <circle cx="120" cy="40" r="2" opacity="0.8"/>
+    <circle cx="300" cy="65" r="1.5" opacity="0.6"/>
+    <circle cx="450" cy="30" r="2" opacity="0.7"/>
+    <circle cx="580" cy="55" r="1" opacity="0.5"/>
+    <circle cx="750" cy="25" r="2.5" opacity="0.9"/>
+    <circle cx="900" cy="50" r="1.5" opacity="0.6"/>
+    <circle cx="1050" cy="35" r="2" opacity="0.8"/>
+    <circle cx="1180" cy="60" r="1" opacity="0.5"/>
+    <circle cx="200" cy="95" r="1" opacity="0.4"/>
+    <circle cx="500" cy="85" r="1.5" opacity="0.5"/>
+    <circle cx="700" cy="70" r="1" opacity="0.4"/>
+    <circle cx="1000" cy="80" r="1.5" opacity="0.5"/>
+    <circle cx="60" cy="120" r="1" opacity="0.3"/>
+    <circle cx="350" cy="110" r="1" opacity="0.3"/>
+    <circle cx="850" cy="100" r="1.5" opacity="0.4"/>
+    <circle cx="1150" cy="90" r="1" opacity="0.3"/>
+  </g>
+
+  <!-- Thin clouds in sunset colors -->
+  <g id="sunset-clouds" opacity="0.4">
+    <ellipse cx="300" cy="240" rx="120" ry="12" fill="#D4687A"/>
+    <ellipse cx="500" cy="260" rx="90" ry="10" fill="#E88070"/>
+    <ellipse cx="800" cy="235" rx="150" ry="14" fill="#D4687A"/>
+    <ellipse cx="1050" cy="255" rx="100" ry="11" fill="#E88070"/>
+    <ellipse cx="150" cy="270" rx="80" ry="8" fill="#C06880"/>
+  </g>
+
+  <!-- Distant preserve panorama below - silhouette of the land seen from high up -->
+  <g id="distant-landscape">
+    <!-- Far distant hills -->
+    <path d="M0 480 Q160 440 320 460 Q480 450 640 445 Q800 450 960 458 Q1120 442 1280 470 L1280 520 L0 520Z" fill="#3A4A2E" opacity="0.6"/>
+
+    <!-- Mid-ground treeline - preserve forest canopy -->
+    <path d="M0 490 Q80 475 160 485 Q240 470 320 480 Q400 465 480 478 Q560 470 640 475 Q720 465 800 478 Q880 468 960 480 Q1040 472 1120 482 Q1200 470 1280 485 L1280 540 L0 540Z" fill="#2D4A1E" opacity="0.7"/>
+
+    <!-- Closer treeline -->
+    <path d="M0 510 Q100 498 200 505 Q300 495 400 502 Q500 492 600 500 Q700 494 800 505 Q900 495 1000 502 Q1100 498 1200 508 L1280 505 L1280 560 L0 560Z" fill="#1E3A14" opacity="0.8"/>
+  </g>
+
+  <!-- Rocky overlook foreground - elevated stone platform -->
+  <g id="rocky-overlook">
+    <!-- Main rock platform -->
+    <path d="M0 560 Q200 545 400 555 Q600 548 800 555 Q1000 550 1280 558 L1280 720 L0 720Z" fill="#7A6B5A"/>
+
+    <!-- Rock surface texture -->
+    <path d="M0 565 Q320 555 640 562 Q960 558 1280 565 L1280 580 Q960 575 640 578 Q320 582 0 575Z" fill="#8A7B68"/>
+
+    <!-- Rock cracks and details -->
+    <g stroke="#5A4C3E" fill="none" stroke-width="1.5" opacity="0.4">
+      <path d="M150 580 Q200 590 250 585"/>
+      <path d="M500 575 L550 590 L600 582"/>
+      <path d="M850 578 Q900 588 950 580"/>
+      <path d="M350 600 L400 615"/>
+      <path d="M700 605 Q750 612 800 608"/>
+      <path d="M1050 585 L1100 600 L1150 592"/>
+    </g>
+
+    <!-- Mossy patches on rocks -->
+    <ellipse cx="180" cy="590" rx="30" ry="8" fill="#5A7A4A" opacity="0.3"/>
+    <ellipse cx="650" cy="585" rx="25" ry="6" fill="#5A7A4A" opacity="0.3"/>
+    <ellipse cx="1020" cy="588" rx="35" ry="7" fill="#5A7A4A" opacity="0.3"/>
+  </g>
+
+  <!-- Sage's perch - large dead tree / snag on right side of overlook -->
+  <g id="sages-perch">
+    <!-- Main trunk -->
+    <path d="M580 380 L590 560 L610 560 L600 380Z" fill="#6B5A3A" stroke="#4A3E2A" stroke-width="2"/>
+
+    <!-- Branch going right -->
+    <path d="M595 400 Q640 385 680 395 Q700 390 720 400" fill="none" stroke="#6B5A3A" stroke-width="8" stroke-linecap="round"/>
+    <path d="M680 395 Q690 375 700 370" fill="none" stroke="#6B5A3A" stroke-width="4" stroke-linecap="round"/>
+
+    <!-- Branch going left -->
+    <path d="M590 420 Q550 408 520 415 Q500 410 480 420" fill="none" stroke="#6B5A3A" stroke-width="6" stroke-linecap="round"/>
+    <path d="M520 415 Q510 400 505 395" fill="none" stroke="#6B5A3A" stroke-width="3" stroke-linecap="round"/>
+
+    <!-- Small branch up top -->
+    <path d="M592 385 Q585 360 580 350" fill="none" stroke="#6B5A3A" stroke-width="4" stroke-linecap="round"/>
+    <path d="M598 390 Q610 365 615 355" fill="none" stroke="#6B5A3A" stroke-width="3" stroke-linecap="round"/>
+
+    <!-- Bark texture -->
+    <g stroke="#4A3E2A" fill="none" stroke-width="1" opacity="0.4">
+      <path d="M585 440 L590 460"/>
+      <path d="M600 420 L605 450"/>
+      <path d="M588 500 L592 520"/>
+      <path d="M602 480 L607 510"/>
+    </g>
+  </g>
+
+  <!-- Small native plants on the rocks -->
+  <g id="overlook-plants">
+    <!-- Small scrub plants -->
+    <path d="M100 570 Q108 552 116 558 Q124 548 132 570Z" fill="#5A8A4A" stroke="#3A6A2A" stroke-width="1.5"/>
+    <path d="M300 565 Q306 550 312 555 Q318 545 324 565Z" fill="#5A8A4A" stroke="#3A6A2A" stroke-width="1.5"/>
+    <path d="M900 570 Q906 555 912 560 Q918 550 924 570Z" fill="#5A8A4A" stroke="#3A6A2A" stroke-width="1.5"/>
+    <path d="M1150 568 Q1156 553 1162 558 Q1168 548 1174 568Z" fill="#5A8A4A" stroke="#3A6A2A" stroke-width="1.5"/>
+
+    <!-- Small wildflowers -->
+    <circle cx="250" cy="575" r="4" fill="#D070A0" opacity="0.6"/>
+    <circle cx="252" cy="573" r="3" fill="#E090B0" opacity="0.4"/>
+    <circle cx="780" cy="572" r="3" fill="#D070A0" opacity="0.5"/>
+    <circle cx="1080" cy="578" r="4" fill="#D070A0" opacity="0.6"/>
+  </g>
+
+  <!-- Fireflies / ambient light particles near the overlook -->
+  <g id="fireflies" opacity="0.6">
+    <circle cx="200" cy="500" r="3" fill="#FFE44D">
+      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="450" cy="480" r="2" fill="#FFE44D">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="1.8s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="1000" cy="490" r="3" fill="#FFE44D">
+      <animate attributeName="opacity" values="0.4;0.9;0.4" dur="2.2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="750" cy="510" r="2" fill="#FFE44D">
+      <animate attributeName="opacity" values="0.3;0.7;0.3" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="350" cy="520" r="2.5" fill="#FFE44D">
+      <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="1100" cy="505" r="2" fill="#FFE44D">
+      <animate attributeName="opacity" values="0.3;0.6;0.3" dur="1.7s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Foreground rock edge -->
+  <path d="M0 690 Q320 682 640 688 Q960 695 1280 685" fill="none" stroke="#5A4C3E" stroke-width="2" opacity="0.4"/>
+</svg>

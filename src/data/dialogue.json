@@ -117,5 +117,41 @@
       { "text": "The path to the overlook is clear now. Sage is waiting for you up there!", "condition": null }
     ],
     "next": null
+  },
+  "sage_finale_intro": {
+    "speaker": "Sage",
+    "lines": [
+      { "text": "Hoo-hoo! You've made it to the overlook, young jay.", "condition": null },
+      { "text": "I can see you've been busy helping our friends below.", "condition": null },
+      { "text": "But do you have proof of your restoration work?", "condition": null },
+      { "text": "Bring me the lyonia flowers, oak acorns, Flicker's feather, and Pip's map.", "condition": null }
+    ],
+    "next": null
+  },
+  "sage_finale_ready": {
+    "speaker": "Sage",
+    "lines": [
+      { "text": "Remarkable! You truly have restored the preserve!", "condition": null },
+      { "text": "The lyonia flowers... the acorns... Flicker's feather... and Pip's map!", "condition": null },
+      { "text": "Let's do one final survey together. The night watch begins!", "condition": null }
+    ],
+    "next": null
+  },
+  "sage_finale_after": {
+    "speaker": "Sage",
+    "lines": [
+      { "text": "The preserve is thriving once more, thanks to you.", "condition": null },
+      { "text": "You're a true friend of Lyonia Preserve, Scruff!", "condition": null }
+    ],
+    "next": null
+  },
+  "sage_finale_celebration": {
+    "speaker": "Sage",
+    "lines": [
+      { "text": "Magnificent! Every animal is safe in their restored habitat!", "condition": null },
+      { "text": "The native plants are flourishing, and the invasives are in retreat.", "condition": null },
+      { "text": "Thank you, Scruff. Lyonia Preserve will remember what you did today.", "condition": null }
+    ],
+    "next": null
   }
 }
