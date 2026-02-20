@@ -34,5 +34,15 @@
       { "text": "My burrow is looking great! Pip is down below if you need him.", "condition": null }
     ],
     "next": null
+  },
+  "sage_intro": {
+    "speaker": "Sage",
+    "lines": [
+      { "text": "Hoo-hoo! Welcome to the Central Trail, young jay.", "condition": null },
+      { "text": "The preserve needs our help. Many of our animal friends are struggling.", "condition": null },
+      { "text": "Try visiting the Pine Clearing to the west, and the Sandy Barrens to the east.", "condition": null },
+      { "text": "Come back when you've helped everyone. I'll be watching from above!", "condition": null }
+    ],
+    "next": null
   }
 }

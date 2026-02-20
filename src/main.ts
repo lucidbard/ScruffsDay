@@ -6,6 +6,7 @@ import { InputManager } from './game/InputManager';
 import { InventoryUI } from './game/InventoryUI';
 import { ScrubThicket } from './scenes/ScrubThicket';
 import { TortoiseBurrow } from './scenes/TortoiseBurrow';
+import { CentralTrail } from './scenes/CentralTrail';
 
 const GAME_WIDTH = 1280;
 const GAME_HEIGHT = 720;
@@ -75,6 +76,12 @@ async function init() {
 
   sceneManager.register('tortoise_burrow', (app, gs, tw) => {
     const scene = new TortoiseBurrow(app, gs, tw);
+    scene.onSceneChange = (id) => sceneManager.switchTo(id);
+    return scene;
+  });
+
+  sceneManager.register('central_trail', (app, gs, tw) => {
+    const scene = new CentralTrail(app, gs, tw);
     scene.onSceneChange = (id) => sceneManager.switchTo(id);
     return scene;
   });
