@@ -1,0 +1,178 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <!-- Pine Clearing Background - Sandy ground, large sand pine with vines, pale blue sky -->
+
+  <!-- Sky -->
+  <rect x="0" y="0" width="1280" height="720" fill="#B0D4F1"/>
+
+  <!-- Clouds -->
+  <g id="clouds">
+    <g id="cloud-1">
+      <ellipse cx="200" cy="80" rx="70" ry="30" fill="white"/>
+      <ellipse cx="260" cy="72" rx="50" ry="25" fill="white"/>
+      <ellipse cx="150" cy="78" rx="45" ry="22" fill="white"/>
+    </g>
+    <g id="cloud-2">
+      <ellipse cx="750" cy="100" rx="60" ry="26" fill="white"/>
+      <ellipse cx="800" cy="92" rx="45" ry="22" fill="white"/>
+      <ellipse cx="710" cy="96" rx="38" ry="18" fill="white"/>
+    </g>
+    <g id="cloud-3">
+      <ellipse cx="1080" cy="60" rx="72" ry="30" fill="white"/>
+      <ellipse cx="1140" cy="54" rx="52" ry="24" fill="white"/>
+      <ellipse cx="1030" cy="58" rx="42" ry="20" fill="white"/>
+    </g>
+  </g>
+
+  <!-- Sun -->
+  <circle cx="100" cy="80" r="50" fill="#FFE44D" opacity="0.9"/>
+  <circle cx="100" cy="80" r="40" fill="#FFD700"/>
+
+  <!-- Ground - sandy terrain -->
+  <path d="M0 400 Q200 390 400 405 Q600 415 800 395 Q1000 385 1280 400 L1280 720 L0 720Z" fill="#D2B48C"/>
+
+  <!-- Deeper sand layer -->
+  <path d="M0 460 Q320 450 640 465 Q960 475 1280 455 L1280 720 L0 720Z" fill="#C8AD7F"/>
+
+  <!-- Sandy patches -->
+  <ellipse cx="180" cy="560" rx="120" ry="30" fill="#DCC8A0" opacity="0.5"/>
+  <ellipse cx="600" cy="620" rx="150" ry="35" fill="#DCC8A0" opacity="0.4"/>
+  <ellipse cx="1050" cy="580" rx="110" ry="26" fill="#DCC8A0" opacity="0.5"/>
+  <ellipse cx="350" cy="650" rx="130" ry="28" fill="#DCC8A0" opacity="0.4"/>
+
+  <!-- Background distant scrub (lighter, smaller) -->
+  <g id="distant-scrub" opacity="0.5">
+    <path d="M30 405 Q50 375 70 382 Q90 368 110 385 Q125 372 140 405Z" fill="#8FBC8F" stroke="#000" stroke-width="2"/>
+    <path d="M180 398 Q200 370 220 378 Q240 362 260 380 Q272 368 285 398Z" fill="#8FBC8F" stroke="#000" stroke-width="2"/>
+    <path d="M1100 392 Q1120 365 1140 372 Q1160 358 1175 375 Q1190 362 1200 392Z" fill="#8FBC8F" stroke="#000" stroke-width="2"/>
+  </g>
+
+  <!-- Sand pine tree - MAIN FEATURE, center-right area -->
+  <g id="sand-pine-tree">
+    <!-- Tree shadow on ground -->
+    <ellipse cx="780" cy="540" rx="140" ry="25" fill="#A89060" opacity="0.3"/>
+
+    <!-- Trunk -->
+    <rect x="760" y="260" width="50" height="280" rx="6" fill="#8B6914" stroke="#000" stroke-width="3"/>
+    <!-- Trunk bark texture -->
+    <path d="M768 300 L772 340" fill="none" stroke="#7A5A10" stroke-width="2" opacity="0.5"/>
+    <path d="M790 280 L795 330" fill="none" stroke="#7A5A10" stroke-width="2" opacity="0.5"/>
+    <path d="M778 360 L782 410" fill="none" stroke="#7A5A10" stroke-width="2" opacity="0.4"/>
+    <path d="M800 340 L798 400" fill="none" stroke="#7A5A10" stroke-width="2" opacity="0.5"/>
+    <path d="M770 420 L775 480" fill="none" stroke="#7A5A10" stroke-width="2" opacity="0.4"/>
+    <path d="M795 430 L798 490" fill="none" stroke="#7A5A10" stroke-width="2" opacity="0.4"/>
+
+    <!-- Main branches -->
+    <path d="M780 320 Q720 300 680 280" fill="none" stroke="#8B6914" stroke-width="10" stroke-linecap="round"/>
+    <path d="M790 350 Q850 330 900 310" fill="none" stroke="#8B6914" stroke-width="8" stroke-linecap="round"/>
+    <path d="M775 290 Q740 260 710 230" fill="none" stroke="#8B6914" stroke-width="8" stroke-linecap="round"/>
+    <path d="M795 280 Q830 250 860 240" fill="none" stroke="#8B6914" stroke-width="7" stroke-linecap="round"/>
+
+    <!-- Pine canopy clusters -->
+    <ellipse cx="680" cy="260" rx="70" ry="50" fill="#2E8B57" stroke="#000" stroke-width="3"/>
+    <ellipse cx="780" cy="210" rx="80" ry="55" fill="#2E8B57" stroke="#000" stroke-width="3"/>
+    <ellipse cx="870" cy="250" rx="65" ry="45" fill="#2E8B57" stroke="#000" stroke-width="3"/>
+    <ellipse cx="730" cy="220" rx="60" ry="40" fill="#3A9B64" stroke="#000" stroke-width="2"/>
+    <ellipse cx="830" cy="220" rx="55" ry="38" fill="#3A9B64" stroke="#000" stroke-width="2"/>
+    <ellipse cx="710" cy="280" rx="50" ry="30" fill="#3A9B64" stroke="#000" stroke-width="2"/>
+    <ellipse cx="900" cy="300" rx="45" ry="30" fill="#3A9B64" stroke="#000" stroke-width="2"/>
+
+    <!-- Invasive air potato vines wrapping the trunk -->
+    <g id="invasive-vines">
+      <!-- Vine stems curling around trunk -->
+      <path d="M755 530 Q730 500 750 470 Q770 440 755 410 Q735 380 760 350 Q780 320 755 290" fill="none" stroke="#006400" stroke-width="5" stroke-linecap="round"/>
+      <path d="M815 520 Q840 490 815 460 Q795 430 820 400 Q840 370 815 340 Q800 310 825 280" fill="none" stroke="#006400" stroke-width="5" stroke-linecap="round"/>
+      <path d="M770 500 Q790 480 775 450 Q760 420 785 390" fill="none" stroke="#006400" stroke-width="4" stroke-linecap="round"/>
+
+      <!-- Heart-shaped air potato leaves on vines -->
+      <!-- Leaf 1 -->
+      <g transform="translate(730, 480)">
+        <path d="M0,-10 C-10,-18 -18,-6 0,6 C18,-6 10,-18 0,-10Z" fill="#006400" stroke="#004000" stroke-width="1.5"/>
+      </g>
+      <!-- Leaf 2 -->
+      <g transform="translate(750, 410)">
+        <path d="M0,-10 C-10,-18 -18,-6 0,6 C18,-6 10,-18 0,-10Z" fill="#006400" stroke="#004000" stroke-width="1.5"/>
+      </g>
+      <!-- Leaf 3 -->
+      <g transform="translate(745, 340)">
+        <path d="M0,-10 C-10,-18 -18,-6 0,6 C18,-6 10,-18 0,-10Z" fill="#006400" stroke="#004000" stroke-width="1.5"/>
+      </g>
+      <!-- Leaf 4 -->
+      <g transform="translate(840, 470)">
+        <path d="M0,-10 C-10,-18 -18,-6 0,6 C18,-6 10,-18 0,-10Z" fill="#006400" stroke="#004000" stroke-width="1.5"/>
+      </g>
+      <!-- Leaf 5 -->
+      <g transform="translate(825, 390)">
+        <path d="M0,-10 C-10,-18 -18,-6 0,6 C18,-6 10,-18 0,-10Z" fill="#006400" stroke="#004000" stroke-width="1.5"/>
+      </g>
+      <!-- Leaf 6 -->
+      <g transform="translate(820, 320)">
+        <path d="M0,-10 C-10,-18 -18,-6 0,6 C18,-6 10,-18 0,-10Z" fill="#006400" stroke="#004000" stroke-width="1.5"/>
+      </g>
+      <!-- Leaf 7 -->
+      <g transform="translate(765, 300)">
+        <path d="M0,-8 C-8,-15 -15,-5 0,5 C15,-5 8,-15 0,-8Z" fill="#006400" stroke="#004000" stroke-width="1.5"/>
+      </g>
+      <!-- Air potato bulbils (small round tubers on vine) -->
+      <circle cx="742" cy="450" r="6" fill="#8B7355" stroke="#000" stroke-width="1.5"/>
+      <circle cx="830" cy="430" r="5" fill="#8B7355" stroke="#000" stroke-width="1.5"/>
+      <circle cx="760" cy="370" r="5" fill="#8B7355" stroke="#000" stroke-width="1.5"/>
+    </g>
+  </g>
+
+  <!-- Native scrub bushes -->
+  <g id="scrub-bushes">
+    <!-- Left scrub bush -->
+    <path d="M80 480 Q110 430 140 442 Q165 420 190 445 Q210 430 230 480Z" fill="#8FBC8F" stroke="#000" stroke-width="3"/>
+    <path d="M115 460 Q140 445 165 460" fill="none" stroke="#7AAC7A" stroke-width="2"/>
+
+    <!-- Center-left scrub bush -->
+    <path d="M320 470 Q345 425 370 435 Q395 418 415 440 Q430 428 445 470Z" fill="#8FBC8F" stroke="#000" stroke-width="3"/>
+    <path d="M350 452 Q375 438 400 452" fill="none" stroke="#7AAC7A" stroke-width="2"/>
+
+    <!-- Far right scrub bush -->
+    <path d="M1050 460 Q1075 415 1100 428 Q1125 410 1145 432 Q1162 420 1180 460Z" fill="#8FBC8F" stroke="#000" stroke-width="3"/>
+    <path d="M1080 442 Q1105 428 1130 445" fill="none" stroke="#7AAC7A" stroke-width="2"/>
+
+    <!-- Small bush near pine -->
+    <path d="M580 478 Q598 448 616 456 Q632 442 648 460 Q658 450 668 478Z" fill="#8FBC8F" stroke="#000" stroke-width="2.5"/>
+  </g>
+
+  <!-- Ground plants and grass tufts -->
+  <g id="ground-plants">
+    <g fill="#8FBC8F" stroke="#2E8B57" stroke-width="2">
+      <path d="M130 520 Q135 505 140 520 Q145 502 150 520"/>
+      <path d="M290 540 Q295 525 300 540 Q305 522 310 540"/>
+      <path d="M500 530 Q505 518 510 530 Q515 514 520 530"/>
+      <path d="M680 555 Q685 542 690 555"/>
+      <path d="M920 530 Q925 515 930 530 Q935 512 940 530"/>
+      <path d="M1150 520 Q1155 508 1160 520"/>
+      <path d="M200 580 Q205 568 210 580"/>
+      <path d="M450 575 Q455 562 460 575 Q465 558 470 575"/>
+      <path d="M850 565 Q855 550 860 565 Q865 548 870 565"/>
+      <path d="M1000 550 Q1005 538 1010 550"/>
+    </g>
+
+    <!-- Small rocks -->
+    <ellipse cx="230" cy="570" rx="10" ry="5" fill="#B8A080" stroke="#000" stroke-width="2"/>
+    <ellipse cx="550" cy="555" rx="8" ry="4" fill="#B8A080" stroke="#000" stroke-width="2"/>
+    <ellipse cx="960" cy="545" rx="9" ry="5" fill="#B8A080" stroke="#000" stroke-width="2"/>
+    <ellipse cx="400" cy="600" rx="12" ry="6" fill="#B8A080" stroke="#000" stroke-width="2"/>
+    <ellipse cx="1100" cy="560" rx="8" ry="4" fill="#B8A080" stroke="#000" stroke-width="2"/>
+  </g>
+
+  <!-- Fallen pine needles on ground near tree -->
+  <g id="pine-needles" opacity="0.4">
+    <line x1="700" y1="545" x2="720" y2="542" stroke="#8B6914" stroke-width="1.5"/>
+    <line x1="750" y1="550" x2="770" y2="548" stroke="#8B6914" stroke-width="1.5"/>
+    <line x1="810" y1="548" x2="830" y2="545" stroke="#8B6914" stroke-width="1.5"/>
+    <line x1="720" y1="555" x2="740" y2="552" stroke="#8B6914" stroke-width="1.5"/>
+    <line x1="790" y1="555" x2="810" y2="553" stroke="#8B6914" stroke-width="1.5"/>
+    <line x1="860" y1="542" x2="880" y2="540" stroke="#8B6914" stroke-width="1.5"/>
+  </g>
+
+  <!-- Foreground sand line -->
+  <path d="M0 690 Q320 680 640 688 Q960 695 1280 682" fill="none" stroke="#C4A67C" stroke-width="2" opacity="0.5"/>
+
+  <!-- Subtle sandy footpath -->
+  <path d="M1280 500 Q1100 510 900 520 Q750 530 640 540" fill="none" stroke="#C8B28A" stroke-width="10" opacity="0.25" stroke-linecap="round"/>
+</svg>

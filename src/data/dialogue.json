@@ -44,5 +44,23 @@
       { "text": "Come back when you've helped everyone. I'll be watching from above!", "condition": null }
     ],
     "next": null
+  },
+  "flicker_intro": {
+    "speaker": "Flicker",
+    "lines": [
+      { "text": "Tap-tap-tap! Hey there, blue jay!", "condition": null },
+      { "text": "See that big sand pine? Those invasive air potato vines are strangling it!", "condition": null },
+      { "text": "I've been pecking at them all day but I can't keep up alone.", "condition": null },
+      { "text": "Can you help me cut them down? But careful - don't cut the native grape vines!", "condition": null }
+    ],
+    "next": null
+  },
+  "flicker_after": {
+    "speaker": "Flicker",
+    "lines": [
+      { "text": "Tap-tap-TAP! The tree is breathing again, thanks to you!", "condition": null },
+      { "text": "Here, take one of my feathers. It might come in handy!", "condition": null }
+    ],
+    "next": null
   }
 }

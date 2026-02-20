@@ -7,6 +7,7 @@ import { InventoryUI } from './game/InventoryUI';
 import { ScrubThicket } from './scenes/ScrubThicket';
 import { TortoiseBurrow } from './scenes/TortoiseBurrow';
 import { CentralTrail } from './scenes/CentralTrail';
+import { PineClearing } from './scenes/PineClearing';
 
 const GAME_WIDTH = 1280;
 const GAME_HEIGHT = 720;
@@ -82,6 +83,12 @@ async function init() {
 
   sceneManager.register('central_trail', (app, gs, tw) => {
     const scene = new CentralTrail(app, gs, tw);
+    scene.onSceneChange = (id) => sceneManager.switchTo(id);
+    return scene;
+  });
+
+  sceneManager.register('pine_clearing', (app, gs, tw) => {
+    const scene = new PineClearing(app, gs, tw);
     scene.onSceneChange = (id) => sceneManager.switchTo(id);
     return scene;
   });
