@@ -1,0 +1,29 @@
+{
+  "shelly_intro": {
+    "speaker": "Shelly",
+    "lines": [
+      { "text": "Oh dear, oh dear... my burrow entrance is completely blocked!", "condition": null },
+      { "text": "Those invasive Brazilian pepper plants grew right over it.", "condition": null },
+      { "text": "If only I had some nice saw palmetto fronds to rebuild...", "condition": null }
+    ],
+    "next": null
+  },
+  "shelly_has_item": {
+    "speaker": "Shelly",
+    "lines": [
+      { "text": "Are those... saw palmetto fronds?! Oh, thank you!", "condition": null },
+      { "text": "Now I can rebuild my burrow entrance properly.", "condition": null },
+      { "text": "Say, my friend Pip the mouse lives underground. Let me show you the way!", "condition": null }
+    ],
+    "next": null,
+    "action": "give_item:saw_palmetto_fronds",
+    "setFlag": "shelly_helped"
+  },
+  "shelly_after": {
+    "speaker": "Shelly",
+    "lines": [
+      { "text": "My burrow is looking great! Pip is down below if you need him.", "condition": null }
+    ],
+    "next": null
+  }
+}
