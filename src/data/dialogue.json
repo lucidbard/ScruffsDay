@@ -62,5 +62,32 @@
       { "text": "Here, take one of my feathers. It might come in handy!", "condition": null }
     ],
     "next": null
+  },
+  "pip_intro": {
+    "speaker": "Pip",
+    "lines": [
+      { "text": "EEK! Oh... oh, you scared me! I'm Pip!", "condition": null },
+      { "text": "I live down here in Shelly's burrow. It's nice and safe!", "condition": null },
+      { "text": "But I'm SO hungry... all my favorite scrub hickory nuts are gone.", "condition": null },
+      { "text": "The invasive plants crowded them out. Do you have any?", "condition": null }
+    ],
+    "next": null
+  },
+  "pip_has_item": {
+    "speaker": "Pip",
+    "lines": [
+      { "text": "SCRUB HICKORY NUTS! Oh my oh my oh my!", "condition": null },
+      { "text": "*munch munch munch* These are PERFECT!", "condition": null },
+      { "text": "Here, take this map I found. It shows where the rare plants grow!", "condition": null }
+    ],
+    "next": null
+  },
+  "pip_after": {
+    "speaker": "Pip",
+    "lines": [
+      { "text": "*munch* Still working on these nuts! They're so good!", "condition": null },
+      { "text": "That map should help you find what you need. Good luck up there!", "condition": null }
+    ],
+    "next": null
   }
 }
