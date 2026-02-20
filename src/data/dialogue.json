@@ -89,5 +89,33 @@
       { "text": "That map should help you find what you need. Good luck up there!", "condition": null }
     ],
     "next": null
+  },
+  "sunny_intro": {
+    "speaker": "Sunny",
+    "lines": [
+      { "text": "*yaaawn* Oh... hello there, little bird...", "condition": null },
+      { "text": "I'm so cold... all this overgrowth is blocking the sun from the sand.", "condition": null },
+      { "text": "I need open, warm sand to bask on. These invasive plants ruined my spot.", "condition": null },
+      { "text": "If only someone could plant some native ground cover to replace them...", "condition": null }
+    ],
+    "next": null
+  },
+  "sunny_ready": {
+    "speaker": "Sunny",
+    "lines": [
+      { "text": "Ooh, is that a feather from Flicker? And rosemary cuttings too!", "condition": null },
+      { "text": "You've been busy helping the preserve! I trust you.", "condition": null },
+      { "text": "Let's plant these native seeds from above. You fly, I'll guide you!", "condition": null }
+    ],
+    "next": null
+  },
+  "sunny_after": {
+    "speaker": "Sunny",
+    "lines": [
+      { "text": "*stretches luxuriously* Ahhhh, warm sand at last!", "condition": null },
+      { "text": "The native plants are settling in nicely. Thank you, friend!", "condition": null },
+      { "text": "The path to the overlook is clear now. Sage is waiting for you up there!", "condition": null }
+    ],
+    "next": null
   }
 }

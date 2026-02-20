@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <!-- Sandy Barrens Background - Open sandy area overgrown with invasive plants, bare sand patches, blue sky -->
+
+  <!-- Sky -->
+  <rect x="0" y="0" width="1280" height="720" fill="#A8D8EA"/>
+
+  <!-- Clouds -->
+  <g id="clouds">
+    <g id="cloud-1">
+      <ellipse cx="180" cy="70" rx="65" ry="28" fill="white"/>
+      <ellipse cx="240" cy="62" rx="48" ry="22" fill="white"/>
+      <ellipse cx="130" cy="66" rx="40" ry="20" fill="white"/>
+    </g>
+    <g id="cloud-2">
+      <ellipse cx="680" cy="90" rx="55" ry="24" fill="white"/>
+      <ellipse cx="730" cy="82" rx="42" ry="20" fill="white"/>
+      <ellipse cx="640" cy="86" rx="36" ry="16" fill="white"/>
+    </g>
+    <g id="cloud-3">
+      <ellipse cx="1050" cy="55" rx="68" ry="28" fill="white"/>
+      <ellipse cx="1110" cy="48" rx="50" ry="22" fill="white"/>
+      <ellipse cx="1000" cy="52" rx="40" ry="18" fill="white"/>
+    </g>
+  </g>
+
+  <!-- Sun - bright and hot -->
+  <circle cx="1100" cy="90" r="55" fill="#FFE44D" opacity="0.9"/>
+  <circle cx="1100" cy="90" r="42" fill="#FFD700"/>
+  <!-- Sun rays -->
+  <g stroke="#FFE44D" stroke-width="3" opacity="0.4">
+    <line x1="1100" y1="20" x2="1100" y2="5"/>
+    <line x1="1150" y1="45" x2="1168" y2="32"/>
+    <line x1="1170" y1="90" x2="1185" y2="90"/>
+    <line x1="1150" y1="135" x2="1168" y2="148"/>
+    <line x1="1050" y1="45" x2="1032" y2="32"/>
+    <line x1="1030" y1="90" x2="1015" y2="90"/>
+    <line x1="1050" y1="135" x2="1032" y2="148"/>
+  </g>
+
+  <!-- Ground - main sandy terrain -->
+  <path d="M0 380 Q200 370 400 385 Q600 395 800 375 Q1000 365 1280 380 L1280 720 L0 720Z" fill="#E8D5A8"/>
+
+  <!-- Deeper sand layer -->
+  <path d="M0 440 Q320 430 640 445 Q960 455 1280 435 L1280 720 L0 720Z" fill="#D4C090"/>
+
+  <!-- Bare sandy patches - warm tan, exposed sand where snakes bask -->
+  <ellipse cx="200" cy="520" rx="130" ry="40" fill="#F0E0B8" opacity="0.8"/>
+  <ellipse cx="200" cy="520" rx="100" ry="28" fill="#F5E8C8" opacity="0.6"/>
+
+  <ellipse cx="550" cy="580" rx="110" ry="35" fill="#F0E0B8" opacity="0.7"/>
+  <ellipse cx="550" cy="580" rx="80" ry="22" fill="#F5E8C8" opacity="0.5"/>
+
+  <ellipse cx="900" cy="540" rx="140" ry="45" fill="#F0E0B8" opacity="0.8"/>
+  <ellipse cx="900" cy="540" rx="110" ry="30" fill="#F5E8C8" opacity="0.6"/>
+
+  <ellipse cx="1100" cy="620" rx="100" ry="32" fill="#F0E0B8" opacity="0.7"/>
+
+  <ellipse cx="400" cy="650" rx="120" ry="35" fill="#F0E0B8" opacity="0.6"/>
+
+  <!-- Invasive plant overgrowth patches - dark green, bushy, blocking sun -->
+  <g id="invasive-overgrowth">
+    <!-- Large invasive bush cluster - left side -->
+    <path d="M60 420 Q85 370 110 380 Q140 355 170 375 Q195 360 220 385 Q240 370 260 420Z" fill="#2D5A1E" stroke="#1A3A10" stroke-width="2"/>
+    <path d="M80 410 Q120 375 160 390 Q200 372 240 410" fill="none" stroke="#1A3A10" stroke-width="1.5" opacity="0.5"/>
+
+    <!-- Invasive cluster center-left -->
+    <path d="M350 400 Q370 360 395 370 Q420 348 445 365 Q460 352 475 400Z" fill="#2D5A1E" stroke="#1A3A10" stroke-width="2"/>
+    <ellipse cx="413" cy="390" rx="40" ry="20" fill="#3A6B28" opacity="0.5"/>
+
+    <!-- Invasive cluster center -->
+    <path d="M580 395 Q605 350 625 362 Q650 340 672 358 Q690 345 710 395Z" fill="#2D5A1E" stroke="#1A3A10" stroke-width="2"/>
+    <ellipse cx="645" cy="380" rx="45" ry="22" fill="#3A6B28" opacity="0.5"/>
+
+    <!-- Invasive cluster right side -->
+    <path d="M1000 400 Q1020 358 1045 368 Q1070 348 1090 365 Q1108 352 1125 400Z" fill="#2D5A1E" stroke="#1A3A10" stroke-width="2"/>
+    <ellipse cx="1063" cy="388" rx="42" ry="20" fill="#3A6B28" opacity="0.5"/>
+
+    <!-- Scattered smaller invasive bushes -->
+    <path d="M480 450 Q498 420 516 430 Q530 418 548 450Z" fill="#2D5A1E" stroke="#1A3A10" stroke-width="1.5"/>
+    <path d="M750 430 Q765 405 780 412 Q795 400 810 430Z" fill="#2D5A1E" stroke="#1A3A10" stroke-width="1.5"/>
+    <path d="M150 480 Q165 458 180 465 Q195 452 210 480Z" fill="#3A6B28" stroke="#1A3A10" stroke-width="1.5"/>
+    <path d="M1150 440 Q1162 418 1175 425 Q1188 414 1200 440Z" fill="#2D5A1E" stroke="#1A3A10" stroke-width="1.5"/>
+  </g>
+
+  <!-- Native scrub remnants - lighter green, smaller, struggling -->
+  <g id="native-remnants" opacity="0.7">
+    <path d="M310 460 Q322 442 334 448 Q344 438 356 460Z" fill="#8FBC8F" stroke="#6B9B6B" stroke-width="1.5"/>
+    <path d="M840 470 Q852 452 864 458 Q874 448 886 470Z" fill="#8FBC8F" stroke="#6B9B6B" stroke-width="1.5"/>
+    <path d="M1060 490 Q1072 475 1084 480 Q1094 470 1106 490Z" fill="#8FBC8F" stroke="#6B9B6B" stroke-width="1.5"/>
+  </g>
+
+  <!-- Ground texture - sand ripples -->
+  <g id="sand-ripples" opacity="0.2" stroke="#C4A67C" fill="none" stroke-width="1.5">
+    <path d="M50 550 Q150 545 250 552 Q350 558 450 548"/>
+    <path d="M500 590 Q600 585 700 592 Q800 598 900 588"/>
+    <path d="M100 630 Q200 625 300 632 Q400 638 500 628"/>
+    <path d="M700 640 Q800 635 900 642 Q1000 648 1100 638"/>
+    <path d="M200 670 Q350 665 500 672"/>
+    <path d="M800 680 Q950 675 1100 682"/>
+  </g>
+
+  <!-- Small rocks and pebbles -->
+  <g id="rocks">
+    <ellipse cx="160" cy="560" rx="10" ry="5" fill="#B8A080" stroke="#8B7060" stroke-width="1.5"/>
+    <ellipse cx="480" cy="540" rx="8" ry="4" fill="#B8A080" stroke="#8B7060" stroke-width="1.5"/>
+    <ellipse cx="680" cy="600" rx="12" ry="6" fill="#B8A080" stroke="#8B7060" stroke-width="1.5"/>
+    <ellipse cx="950" cy="580" rx="9" ry="5" fill="#B8A080" stroke="#8B7060" stroke-width="1.5"/>
+    <ellipse cx="1120" cy="550" rx="7" ry="4" fill="#B8A080" stroke="#8B7060" stroke-width="1.5"/>
+    <ellipse cx="350" cy="620" rx="6" ry="3" fill="#C0A890" stroke="#8B7060" stroke-width="1"/>
+    <ellipse cx="780" cy="650" rx="8" ry="4" fill="#C0A890" stroke="#8B7060" stroke-width="1"/>
+  </g>
+
+  <!-- Dry grass tufts -->
+  <g id="dry-grass" fill="#C8B880" stroke="#A09060" stroke-width="1.5">
+    <path d="M130 500 Q135 485 140 500 Q145 482 150 500"/>
+    <path d="M290 520 Q295 508 300 520 Q305 504 310 520"/>
+    <path d="M520 510 Q525 498 530 510"/>
+    <path d="M700 530 Q705 518 710 530 Q715 514 720 530"/>
+    <path d="M960 520 Q965 505 970 520"/>
+    <path d="M1160 510 Q1165 498 1170 510"/>
+    <path d="M380 570 Q385 558 390 570"/>
+    <path d="M620 560 Q625 548 630 560 Q635 544 640 560"/>
+    <path d="M850 600 Q855 588 860 600"/>
+    <path d="M1020 570 Q1025 558 1030 570 Q1035 554 1040 570"/>
+  </g>
+
+  <!-- Distant tree line on horizon -->
+  <g id="distant-trees" opacity="0.35">
+    <path d="M0 390 Q30 365 60 375 Q90 360 120 372 Q150 358 180 370 Q210 355 240 368 Q270 360 300 372 Q330 355 360 370 Q390 358 420 375 Q450 362 480 372 Q510 355 540 368 Q570 360 600 375 Q630 358 660 370 Q690 355 720 372 Q750 360 780 372 Q810 358 840 370 Q870 358 900 375 Q930 362 960 372 Q990 355 1020 368 Q1050 360 1080 375 Q1110 358 1140 370 Q1170 355 1200 372 Q1230 362 1260 375 L1280 380 L1280 395 Q1000 388 700 395 Q400 402 0 395Z" fill="#6B8F5E"/>
+  </g>
+
+  <!-- Heat shimmer effect near ground -->
+  <g id="heat-shimmer" opacity="0.08">
+    <path d="M0 480 Q160 475 320 482 Q480 488 640 478 Q800 472 960 480 Q1120 488 1280 478" fill="none" stroke="white" stroke-width="3"/>
+    <path d="M0 490 Q160 485 320 492 Q480 498 640 488 Q800 482 960 490 Q1120 498 1280 488" fill="none" stroke="white" stroke-width="2"/>
+  </g>
+
+  <!-- Sandy footpath leading from left edge -->
+  <path d="M0 500 Q100 510 200 500 Q350 490 500 505 Q650 515 800 500" fill="none" stroke="#C8B28A" stroke-width="12" opacity="0.3" stroke-linecap="round"/>
+
+  <!-- Foreground sand edge -->
+  <path d="M0 690 Q320 682 640 688 Q960 695 1280 685" fill="none" stroke="#C4A67C" stroke-width="2" opacity="0.4"/>
+</svg>
