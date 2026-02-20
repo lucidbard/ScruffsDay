@@ -4,6 +4,7 @@ import { TweenManager } from './game/Tween';
 import { SceneManager } from './game/SceneManager';
 import { InputManager } from './game/InputManager';
 import { InventoryUI } from './game/InventoryUI';
+import { ScrubThicket } from './scenes/ScrubThicket';
 
 const GAME_WIDTH = 1280;
 const GAME_HEIGHT = 720;
@@ -61,9 +62,18 @@ async function init() {
     const deltaMs = ticker.deltaMS;
     tweens.update(deltaMs);
     sceneManager.update(deltaMs);
+    inventoryUI.refresh();
   });
 
-  // TODO: Register scenes and switch to scrub_thicket
+  // Register scenes
+  sceneManager.register('scrub_thicket', (app, gs, tw) => {
+    const scene = new ScrubThicket(app, gs, tw);
+    scene.onSceneChange = (id) => sceneManager.switchTo(id);
+    return scene;
+  });
+
+  // Start at the scrub thicket
+  await sceneManager.switchTo('scrub_thicket');
 }
 
 init();

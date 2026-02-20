@@ -1,4 +1,13 @@
 {
+  "tutorial": {
+    "speaker": "Scruff",
+    "lines": [
+      { "text": "Hmm, these invasive plants are everywhere...", "condition": null },
+      { "text": "I should gather some native plant materials to help my friends.", "condition": null },
+      { "text": "I can tap to move around, and tap items to pick them up!", "condition": null }
+    ],
+    "next": null
+  },
   "shelly_intro": {
     "speaker": "Shelly",
     "lines": [
