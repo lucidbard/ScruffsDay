@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 150">
+  <!-- Sunny - Eastern Indigo Snake - Homestar Runner Style -->
+
+  <!-- Body - S-curve with slight wobble -->
+  <g id="body">
+    <!-- Main body path - thick S-curve -->
+    <path d="M25 85
+             Q28 82 38 65
+             Q52 38 78 35
+             Q105 32 125 52
+             Q142 70 160 75
+             Q180 80 198 68
+             Q218 52 235 55
+             Q258 60 268 78
+             Q275 92 270 105
+             Q264 118 250 120
+             Q238 120 235 112"
+          fill="none" stroke="#191970" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Body highlight/sheen -->
+    <path d="M30 82
+             Q35 78 42 63
+             Q55 40 80 37
+             Q105 35 124 53
+             Q140 68 158 73
+             Q178 78 196 66
+             Q216 50 234 53
+             Q255 58 265 76
+             Q272 88 268 100"
+          fill="none" stroke="#222288" stroke-width="8" stroke-linecap="round" opacity="0.4"/>
+
+    <!-- Belly - lighter underside line -->
+    <path d="M30 90
+             Q38 88 48 72
+             Q58 50 82 42
+             Q106 38 126 56
+             Q144 74 162 79
+             Q182 84 200 72
+             Q220 56 237 59
+             Q256 64 266 82
+             Q272 94 268 108"
+          fill="none" stroke="#2828A0" stroke-width="6" stroke-linecap="round" opacity="0.5"/>
+  </g>
+
+  <!-- Outer stroke for body -->
+  <path d="M25 85
+           Q28 82 38 65
+           Q52 38 78 35
+           Q105 32 125 52
+           Q142 70 160 75
+           Q180 80 198 68
+           Q218 52 235 55
+           Q258 60 268 78
+           Q275 92 270 105
+           Q264 118 250 120
+           Q238 120 235 112"
+        fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" opacity="0.0"/>
+
+  <!-- Tail tip -->
+  <path d="M22 88 Q15 95 12 92 Q10 85 18 82" fill="#191970" stroke="#000" stroke-width="3"/>
+
+  <!-- Head -->
+  <g id="head">
+    <!-- Head shape - slightly wider than body -->
+    <ellipse cx="250" cy="112" rx="22" ry="16" fill="#191970" stroke="#000" stroke-width="3"/>
+
+    <!-- Face underside -->
+    <path d="M232 118 Q250 126 268 118" fill="#2828A0" stroke="none" opacity="0.4"/>
+
+    <!-- Left eye - half-lidded friendly -->
+    <g id="left-eye">
+      <ellipse cx="241" cy="107" rx="8" ry="7" fill="white" stroke="#000" stroke-width="3"/>
+      <ellipse cx="242" cy="108" rx="4" ry="4.5" fill="#000"/>
+      <circle cx="244" cy="106" r="2" fill="white"/>
+      <!-- Half-lid -->
+      <path d="M233 104 Q241 100 249 104" fill="#191970" stroke="#000" stroke-width="2"/>
+    </g>
+
+    <!-- Right eye - half-lidded friendly -->
+    <g id="right-eye">
+      <ellipse cx="259" cy="107" rx="8" ry="7" fill="white" stroke="#000" stroke-width="3"/>
+      <ellipse cx="260" cy="108" rx="4" ry="4.5" fill="#000"/>
+      <circle cx="262" cy="106" r="2" fill="white"/>
+      <!-- Half-lid -->
+      <path d="M251 104 Q259 100 267 104" fill="#191970" stroke="#000" stroke-width="2"/>
+    </g>
+
+    <!-- Slight smile -->
+    <path d="M242 118 Q250 124 258 118" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+
+    <!-- Nostrils -->
+    <circle cx="262" cy="114" r="1.2" fill="#000"/>
+    <circle cx="266" cy="114" r="1.2" fill="#000"/>
+
+    <!-- Forked tongue -->
+    <g id="tongue">
+      <path d="M270 115 Q278 114 284 110" fill="none" stroke="#CC0000" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M270 115 Q278 116 284 120" fill="none" stroke="#CC0000" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M270 115 L278 115" fill="none" stroke="#CC0000" stroke-width="2.5"/>
+    </g>
+  </g>
+
+  <!-- Body outline segments for the 3px black stroke effect -->
+  <g id="body-outline" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round">
+    <!-- Top edge of body -->
+    <path d="M25 71 Q30 68 40 52 Q54 25 80 22 Q108 19 128 40 Q145 58 163 62 Q182 67 200 55 Q220 39 238 42 Q262 48 272 66 Q280 80 275 95"/>
+    <!-- Bottom edge of body -->
+    <path d="M25 99 Q30 96 40 80 Q55 55 82 48 Q108 45 128 66 Q144 82 162 88 Q182 94 200 82 Q220 66 238 68 Q262 74 272 92 Q278 105 272 118 Q265 130 250 132 Q236 132 232 122"/>
+    <!-- Tail tip outline -->
+    <path d="M25 71 Q18 65 12 68 Q6 74 8 82 Q12 90 18 94 L25 99"/>
+  </g>
+</svg>

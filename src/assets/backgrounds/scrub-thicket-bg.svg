@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <!-- Scrub Thicket Background - Scruff's Home Area -->
+
+  <!-- Sky -->
+  <rect x="0" y="0" width="1280" height="720" fill="#87CEEB"/>
+
+  <!-- Clouds -->
+  <g id="clouds">
+    <g id="cloud-1">
+      <ellipse cx="200" cy="100" rx="80" ry="35" fill="white"/>
+      <ellipse cx="260" cy="90" rx="60" ry="30" fill="white"/>
+      <ellipse cx="150" cy="95" rx="55" ry="25" fill="white"/>
+      <ellipse cx="220" cy="80" rx="50" ry="28" fill="white"/>
+    </g>
+    <g id="cloud-2">
+      <ellipse cx="700" cy="130" rx="70" ry="30" fill="white"/>
+      <ellipse cx="750" cy="120" rx="55" ry="28" fill="white"/>
+      <ellipse cx="660" cy="125" rx="45" ry="22" fill="white"/>
+    </g>
+    <g id="cloud-3">
+      <ellipse cx="1050" cy="80" rx="90" ry="38" fill="white"/>
+      <ellipse cx="1120" cy="70" rx="65" ry="32" fill="white"/>
+      <ellipse cx="990" cy="75" rx="55" ry="28" fill="white"/>
+      <ellipse cx="1060" cy="60" rx="48" ry="25" fill="white"/>
+    </g>
+    <g id="cloud-4">
+      <ellipse cx="450" cy="60" rx="50" ry="22" fill="white"/>
+      <ellipse cx="490" cy="52" rx="40" ry="20" fill="white"/>
+    </g>
+  </g>
+
+  <!-- Sun (peeking from top-right) -->
+  <circle cx="1180" cy="50" r="60" fill="#FFE44D" opacity="0.9"/>
+  <circle cx="1180" cy="50" r="50" fill="#FFD700"/>
+
+  <!-- Ground - gentle curve -->
+  <path d="M0 420 Q320 380 640 400 Q960 420 1280 390 L1280 720 L0 720Z" fill="#D2B48C"/>
+
+  <!-- Darker sand patches -->
+  <ellipse cx="200" cy="580" rx="120" ry="30" fill="#C4A67C" opacity="0.6"/>
+  <ellipse cx="600" cy="620" rx="150" ry="35" fill="#C4A67C" opacity="0.5"/>
+  <ellipse cx="1000" cy="560" rx="100" ry="25" fill="#C4A67C" opacity="0.6"/>
+  <ellipse cx="400" cy="660" rx="130" ry="28" fill="#C4A67C" opacity="0.4"/>
+  <ellipse cx="850" cy="680" rx="160" ry="32" fill="#C4A67C" opacity="0.5"/>
+
+  <!-- Background distant bushes (smaller, lighter) -->
+  <g id="distant-vegetation" opacity="0.7">
+    <path d="M80 410 Q100 370 130 380 Q160 365 180 385 Q200 370 220 410Z" fill="#8FBC8F" stroke="#000" stroke-width="2"/>
+    <path d="M350 395 Q380 355 410 370 Q440 350 470 380 Q490 365 510 395Z" fill="#8FBC8F" stroke="#000" stroke-width="2"/>
+    <path d="M700 400 Q720 365 745 375 Q770 360 790 385 Q805 370 820 400Z" fill="#8FBC8F" stroke="#000" stroke-width="2"/>
+  </g>
+
+  <!-- Main bushes - foreground -->
+  <g id="foreground-vegetation">
+    <!-- Large sage green bush left -->
+    <g id="bush-left">
+      <path d="M30 470 Q50 390 100 400 Q130 380 160 410 Q190 385 210 420 Q235 400 250 470Z" fill="#8FBC8F" stroke="#000" stroke-width="3"/>
+      <!-- Bush detail lines -->
+      <path d="M80 440 Q100 420 120 440" fill="none" stroke="#7AAC7A" stroke-width="2.5"/>
+      <path d="M140 430 Q160 410 180 435" fill="none" stroke="#7AAC7A" stroke-width="2.5"/>
+      <path d="M60 455 Q80 440 100 455" fill="none" stroke="#7AAC7A" stroke-width="2.5"/>
+    </g>
+
+    <!-- Dark green bush center-left -->
+    <g id="bush-center-left">
+      <path d="M280 480 Q310 420 350 435 Q380 415 410 445 Q440 425 460 480Z" fill="#2E8B57" stroke="#000" stroke-width="3"/>
+      <path d="M320 460 Q345 440 370 460" fill="none" stroke="#268A50" stroke-width="2.5"/>
+      <path d="M360 450 Q385 430 410 455" fill="none" stroke="#268A50" stroke-width="2.5"/>
+    </g>
+
+    <!-- Large sage bush center -->
+    <g id="bush-center">
+      <path d="M520 490 Q545 410 580 425 Q610 400 640 430 Q665 410 690 440 Q715 420 740 490Z" fill="#8FBC8F" stroke="#000" stroke-width="3"/>
+      <path d="M570 465 Q600 440 630 465" fill="none" stroke="#7AAC7A" stroke-width="2.5"/>
+      <path d="M630 455 Q660 435 690 460" fill="none" stroke="#7AAC7A" stroke-width="2.5"/>
+      <path d="M555 475 Q575 460 595 475" fill="none" stroke="#7AAC7A" stroke-width="2.5"/>
+    </g>
+
+    <!-- Dark green bush right of center -->
+    <g id="bush-right-center">
+      <path d="M800 470 Q825 410 860 425 Q885 400 910 430 Q935 415 950 470Z" fill="#2E8B57" stroke="#000" stroke-width="3"/>
+      <path d="M840 450 Q865 428 890 450" fill="none" stroke="#268A50" stroke-width="2.5"/>
+    </g>
+
+    <!-- Rusty lyonia bush right - with orange flowers -->
+    <g id="lyonia-bush">
+      <path d="M1020 460 Q1050 395 1090 410 Q1120 385 1150 415 Q1180 395 1210 420 Q1240 405 1260 460Z" fill="#8FBC8F" stroke="#000" stroke-width="3"/>
+      <!-- Orange/rusty flowers -->
+      <circle cx="1060" cy="410" r="8" fill="#CD853F" stroke="#000" stroke-width="2.5"/>
+      <circle cx="1060" cy="410" r="3" fill="#B87333"/>
+      <circle cx="1100" cy="400" r="9" fill="#CD853F" stroke="#000" stroke-width="2.5"/>
+      <circle cx="1100" cy="400" r="3.5" fill="#B87333"/>
+      <circle cx="1140" cy="405" r="7" fill="#CD853F" stroke="#000" stroke-width="2.5"/>
+      <circle cx="1140" cy="405" r="2.5" fill="#B87333"/>
+      <circle cx="1175" cy="408" r="8" fill="#CD853F" stroke="#000" stroke-width="2.5"/>
+      <circle cx="1175" cy="408" r="3" fill="#B87333"/>
+      <circle cx="1080" cy="420" r="7" fill="#CD853F" stroke="#000" stroke-width="2.5"/>
+      <circle cx="1080" cy="420" r="2.5" fill="#B87333"/>
+      <circle cx="1120" cy="415" r="6" fill="#CD853F" stroke="#000" stroke-width="2.5"/>
+      <circle cx="1120" cy="415" r="2" fill="#B87333"/>
+      <circle cx="1160" cy="418" r="7" fill="#CD853F" stroke="#000" stroke-width="2.5"/>
+      <circle cx="1160" cy="418" r="2.5" fill="#B87333"/>
+      <circle cx="1200" cy="415" r="6" fill="#CD853F" stroke="#000" stroke-width="2.5"/>
+      <circle cx="1200" cy="415" r="2" fill="#B87333"/>
+      <!-- Bush detail -->
+      <path d="M1070 440 Q1100 420 1130 440" fill="none" stroke="#7AAC7A" stroke-width="2.5"/>
+      <path d="M1140 435 Q1170 415 1200 440" fill="none" stroke="#7AAC7A" stroke-width="2.5"/>
+    </g>
+  </g>
+
+  <!-- Ground-level small plants -->
+  <g id="ground-plants">
+    <!-- Small tufts of grass/plants scattered on ground -->
+    <g fill="#8FBC8F" stroke="#2E8B57" stroke-width="2">
+      <path d="M150 520 Q155 505 160 520 Q165 502 170 520"/>
+      <path d="M350 540 Q355 525 360 540 Q365 522 370 540"/>
+      <path d="M550 520 Q555 508 560 520"/>
+      <path d="M750 530 Q755 515 760 530 Q765 512 770 530"/>
+      <path d="M950 510 Q955 498 960 510 Q965 495 970 510"/>
+      <path d="M1100 520 Q1105 505 1110 520"/>
+      <path d="M480 560 Q485 548 490 560 Q495 545 500 560"/>
+      <path d="M680 550 Q685 538 690 550"/>
+      <path d="M880 545 Q885 530 890 545 Q895 528 900 545"/>
+      <path d="M250 570 Q255 558 260 570"/>
+      <path d="M1180 540 Q1185 525 1190 540 Q1195 522 1200 540"/>
+    </g>
+
+    <!-- Small rocks -->
+    <ellipse cx="300" cy="580" rx="12" ry="7" fill="#B8A080" stroke="#000" stroke-width="2"/>
+    <ellipse cx="700" cy="570" rx="8" ry="5" fill="#B8A080" stroke="#000" stroke-width="2"/>
+    <ellipse cx="1050" cy="560" rx="10" ry="6" fill="#B8A080" stroke="#000" stroke-width="2"/>
+    <ellipse cx="500" cy="610" rx="14" ry="8" fill="#B8A080" stroke="#000" stroke-width="2"/>
+  </g>
+
+  <!-- Foreground sand line -->
+  <path d="M0 680 Q320 670 640 678 Q960 685 1280 672" fill="none" stroke="#C4A67C" stroke-width="2" opacity="0.5"/>
+</svg>
