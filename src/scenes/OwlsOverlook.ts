@@ -23,7 +23,7 @@ export class OwlsOverlook extends Scene {
 
   async setup(): Promise<void> {
     // 1. Background
-    const bgTexture = await Assets.load('assets/backgrounds/owls-overlook-bg.svg');
+    const bgTexture = await Assets.load('assets/backgrounds/owls-overlook-bg.png');
     const bg = new Sprite(bgTexture);
     bg.width = 1280;
     bg.height = 720;
@@ -40,7 +40,7 @@ export class OwlsOverlook extends Scene {
       {
         id: 'sage',
         name: 'Sage',
-        texturePath: 'assets/characters/sage.svg',
+        texturePath: 'assets/characters/sage.png',
         width: 100,
         height: 140,
         x: 640,

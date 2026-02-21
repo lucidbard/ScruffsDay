@@ -22,7 +22,7 @@ export class PineClearing extends Scene {
 
   async setup(): Promise<void> {
     // 1. Background
-    const bgTexture = await Assets.load('assets/backgrounds/pine-clearing-bg.svg');
+    const bgTexture = await Assets.load('assets/backgrounds/pine-clearing-bg.png');
     const bg = new Sprite(bgTexture);
     bg.width = 1280;
     bg.height = 720;
@@ -39,7 +39,7 @@ export class PineClearing extends Scene {
       {
         id: 'flicker',
         name: 'Flicker',
-        texturePath: 'assets/characters/flicker.svg',
+        texturePath: 'assets/characters/flicker.png',
         width: 80,
         height: 140,
         x: 400,

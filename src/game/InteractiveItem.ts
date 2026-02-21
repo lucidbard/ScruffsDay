@@ -33,8 +33,10 @@ export class InteractiveItem {
     const texture = await Assets.load(this.config.texturePath);
     this.sprite = new Sprite(texture);
     this.sprite.anchor.set(0.5, 0.5);
-    this.sprite.width = this.config.width ?? 48;
-    this.sprite.height = this.config.height ?? 48;
+    // Scale proportionally to target height
+    const targetHeight = this.config.height ?? 48;
+    const scale = targetHeight / texture.height;
+    this.sprite.scale.set(scale);
 
     this.glow.circle(0, 0, 30);
     this.glow.fill({ color: 0xFFD700, alpha: 0.3 });

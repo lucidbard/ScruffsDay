@@ -9,6 +9,7 @@ export type ItemId =
   | 'pip_map';
 
 export type SceneId =
+  | 'intro'
   | 'scrub_thicket'
   | 'tortoise_burrow'
   | 'central_trail'
@@ -17,6 +18,7 @@ export type SceneId =
   | 'owls_overlook';
 
 export type FlagId =
+  | 'intro_seen'
   | 'tutorial_complete'
   | 'shelly_helped'
   | 'pip_helped'

@@ -24,7 +24,7 @@ export class CentralTrail extends Scene {
 
   async setup(): Promise<void> {
     // 1. Background
-    const bgTexture = await Assets.load('assets/backgrounds/central-trail-bg.svg');
+    const bgTexture = await Assets.load('assets/backgrounds/central-trail-bg.png');
     const bg = new Sprite(bgTexture);
     bg.width = 1280;
     bg.height = 720;
@@ -41,7 +41,7 @@ export class CentralTrail extends Scene {
       {
         id: 'sage',
         name: 'Sage',
-        texturePath: 'assets/characters/sage.svg',
+        texturePath: 'assets/characters/sage.png',
         width: 100,
         height: 140,
         x: 900,
@@ -82,7 +82,7 @@ export class CentralTrail extends Scene {
       const acorns = new InteractiveItem(
         {
           itemId: 'chapman_oak_acorns',
-          texturePath: 'assets/items/chapman-oak-acorns.svg',
+          texturePath: 'assets/items/chapman-oak-acorns.png',
           x: 200,
           y: 480,
         },
@@ -97,7 +97,7 @@ export class CentralTrail extends Scene {
       const nuts = new InteractiveItem(
         {
           itemId: 'scrub_hickory_nuts',
-          texturePath: 'assets/items/scrub-hickory-nuts.svg',
+          texturePath: 'assets/items/scrub-hickory-nuts.png',
           x: 700,
           y: 500,
         },

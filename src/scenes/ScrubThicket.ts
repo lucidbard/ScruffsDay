@@ -19,7 +19,7 @@ export class ScrubThicket extends Scene {
 
   async setup(): Promise<void> {
     // 1. Background
-    const bgTexture = await Assets.load('assets/backgrounds/scrub-thicket-bg.svg');
+    const bgTexture = await Assets.load('assets/backgrounds/scrub-thicket-bg.png');
     const bg = new Sprite(bgTexture);
     bg.width = 1280;
     bg.height = 720;
@@ -36,7 +36,7 @@ export class ScrubThicket extends Scene {
       const palmetto = new InteractiveItem(
         {
           itemId: 'saw_palmetto_fronds',
-          texturePath: 'assets/items/saw-palmetto-fronds.svg',
+          texturePath: 'assets/items/saw-palmetto-fronds.png',
           x: 300,
           y: 450,
         },
@@ -51,7 +51,7 @@ export class ScrubThicket extends Scene {
       const lyonia = new InteractiveItem(
         {
           itemId: 'rusty_lyonia_flowers',
-          texturePath: 'assets/items/rusty-lyonia-flowers.svg',
+          texturePath: 'assets/items/rusty-lyonia-flowers.png',
           x: 900,
           y: 400,
         },

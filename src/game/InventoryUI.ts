@@ -153,9 +153,14 @@ export class InventoryUI {
         const texture = this.itemTextures.get(itemId);
         if (texture) {
           const sprite = new Sprite(texture);
-          sprite.width = SLOT_SIZE - 16;
-          sprite.height = SLOT_SIZE - 16;
-          sprite.position.set(8, 8);
+          // Scale proportionally to fit within slot
+          const maxDim = SLOT_SIZE - 16;
+          const scale = Math.min(maxDim / texture.width, maxDim / texture.height);
+          sprite.scale.set(scale);
+          sprite.position.set(
+            (SLOT_SIZE - texture.width * scale) / 2,
+            (SLOT_SIZE - texture.height * scale) / 2,
+          );
           slot.container.addChild(sprite);
           slot.content = sprite;
         } else {

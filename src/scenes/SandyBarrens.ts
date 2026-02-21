@@ -24,7 +24,7 @@ export class SandyBarrens extends Scene {
 
   async setup(): Promise<void> {
     // 1. Background
-    const bgTexture = await Assets.load('assets/backgrounds/sandy-barrens-bg.svg');
+    const bgTexture = await Assets.load('assets/backgrounds/sandy-barrens-bg.png');
     const bg = new Sprite(bgTexture);
     bg.width = 1280;
     bg.height = 720;
@@ -41,7 +41,7 @@ export class SandyBarrens extends Scene {
       {
         id: 'sunny',
         name: 'Sunny',
-        texturePath: 'assets/characters/sunny.svg',
+        texturePath: 'assets/characters/sunny.png',
         width: 160,
         height: 80,
         x: 700,
@@ -62,7 +62,7 @@ export class SandyBarrens extends Scene {
       const rosemary = new InteractiveItem(
         {
           itemId: 'florida_rosemary_cuttings',
-          texturePath: 'assets/items/florida-rosemary-cuttings.svg',
+          texturePath: 'assets/items/florida-rosemary-cuttings.png',
           x: 300,
           y: 430,
         },

@@ -38,8 +38,9 @@ export class NPC {
     const texture = await Assets.load(this.config.texturePath);
     this.sprite = new Sprite(texture);
     this.sprite.anchor.set(0.5, 1);
-    this.sprite.width = this.config.width;
-    this.sprite.height = this.config.height;
+    // Scale proportionally to target height
+    const scale = this.config.height / texture.height;
+    this.sprite.scale.set(scale);
     this.container.addChild(this.sprite);
     this.container.position.set(this.config.x, this.config.y);
     this.container.eventMode = 'static';

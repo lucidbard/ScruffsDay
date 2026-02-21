@@ -18,11 +18,13 @@ export class Scruff {
   }
 
   async setup(): Promise<void> {
-    const texture = await Assets.load('assets/characters/scruff.svg');
+    const texture = await Assets.load('assets/characters/scruff.png');
     this.sprite = new Sprite(texture);
     this.sprite.anchor.set(0.5, 1); // anchor at bottom-center (feet)
-    this.sprite.width = 80;
-    this.sprite.height = 120;
+    // Scale proportionally to target height
+    const targetHeight = 140;
+    const scale = targetHeight / texture.height;
+    this.sprite.scale.set(scale);
     this.container.addChild(this.sprite);
     this.startIdle();
   }

@@ -31,7 +31,7 @@ export class TortoiseBurrow extends Scene {
     this.container.addChild(this.surfaceContainer);
 
     // 1. Background
-    const bgTexture = await Assets.load('assets/backgrounds/tortoise-burrow-bg.svg');
+    const bgTexture = await Assets.load('assets/backgrounds/tortoise-burrow-bg.png');
     const bg = new Sprite(bgTexture);
     bg.width = 1280;
     bg.height = 720;
@@ -48,7 +48,7 @@ export class TortoiseBurrow extends Scene {
       {
         id: 'shelly',
         name: 'Shelly',
-        texturePath: 'assets/characters/shelly.svg',
+        texturePath: 'assets/characters/shelly.png',
         width: 120,
         height: 100,
         x: 500,
@@ -195,7 +195,7 @@ export class TortoiseBurrow extends Scene {
       {
         id: 'pip',
         name: 'Pip',
-        texturePath: 'assets/characters/pip.svg',
+        texturePath: 'assets/characters/pip.png',
         width: 60,
         height: 80,
         x: 500,

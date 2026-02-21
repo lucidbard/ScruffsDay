@@ -1,5 +1,6 @@
-import { Application, Container, Graphics, Text, TextStyle } from 'pixi.js';
+import { Application, Assets, Container, Graphics, Text, Texture, TextStyle } from 'pixi.js';
 import { GameState } from './game/GameState';
+import type { ItemId } from './game/GameState';
 import { TweenManager } from './game/Tween';
 import { SceneManager } from './game/SceneManager';
 import { InputManager } from './game/InputManager';
@@ -11,6 +12,7 @@ import { CentralTrail } from './scenes/CentralTrail';
 import { PineClearing } from './scenes/PineClearing';
 import { SandyBarrens } from './scenes/SandyBarrens';
 import { OwlsOverlook } from './scenes/OwlsOverlook';
+import { IntroSequence } from './scenes/IntroSequence';
 
 const GAME_WIDTH = 1280;
 const GAME_HEIGHT = 720;
@@ -35,12 +37,34 @@ async function init() {
   hitArea.fill({ color: 0x000000, alpha: 0 });
   gameContainer.addChild(hitArea);
 
+  // Preload item textures for inventory display
+  const itemTexturePaths: Record<string, string> = {
+    saw_palmetto_fronds: 'assets/items/saw-palmetto-fronds.png',
+    scrub_hickory_nuts: 'assets/items/scrub-hickory-nuts.png',
+    sand_pine_cones: 'assets/items/saw-palmetto-fronds.png', // placeholder
+    florida_rosemary_cuttings: 'assets/items/florida-rosemary-cuttings.png',
+    rusty_lyonia_flowers: 'assets/items/rusty-lyonia-flowers.png',
+    chapman_oak_acorns: 'assets/items/chapman-oak-acorns.png',
+    flicker_feather: 'assets/items/flicker-feather.png',
+    pip_map: 'assets/items/pip-map.png',
+  };
+
+  const itemTextures = new Map<ItemId, Texture>();
+  for (const [id, path] of Object.entries(itemTexturePaths)) {
+    try {
+      const tex = await Assets.load(path);
+      itemTextures.set(id as ItemId, tex);
+    } catch {
+      // Item texture not available - will show placeholder
+    }
+  }
+
   // Core systems
   const gameState = GameState.load() ?? new GameState();
   const tweens = new TweenManager();
   const sceneManager = new SceneManager(app, gameState, tweens);
   const inputManager = new InputManager(hitArea);
-  const inventoryUI = new InventoryUI(gameState, tweens, new Map());
+  const inventoryUI = new InventoryUI(gameState, tweens, itemTextures);
 
   // Menu overlay
   const menuOverlay = new MenuOverlay(gameState);
@@ -102,6 +126,16 @@ async function init() {
   });
 
   // Register scenes
+  sceneManager.register('intro', (app, gs, tw) => {
+    const scene = new IntroSequence(app, gs, tw);
+    scene.onSceneChange = (id) => {
+      inventoryUI.container.visible = true;
+      menuBtn.visible = true;
+      sceneManager.switchTo(id);
+    };
+    return scene;
+  });
+
   sceneManager.register('scrub_thicket', (app, gs, tw) => {
     const scene = new ScrubThicket(app, gs, tw);
     scene.onSceneChange = (id) => sceneManager.switchTo(id);
@@ -138,8 +172,14 @@ async function init() {
     return scene;
   });
 
-  // Start at the scrub thicket
-  await sceneManager.switchTo('scrub_thicket');
+  // Start at intro if not seen, otherwise scrub thicket
+  if (!gameState.getFlag('intro_seen')) {
+    inventoryUI.container.visible = false;
+    menuBtn.visible = false;
+    await sceneManager.switchTo('intro');
+  } else {
+    await sceneManager.switchTo('scrub_thicket');
+  }
 }
 
 init();
