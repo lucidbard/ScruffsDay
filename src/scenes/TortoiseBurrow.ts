@@ -5,12 +5,17 @@ import { SceneArrow } from '../game/SceneArrow';
 import { DialogueBubble, DialogueRunner } from '../game/DialogueSystem';
 import { WalkableArea, resolveEntryPoint } from '../game/WalkableArea';
 import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
+import { ForegroundObject } from '../game/ForegroundObject';
+import { depthSort } from '../game/DepthSort';
+import type { DepthScaleConfig } from '../game/DepthSort';
 import { Container, Graphics, Sprite, Assets } from 'pixi.js';
 import type { SceneId, FlagId } from '../game/GameState';
 import type { NPCConfig } from '../characters/NPC';
 import dialogueData from '../data/dialogue.json';
 import walkableAreasData from '../data/walkable-areas.json';
 import npcConfigs from '../data/npc-configs.json';
+
+type WalkableAreasJson = Record<string, Record<string, unknown>>;
 
 export class TortoiseBurrow extends Scene {
   private scruff!: Scruff;
@@ -24,16 +29,31 @@ export class TortoiseBurrow extends Scene {
   private surfaceWalkable!: WalkableArea;
   private undergroundWalkable!: WalkableArea;
 
-  // Underground sub-area
+  // Sub-area containers
   private surfaceContainer!: Container;
   private underground!: Container;
   private isUnderground = false;
   private burrowEntrance!: Graphics;
 
+  // Depth containers for Y-sorting within each sub-area
+  private undergroundDepthContainer!: Container;
+
+  // Depth scale configs per sub-area
+  private surfaceDepthScaleConfig: DepthScaleConfig | null = null;
+  private undergroundDepthScaleConfig: DepthScaleConfig | null = null;
+
+  // Foreground objects per sub-area
+  private surfaceForegrounds: ForegroundObject[] = [];
+  private undergroundForegrounds: ForegroundObject[] = [];
+
   /** Called by SceneManager wiring to navigate between scenes. */
   onSceneChange?: (sceneId: SceneId) => void;
 
   async setup(): Promise<void> {
+    const tbData = (walkableAreasData as WalkableAreasJson).tortoise_burrow as Record<string, Record<string, unknown>>;
+    const surfaceData = tbData.surface as Record<string, unknown>;
+    const undergroundData = tbData.underground as Record<string, unknown>;
+
     // Surface container holds all above-ground elements
     this.surfaceContainer = new Container();
     this.container.addChild(this.surfaceContainer);
@@ -45,29 +65,50 @@ export class TortoiseBurrow extends Scene {
     bg.height = 720;
     this.surfaceContainer.addChild(bg);
 
-    // 2. Walkable areas
-    const surfData = walkableAreasData.tortoise_burrow.surface.polygons[0];
+    // 2. Surface depth container (Y-sorted every frame)
+    this.depthContainer = new Container();
+    this.surfaceContainer.addChild(this.depthContainer);
+
+    // 3. Walkable areas with obstacles
+    const surfPolyData = (surfaceData.polygons as { points: number[][] }[])[0];
+    const surfObstacleData = (surfaceData.obstacles as { points: number[][] }[] | undefined) ?? [];
     this.surfaceWalkable = new WalkableArea(
-      surfData.points.map(([x, y]: number[]) => ({ x, y })),
-    );
-    const ugData = walkableAreasData.tortoise_burrow.underground.polygons[0];
-    this.undergroundWalkable = new WalkableArea(
-      ugData.points.map(([x, y]: number[]) => ({ x, y })),
+      surfPolyData.points.map(([x, y]: number[]) => ({ x, y })),
+      surfObstacleData.map((obs) => obs.points.map(([x, y]: number[]) => ({ x, y }))),
     );
 
-    // 3. Scruff
+    const ugPolyData = (undergroundData.polygons as { points: number[][] }[])[0];
+    const ugObstacleData = (undergroundData.obstacles as { points: number[][] }[] | undefined) ?? [];
+    this.undergroundWalkable = new WalkableArea(
+      ugPolyData.points.map(([x, y]: number[]) => ({ x, y })),
+      ugObstacleData.map((obs) => obs.points.map(([x, y]: number[]) => ({ x, y }))),
+    );
+
+    // 4. Surface depth scale config
+    this.surfaceDepthScaleConfig = (surfaceData.depthScale as DepthScaleConfig | undefined) ?? null;
+
+    // 5. Scruff
     this.scruff = new Scruff(this.tweens);
     await this.scruff.setup();
-    const start = resolveEntryPoint(walkableAreasData.tortoise_burrow.surface.entryPoints);
+    const start = resolveEntryPoint(surfaceData.entryPoints as Record<string, number[]>);
     this.scruff.setPosition(start.x, start.y);
-    this.surfaceContainer.addChild(this.scruff.container);
+    this.depthContainer.addChild(this.scruff.container);
 
-    // 3. Shelly NPC
+    // 6. Shelly NPC
     this.shelly = new NPC(npcConfigs.shelly as NPCConfig, this.tweens);
     await this.shelly.setup();
-    this.surfaceContainer.addChild(this.shelly.container);
+    this.depthContainer.addChild(this.shelly.container);
 
-    // 4. Shelly tap handler
+    // 7. Surface foreground objects
+    const surfFgData = (surfaceData.foregrounds as { id: string; texturePath: string; x: number; y: number; depthY: number }[] | undefined) ?? [];
+    for (const fgCfg of surfFgData) {
+      const fg = new ForegroundObject(fgCfg);
+      await fg.setup();
+      this.surfaceForegrounds.push(fg);
+      this.depthContainer.addChild(fg.container);
+    }
+
+    // 8. Shelly tap handler
     this.shelly.container.on('pointertap', () => {
       if (this.scruff.isMoving() || this.dialogueRunner.isActive()) return;
       this.scruff
@@ -89,7 +130,7 @@ export class TortoiseBurrow extends Scene {
         });
     });
 
-    // 5. Dialogue system
+    // 9. Dialogue system
     this.dialogueRunner = new DialogueRunner(
       dialogueData as Record<string, (typeof dialogueData)[keyof typeof dialogueData]>,
       (flag: string) => this.gameState.getFlag(flag as FlagId),
@@ -97,7 +138,7 @@ export class TortoiseBurrow extends Scene {
     this.dialogueBubble = new DialogueBubble();
     this.container.addChild(this.dialogueBubble.container);
 
-    // 6. Navigation arrows
+    // 10. Navigation arrows (above depthContainer, on surfaceContainer)
     const downArrow = new SceneArrow(
       'down',
       'scrub_thicket',
@@ -130,7 +171,7 @@ export class TortoiseBurrow extends Scene {
     this.arrows.push(upArrow);
     this.surfaceContainer.addChild(upArrow.container);
 
-    // 7. Burrow entrance (dark oval, tappable when shelly_helped)
+    // 11. Burrow entrance (dark oval, tappable when shelly_helped)
     this.burrowEntrance = new Graphics();
     this.burrowEntrance.ellipse(560, 500, 50, 30);
     this.burrowEntrance.fill({ color: 0x1a0f00 });
@@ -143,10 +184,10 @@ export class TortoiseBurrow extends Scene {
     });
     this.surfaceContainer.addChild(this.burrowEntrance);
 
-    // 8. Underground sub-area
-    await this.setupUnderground();
+    // 12. Underground sub-area
+    await this.setupUnderground(undergroundData);
 
-    // 9. Ground tap handler (background receives taps)
+    // 13. Ground tap handler (background receives taps)
     bg.eventMode = 'static';
     bg.on('pointertap', (e) => {
       if (this.scruff.isMoving()) return;
@@ -164,12 +205,21 @@ export class TortoiseBurrow extends Scene {
 
     // Debug overlay (surface)
     if (WalkableAreaDebug.isEnabled()) {
-      const debug = new WalkableAreaDebug(this.surfaceWalkable, walkableAreasData.tortoise_burrow.surface.entryPoints, [this.shelly], 'tortoise_burrow', 'tortoise_burrow.surface', ['shelly']);
+      const debug = new WalkableAreaDebug(
+        this.surfaceWalkable,
+        surfaceData.entryPoints as Record<string, number[]>,
+        [this.shelly],
+        'tortoise_burrow',
+        'tortoise_burrow.surface',
+        ['shelly'],
+        this.surfaceWalkable.getObstacles(),
+        this.surfaceForegrounds,
+      );
       this.surfaceContainer.addChild(debug.container);
     }
   }
 
-  private async setupUnderground(): Promise<void> {
+  private async setupUnderground(undergroundData: Record<string, unknown>): Promise<void> {
     this.underground = new Container();
     this.underground.visible = false;
     this.container.addChild(this.underground);
@@ -197,10 +247,26 @@ export class TortoiseBurrow extends Scene {
     lightArea.fill({ color: 0x3E2A14, alpha: 0.5 });
     this.underground.addChild(lightArea);
 
+    // Underground depth container (Y-sorted every frame)
+    this.undergroundDepthContainer = new Container();
+    this.underground.addChild(this.undergroundDepthContainer);
+
+    // Underground depth scale config
+    this.undergroundDepthScaleConfig = (undergroundData.depthScale as DepthScaleConfig | undefined) ?? null;
+
     // Pip NPC
     this.pip = new NPC(npcConfigs.pip as NPCConfig, this.tweens);
     await this.pip.setup();
-    this.underground.addChild(this.pip.container);
+    this.undergroundDepthContainer.addChild(this.pip.container);
+
+    // Underground foreground objects
+    const ugFgData = (undergroundData.foregrounds as { id: string; texturePath: string; x: number; y: number; depthY: number }[] | undefined) ?? [];
+    for (const fgCfg of ugFgData) {
+      const fg = new ForegroundObject(fgCfg);
+      await fg.setup();
+      this.undergroundForegrounds.push(fg);
+      this.undergroundDepthContainer.addChild(fg.container);
+    }
 
     // Pip tap handler
     this.pip.container.on('pointertap', () => {
@@ -224,7 +290,7 @@ export class TortoiseBurrow extends Scene {
         });
     });
 
-    // Back arrow to return to surface
+    // Back arrow to return to surface (above depth container, on underground)
     const backArrow = new SceneArrow(
       'up',
       'tortoise_burrow',
@@ -258,7 +324,16 @@ export class TortoiseBurrow extends Scene {
 
     // Debug overlay (underground)
     if (WalkableAreaDebug.isEnabled()) {
-      const ugDebug = new WalkableAreaDebug(this.undergroundWalkable, walkableAreasData.tortoise_burrow.underground.entryPoints, [this.pip], 'tortoise_burrow', 'tortoise_burrow.underground', ['pip']);
+      const ugDebug = new WalkableAreaDebug(
+        this.undergroundWalkable,
+        undergroundData.entryPoints as Record<string, number[]>,
+        [this.pip],
+        'tortoise_burrow',
+        'tortoise_burrow.underground',
+        ['pip'],
+        this.undergroundWalkable.getObstacles(),
+        this.undergroundForegrounds,
+      );
       this.underground.addChild(ugDebug.container);
     }
   }
@@ -288,10 +363,13 @@ export class TortoiseBurrow extends Scene {
     this.isUnderground = true;
     this.dialogueBubble.hide();
 
-    // Move scruff from surface container to underground container
-    this.surfaceContainer.removeChild(this.scruff.container);
-    this.underground.addChild(this.scruff.container);
-    const ugEntry = resolveEntryPoint(walkableAreasData.tortoise_burrow.underground.entryPoints);
+    // Move scruff from surface depth container to underground depth container
+    this.depthContainer!.removeChild(this.scruff.container);
+    this.undergroundDepthContainer.addChild(this.scruff.container);
+    const tbData = (walkableAreasData as WalkableAreasJson).tortoise_burrow as Record<string, Record<string, unknown>>;
+    const ugEntry = resolveEntryPoint(
+      tbData.underground.entryPoints as Record<string, number[]>,
+    );
     this.scruff.setPosition(ugEntry.x, ugEntry.y);
 
     // Toggle visibility
@@ -307,10 +385,13 @@ export class TortoiseBurrow extends Scene {
     this.isUnderground = false;
     this.dialogueBubble.hide();
 
-    // Move scruff back to surface container
-    this.underground.removeChild(this.scruff.container);
-    this.surfaceContainer.addChild(this.scruff.container);
-    const sfEntry = resolveEntryPoint(walkableAreasData.tortoise_burrow.surface.entryPoints);
+    // Move scruff back to surface depth container
+    this.undergroundDepthContainer.removeChild(this.scruff.container);
+    this.depthContainer!.addChild(this.scruff.container);
+    const tbData = (walkableAreasData as WalkableAreasJson).tortoise_burrow as Record<string, Record<string, unknown>>;
+    const sfEntry = resolveEntryPoint(
+      tbData.surface.entryPoints as Record<string, number[]>,
+    );
     this.scruff.setPosition(sfEntry.x, sfEntry.y);
 
     // Toggle visibility
@@ -357,7 +438,8 @@ export class TortoiseBurrow extends Scene {
       this.switchToSurface();
     }
     // Position Scruff based on which scene she came from
-    const entry = resolveEntryPoint(walkableAreasData.tortoise_burrow.surface.entryPoints, fromScene);
+    const surfaceData = (walkableAreasData as WalkableAreasJson).tortoise_burrow.surface as Record<string, unknown>;
+    const entry = resolveEntryPoint(surfaceData.entryPoints as Record<string, number[]>, fromScene);
     this.scruff.setPosition(entry.x, entry.y);
 
     // Enable burrow entrance if shelly has been helped
@@ -372,11 +454,25 @@ export class TortoiseBurrow extends Scene {
       this.pip.setExcited(
         this.pip.isInRange(this.scruff.x, this.scruff.y),
       );
+
+      // Apply underground depth scaling
+      if (this.undergroundDepthScaleConfig) {
+        this.applyDepthScaling(this.undergroundDepthScaleConfig, [this.scruff, this.pip]);
+      }
+      // Re-sort underground depth container by Y
+      depthSort(this.undergroundDepthContainer);
     } else {
       // NPC proximity excitement for Shelly
       this.shelly.setExcited(
         this.shelly.isInRange(this.scruff.x, this.scruff.y),
       );
+
+      // Apply surface depth scaling
+      if (this.surfaceDepthScaleConfig) {
+        this.applyDepthScaling(this.surfaceDepthScaleConfig, [this.scruff, this.shelly]);
+      }
+      // Re-sort surface depth container by Y
+      this.sortDepth();
     }
   }
 

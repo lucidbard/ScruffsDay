@@ -111,4 +111,8 @@ export class SceneManager {
   getActiveSceneId(): SceneId | null {
     return this.activeSceneId;
   }
+
+  getActiveScene(): Scene | null {
+    return this.activeScene;
+  }
 }

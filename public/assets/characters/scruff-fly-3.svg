@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300">
+  <!-- Scruff - Florida Scrub Jay - Flying Frame 3: Wings DOWN -->
+
+  <!-- Legs (tucked) -->
+  <g id="legs">
+    <line x1="85" y1="252" x2="92" y2="263" stroke="#333" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="115" y1="252" x2="108" y2="263" stroke="#333" stroke-width="3.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- Body -->
+  <g id="body">
+    <!-- Main body - small gray oval -->
+    <ellipse cx="100" cy="220" rx="38" ry="42" fill="#A0A0A0" stroke="#000" stroke-width="3"/>
+    <!-- Belly patch -->
+    <ellipse cx="100" cy="228" rx="24" ry="28" fill="#C8C8C8" stroke="none"/>
+    <!-- Left wing - angled DOWN ~30 degrees -->
+    <path d="M60 212 Q35 240 15 268 Q38 252 66 225" fill="#4169E1" stroke="#000" stroke-width="3"/>
+    <!-- Right wing - angled DOWN ~30 degrees -->
+    <path d="M140 212 Q165 240 185 268 Q162 252 134 225" fill="#4169E1" stroke="#000" stroke-width="3"/>
+  </g>
+
+  <!-- Tail feathers -->
+  <g id="tail">
+    <path d="M85 258 Q75 278 68 295 Q72 292 80 275Z" fill="#4169E1" stroke="#000" stroke-width="2.5"/>
+    <path d="M100 260 Q100 282 98 298 Q104 282 104 260Z" fill="#4169E1" stroke="#000" stroke-width="2.5"/>
+    <path d="M115 258 Q125 278 132 295 Q128 292 120 275Z" fill="#4169E1" stroke="#000" stroke-width="2.5"/>
+  </g>
+
+  <!-- Head - strong 3/4 profile facing right (flips via scale.x) -->
+  <g id="head">
+    <!-- Main head - shifted right for profile -->
+    <ellipse cx="110" cy="130" rx="58" ry="58" fill="#4169E1" stroke="#000" stroke-width="3"/>
+
+    <!-- Crest / tuft on top -->
+    <path d="M94 78 Q100 55 110 48 Q120 55 124 78" fill="#4169E1" stroke="#000" stroke-width="3"/>
+    <path d="M88 82 Q95 62 105 52" fill="none" stroke="#000" stroke-width="2.5"/>
+    <path d="M130 82 Q123 62 113 52" fill="none" stroke="#000" stroke-width="2.5"/>
+
+    <!-- White face mask - asymmetric, wider on near side -->
+    <path d="M72 125 Q76 107 92 102 Q110 97 130 100 Q150 105 156 125 Q152 145 132 148 Q112 150 92 147 Q74 143 72 125Z" fill="white" stroke="none"/>
+
+    <!-- Left eye (far side - small, peeking around) -->
+    <g id="left-eye">
+      <ellipse cx="92" cy="123" rx="10" ry="12" fill="white" stroke="#000" stroke-width="2.5"/>
+      <ellipse cx="94" cy="124" rx="5" ry="6" fill="#000"/>
+      <circle cx="96" cy="121" r="2" fill="white"/>
+    </g>
+
+    <!-- Right eye (near side - large, prominent) -->
+    <g id="right-eye">
+      <ellipse cx="134" cy="120" rx="21" ry="22" fill="white" stroke="#000" stroke-width="3"/>
+      <ellipse cx="130" cy="121" rx="10" ry="11" fill="#000"/>
+      <circle cx="133" cy="116" r="4" fill="white"/>
+    </g>
+
+    <!-- Thick eyebrows -->
+    <path d="M80 110 Q86 102 100 106" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+    <path d="M156 104 Q146 94 122 100" fill="none" stroke="#000" stroke-width="4.5" stroke-linecap="round"/>
+
+    <!-- Beak - pointing right for profile -->
+    <path d="M108 137 L140 145 L108 153" fill="#CD853F" stroke="#000" stroke-width="3" stroke-linejoin="round"/>
+    <line x1="110" y1="145" x2="137" y2="145" stroke="#000" stroke-width="2"/>
+
+    <!-- Blue necklace/collar marking -->
+    <path d="M80 155 Q112 170 144 155" fill="none" stroke="#3155C8" stroke-width="5" stroke-linecap="round"/>
+  </g>
+</svg>

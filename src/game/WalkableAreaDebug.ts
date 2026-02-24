@@ -1,6 +1,7 @@
 import { Container, Graphics, Text, TextStyle } from 'pixi.js';
 import type { WalkableArea, Point } from './WalkableArea';
 import type { NPC } from '../characters/NPC';
+import type { ForegroundObject } from './ForegroundObject';
 import { DebugSaveClient } from './DebugSaveClient';
 import { DebugUndoStack } from './DebugUndoStack';
 import npcConfigs from '../data/npc-configs.json';
@@ -9,6 +10,16 @@ import walkableAreasData from '../data/walkable-areas.json';
 const VERTEX_RADIUS = 8;
 const ENTRY_RADIUS = 10;
 const NPC_RADIUS = 12;
+const OBSTACLE_VERTEX_RADIUS = 7;
+const FOREGROUND_RADIUS = 10;
+
+type DragState =
+  | { type: 'vertex'; index: number }
+  | { type: 'entry'; key: string }
+  | { type: 'npc'; index: number }
+  | { type: 'obstacle-vertex'; obstacleIdx: number; vertexIdx: number }
+  | { type: 'foreground'; index: number }
+  | null;
 
 export class WalkableAreaDebug {
   /** All live instances, used for global show/hide toggling. */
@@ -31,7 +42,12 @@ export class WalkableAreaDebug {
   private npcConfigKeys: string[];
   private npcGraphics = new Graphics();
   private npcLabelContainer = new Container();
-  private dragging: { type: 'vertex'; index: number } | { type: 'entry'; key: string } | { type: 'npc'; index: number } | null = null;
+  private obstacles: Point[][];
+  private obstacleGraphics = new Graphics();
+  private foregrounds: ForegroundObject[];
+  private foregroundGraphics = new Graphics();
+  private foregroundLabelContainer = new Container();
+  private dragging: DragState = null;
   private saveBtn: Container;
   private sceneId: string;
   private walkableAreaPath: string;
@@ -48,12 +64,16 @@ export class WalkableAreaDebug {
     sceneId?: string,
     walkableAreaPath?: string,
     npcConfigKeys?: string[],
+    obstacles?: Point[][],
+    foregrounds?: ForegroundObject[],
   ) {
     this.walkableArea = walkableArea;
     this.npcs = npcs ?? [];
     this.sceneId = sceneId ?? '';
     this.walkableAreaPath = walkableAreaPath ?? sceneId ?? '';
     this.npcConfigKeys = npcConfigKeys ?? this.npcs.map(n => n.id);
+    this.obstacles = obstacles ?? [];
+    this.foregrounds = foregrounds ?? [];
 
     WalkableAreaDebug.instances.push(this);
 
@@ -68,6 +88,9 @@ export class WalkableAreaDebug {
     // Semi-transparent fill layer
     this.container.addChild(this.fill);
 
+    // Obstacle layer (drawn below walkable vertices)
+    this.container.addChild(this.obstacleGraphics);
+
     // Vertex dots layer
     this.container.addChild(this.vertexGraphics);
 
@@ -78,6 +101,10 @@ export class WalkableAreaDebug {
     // NPC markers layer
     this.container.addChild(this.npcGraphics);
     this.container.addChild(this.npcLabelContainer);
+
+    // Foreground markers layer
+    this.container.addChild(this.foregroundGraphics);
+    this.container.addChild(this.foregroundLabelContainer);
 
     // Save button
     this.saveBtn = this.createSaveButton();
@@ -98,6 +125,13 @@ export class WalkableAreaDebug {
         return;
       }
 
+      // Check foreground markers
+      const hitFg = this.hitTestForeground(pos.x, pos.y);
+      if (hitFg !== -1) {
+        this.dragging = { type: 'foreground', index: hitFg };
+        return;
+      }
+
       // Check entry point markers next
       const hitEntry = this.hitTestEntry(pos.x, pos.y);
       if (hitEntry !== null) {
@@ -105,7 +139,20 @@ export class WalkableAreaDebug {
         return;
       }
 
-      // Check if clicking near an existing vertex
+      // Check obstacle vertices
+      const hitObs = this.hitTestObstacleVertex(pos.x, pos.y);
+      if (hitObs !== null) {
+        // Right-click to remove vertex (need at least 3)
+        if (e.button === 2 && this.obstacles[hitObs.obstacleIdx].length > 3) {
+          this.obstacles[hitObs.obstacleIdx].splice(hitObs.vertexIdx, 1);
+          this.redraw();
+          return;
+        }
+        this.dragging = { type: 'obstacle-vertex', obstacleIdx: hitObs.obstacleIdx, vertexIdx: hitObs.vertexIdx };
+        return;
+      }
+
+      // Check if clicking near an existing walkable vertex
       const hitIdx = this.hitTestVertex(pos.x, pos.y, pts);
 
       if (hitIdx !== -1) {
@@ -122,6 +169,14 @@ export class WalkableAreaDebug {
 
       // Shift+click to add a new vertex on the nearest edge
       if (e.shiftKey) {
+        // Check if near an obstacle edge first
+        const nearObs = this.findNearestObstacleEdge(pos.x, pos.y);
+        if (nearObs !== null && nearObs.dist < 20) {
+          this.obstacles[nearObs.obstacleIdx].splice(nearObs.edgeIdx + 1, 0, { x: Math.round(pos.x), y: Math.round(pos.y) });
+          this.redraw();
+          return;
+        }
+
         const insertIdx = this.findNearestEdge(pos.x, pos.y, pts);
         pts.splice(insertIdx + 1, 0, { x: Math.round(pos.x), y: Math.round(pos.y) });
         this.redraw();
@@ -140,6 +195,11 @@ export class WalkableAreaDebug {
       } else if (this.dragging.type === 'npc') {
         const npc = this.npcs[this.dragging.index];
         npc.setDebugPosition(Math.round(pos.x), Math.round(pos.y));
+      } else if (this.dragging.type === 'obstacle-vertex') {
+        this.obstacles[this.dragging.obstacleIdx][this.dragging.vertexIdx] = { x: Math.round(pos.x), y: Math.round(pos.y) };
+      } else if (this.dragging.type === 'foreground') {
+        const fg = this.foregrounds[this.dragging.index];
+        fg.setPosition(Math.round(pos.x), Math.round(pos.y));
       }
       this.redraw();
     });
@@ -160,6 +220,38 @@ export class WalkableAreaDebug {
     this.redraw();
   }
 
+  getObstacles(): Point[][] {
+    return this.obstacles;
+  }
+
+  getForegrounds(): ForegroundObject[] {
+    return this.foregrounds;
+  }
+
+  addObstacle(points: Point[]): void {
+    this.obstacles.push(points);
+    this.redraw();
+  }
+
+  removeObstacle(index: number): void {
+    this.obstacles.splice(index, 1);
+    this.redraw();
+  }
+
+  addForeground(fg: ForegroundObject): void {
+    this.foregrounds.push(fg);
+    this.redraw();
+  }
+
+  removeForeground(index: number): void {
+    const fg = this.foregrounds[index];
+    if (fg) {
+      fg.container.parent?.removeChild(fg.container);
+    }
+    this.foregrounds.splice(index, 1);
+    this.redraw();
+  }
+
   /** Build geometry + NPC position JSON and save to disk. */
   async saveGeometry(): Promise<void> {
     if (!this.walkableAreaPath) return;
@@ -177,13 +269,34 @@ export class WalkableAreaDebug {
     for (const [key, pt] of Object.entries(this.entryPoints)) {
       entryExport[key] = [pt.x, pt.y];
     }
-    const areaPayload = {
+    const areaPayload: Record<string, unknown> = {
       entryPoints: entryExport,
       polygons: [{ points: pts.map((p) => [p.x, p.y]) }],
     };
 
-    // Navigate into the walkable-areas.json using the dot-path
+    // Include obstacles if any
+    if (this.obstacles.length > 0) {
+      areaPayload.obstacles = this.obstacles.map(obs => ({
+        points: obs.map(p => [p.x, p.y]),
+      }));
+    }
+
+    // Include foregrounds if any
+    if (this.foregrounds.length > 0) {
+      areaPayload.foregrounds = this.foregrounds.map(fg => fg.getConfig());
+    }
+
+    // Include depthScale if it exists in the current data
     const pathParts = this.walkableAreaPath.split('.');
+    let currentTarget = waData;
+    for (let i = 0; i < pathParts.length; i++) {
+      currentTarget = currentTarget[pathParts[i]];
+    }
+    if (currentTarget && currentTarget.depthScale) {
+      areaPayload.depthScale = currentTarget.depthScale;
+    }
+
+    // Navigate into the walkable-areas.json using the dot-path
     let target = waData;
     for (let i = 0; i < pathParts.length - 1; i++) {
       target = target[pathParts[i]];
@@ -225,6 +338,22 @@ export class WalkableAreaDebug {
     }
     // Hit area covers entire stage so we can add points anywhere
     this.fill.hitArea = { contains: () => true };
+
+    // Obstacle polygons
+    this.obstacleGraphics.clear();
+    for (const obs of this.obstacles) {
+      if (obs.length >= 3) {
+        this.obstacleGraphics.poly(obs.flatMap((p) => [p.x, p.y]));
+        this.obstacleGraphics.fill({ color: 0xff0000, alpha: 0.15 });
+        this.obstacleGraphics.stroke({ width: 2, color: 0xff0000, alpha: 0.6 });
+      }
+      // Obstacle vertex dots
+      for (const p of obs) {
+        this.obstacleGraphics.circle(p.x, p.y, OBSTACLE_VERTEX_RADIUS);
+        this.obstacleGraphics.fill({ color: 0xff4444, alpha: 0.9 });
+        this.obstacleGraphics.stroke({ width: 2, color: 0xff0000 });
+      }
+    }
 
     // Vertex dots
     this.vertexGraphics.clear();
@@ -291,6 +420,44 @@ export class WalkableAreaDebug {
       npcLabel.position.set(nx, ny - NPC_RADIUS - 4);
       this.npcLabelContainer.addChild(npcLabel);
     }
+
+    // Foreground markers
+    this.foregroundGraphics.clear();
+    this.foregroundLabelContainer.removeChildren();
+
+    for (const fg of this.foregrounds) {
+      const cfg = fg.getConfig();
+      const fx = cfg.x;
+      const fy = cfg.depthY;
+
+      // Magenta diamond at position
+      this.foregroundGraphics.moveTo(fx, fy - FOREGROUND_RADIUS);
+      this.foregroundGraphics.lineTo(fx + FOREGROUND_RADIUS, fy);
+      this.foregroundGraphics.lineTo(fx, fy + FOREGROUND_RADIUS);
+      this.foregroundGraphics.lineTo(fx - FOREGROUND_RADIUS, fy);
+      this.foregroundGraphics.closePath();
+      this.foregroundGraphics.fill({ color: 0xff00ff, alpha: 0.7 });
+      this.foregroundGraphics.stroke({ width: 2, color: 0xff00ff });
+
+      // Horizontal depth-line at depthY
+      this.foregroundGraphics.moveTo(fx - 40, fy);
+      this.foregroundGraphics.lineTo(fx + 40, fy);
+      this.foregroundGraphics.stroke({ width: 1, color: 0xff00ff, alpha: 0.5 });
+
+      // Label
+      const fgLabel = new Text({
+        text: cfg.id,
+        style: new TextStyle({
+          fontSize: 11,
+          fill: '#ff00ff',
+          fontFamily: 'monospace',
+          stroke: { color: '#000000', width: 3 },
+        }),
+      });
+      fgLabel.anchor.set(0.5, 1);
+      fgLabel.position.set(fx, fy - FOREGROUND_RADIUS - 4);
+      this.foregroundLabelContainer.addChild(fgLabel);
+    }
   }
 
   private hitTestVertex(x: number, y: number, pts: Point[]): number {
@@ -322,6 +489,32 @@ export class WalkableAreaDebug {
     return null;
   }
 
+  private hitTestObstacleVertex(x: number, y: number): { obstacleIdx: number; vertexIdx: number } | null {
+    const hitRadius = OBSTACLE_VERTEX_RADIUS + 4;
+    for (let oi = 0; oi < this.obstacles.length; oi++) {
+      const obs = this.obstacles[oi];
+      for (let vi = 0; vi < obs.length; vi++) {
+        const dx = x - obs[vi].x;
+        const dy = y - obs[vi].y;
+        if (dx * dx + dy * dy <= hitRadius * hitRadius) {
+          return { obstacleIdx: oi, vertexIdx: vi };
+        }
+      }
+    }
+    return null;
+  }
+
+  private hitTestForeground(x: number, y: number): number {
+    const hitRadius = FOREGROUND_RADIUS + 6;
+    for (let i = 0; i < this.foregrounds.length; i++) {
+      const cfg = this.foregrounds[i].getConfig();
+      const dx = x - cfg.x;
+      const dy = y - cfg.depthY;
+      if (dx * dx + dy * dy <= hitRadius * hitRadius) return i;
+    }
+    return -1;
+  }
+
   /** Find the edge index where inserting a new point makes the most sense. */
   private findNearestEdge(x: number, y: number, pts: Point[]): number {
     let bestDist = Infinity;
@@ -336,6 +529,22 @@ export class WalkableAreaDebug {
       }
     }
     return bestIdx;
+  }
+
+  private findNearestObstacleEdge(x: number, y: number): { obstacleIdx: number; edgeIdx: number; dist: number } | null {
+    let best: { obstacleIdx: number; edgeIdx: number; dist: number } | null = null;
+    for (let oi = 0; oi < this.obstacles.length; oi++) {
+      const obs = this.obstacles[oi];
+      for (let i = 0; i < obs.length; i++) {
+        const a = obs[i];
+        const b = obs[(i + 1) % obs.length];
+        const dist = distToSegment(x, y, a.x, a.y, b.x, b.y);
+        if (best === null || dist < best.dist) {
+          best = { obstacleIdx: oi, edgeIdx: i, dist };
+        }
+      }
+    }
+    return best;
   }
 
   private createSaveButton(): Container {

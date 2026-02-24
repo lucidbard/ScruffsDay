@@ -6,12 +6,16 @@ import { SceneArrow } from '../game/SceneArrow';
 import { DialogueBubble, DialogueRunner } from '../game/DialogueSystem';
 import { WalkableArea, resolveEntryPoint } from '../game/WalkableArea';
 import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
+import { ForegroundObject } from '../game/ForegroundObject';
+import type { DepthScaleConfig } from '../game/DepthSort';
 import { Sprite, Assets, Graphics, Container, Text, TextStyle } from 'pixi.js';
 import type { SceneId, FlagId } from '../game/GameState';
 import type { NPCConfig } from '../characters/NPC';
 import dialogueData from '../data/dialogue.json';
 import walkableAreasData from '../data/walkable-areas.json';
 import npcConfigs from '../data/npc-configs.json';
+
+type WalkableAreasJson = Record<string, Record<string, unknown>>;
 
 export class CentralTrail extends Scene {
   private scruff!: Scruff;
@@ -24,11 +28,15 @@ export class CentralTrail extends Scene {
   private walkableArea!: WalkableArea;
   private upArrow!: SceneArrow;
   private signpost!: Container;
+  private depthScaleConfig: DepthScaleConfig | null = null;
+  private foregrounds: ForegroundObject[] = [];
 
   /** Called by SceneManager wiring to navigate between scenes. */
   onSceneChange?: (sceneId: SceneId) => void;
 
   async setup(): Promise<void> {
+    const sceneData = (walkableAreasData as WalkableAreasJson).central_trail as Record<string, unknown>;
+
     // 1. Background
     const bgTexture = await Assets.load('assets/backgrounds/central-trail-bg.png');
     const bg = new Sprite(bgTexture);
@@ -36,25 +44,34 @@ export class CentralTrail extends Scene {
     bg.height = 720;
     this.container.addChild(bg);
 
-    // 2. Walkable area
-    const areaData = walkableAreasData.central_trail.polygons[0];
+    // 2. Depth container (Y-sorted every frame)
+    this.depthContainer = new Container();
+    this.container.addChild(this.depthContainer);
+
+    // 3. Walkable area with obstacles
+    const areaData = (sceneData.polygons as { points: number[][] }[])[0];
+    const obstacleData = (sceneData.obstacles as { points: number[][] }[] | undefined) ?? [];
     this.walkableArea = new WalkableArea(
       areaData.points.map(([x, y]: number[]) => ({ x, y })),
+      obstacleData.map((obs) => obs.points.map(([x, y]: number[]) => ({ x, y }))),
     );
 
-    // 3. Scruff
+    // 4. Depth scale config
+    this.depthScaleConfig = (sceneData.depthScale as DepthScaleConfig | undefined) ?? null;
+
+    // 5. Scruff
     this.scruff = new Scruff(this.tweens);
     await this.scruff.setup();
-    const start = resolveEntryPoint(walkableAreasData.central_trail.entryPoints);
+    const start = resolveEntryPoint(sceneData.entryPoints as Record<string, number[]>);
     this.scruff.setPosition(start.x, start.y);
-    this.container.addChild(this.scruff.container);
+    this.depthContainer.addChild(this.scruff.container);
 
-    // 3. Sage the Owl NPC
+    // 6. Sage the Owl NPC
     this.sage = new NPC(npcConfigs.sage as NPCConfig, this.tweens);
     await this.sage.setup();
-    this.container.addChild(this.sage.container);
+    this.depthContainer.addChild(this.sage.container);
 
-    // 4. Sage tap handler
+    // 7. Sage tap handler
     this.sage.container.on('pointertap', () => {
       if (this.scruff.isMoving() || this.dialogueRunner.isActive()) return;
       this.scruff
@@ -74,7 +91,7 @@ export class CentralTrail extends Scene {
         });
     });
 
-    // 5. Collectible items (only if not already in inventory)
+    // 8. Collectible items (only if not already in inventory)
     if (!this.gameState.hasItem('chapman_oak_acorns')) {
       const acorns = new InteractiveItem(
         {
@@ -87,7 +104,7 @@ export class CentralTrail extends Scene {
       );
       await acorns.setup();
       this.items.push(acorns);
-      this.container.addChild(acorns.container);
+      this.depthContainer.addChild(acorns.container);
     }
 
     if (!this.gameState.hasItem('scrub_hickory_nuts')) {
@@ -102,10 +119,19 @@ export class CentralTrail extends Scene {
       );
       await nuts.setup();
       this.items.push(nuts);
-      this.container.addChild(nuts.container);
+      this.depthContainer.addChild(nuts.container);
     }
 
-    // 6. Dialogue system
+    // 9. Foreground objects
+    const fgData = (sceneData.foregrounds as { id: string; texturePath: string; x: number; y: number; depthY: number }[] | undefined) ?? [];
+    for (const fgCfg of fgData) {
+      const fg = new ForegroundObject(fgCfg);
+      await fg.setup();
+      this.foregrounds.push(fg);
+      this.depthContainer.addChild(fg.container);
+    }
+
+    // 10. Dialogue system (above depthContainer)
     this.dialogueRunner = new DialogueRunner(
       dialogueData as Record<string, (typeof dialogueData)[keyof typeof dialogueData]>,
       (flag: string) => this.gameState.getFlag(flag as FlagId),
@@ -113,7 +139,7 @@ export class CentralTrail extends Scene {
     this.dialogueBubble = new DialogueBubble();
     this.container.addChild(this.dialogueBubble.container);
 
-    // 7. Navigation arrows (4 directions)
+    // 11. Navigation arrows (above depthContainer)
 
     // Down -> Tortoise Burrow
     const downArrow = new SceneArrow(
@@ -185,7 +211,7 @@ export class CentralTrail extends Scene {
     // Initially hidden; shown in enter() if sunny_helped is set
     this.upArrow.container.visible = false;
 
-    // 8. Signpost (tappable visual element at center)
+    // 12. Signpost (tappable visual element at center — above depthContainer)
     this.signpost = new Container();
     const signpostGraphic = new Graphics();
     // Post
@@ -225,7 +251,7 @@ export class CentralTrail extends Scene {
     });
     this.container.addChild(this.signpost);
 
-    // 9. Item tap handlers
+    // 13. Item tap handlers
     for (const item of this.items) {
       item.container.on('pointertap', () => {
         if (this.scruff.isMoving() || this.dialogueRunner.isActive()) return;
@@ -238,7 +264,7 @@ export class CentralTrail extends Scene {
       });
     }
 
-    // 10. Ground tap handler (background receives taps)
+    // 14. Ground tap handler (background receives taps)
     bg.eventMode = 'static';
     bg.on('pointertap', (e) => {
       if (this.scruff.isMoving()) return;
@@ -265,16 +291,26 @@ export class CentralTrail extends Scene {
       this.scruff.moveToConstrained(pos.x, pos.y, this.walkableArea);
     });
 
-    // Debug overlay
+    // 15. Debug overlay (above depthContainer)
     if (WalkableAreaDebug.isEnabled()) {
-      const debug = new WalkableAreaDebug(this.walkableArea, walkableAreasData.central_trail.entryPoints, [this.sage], 'central_trail', 'central_trail', ['sage']);
+      const debug = new WalkableAreaDebug(
+        this.walkableArea,
+        sceneData.entryPoints as Record<string, number[]>,
+        [this.sage],
+        'central_trail',
+        'central_trail',
+        ['sage'],
+        this.walkableArea.getObstacles(),
+        this.foregrounds,
+      );
       this.container.addChild(debug.container);
     }
   }
 
   enter(fromScene?: SceneId): void {
+    const sceneData = (walkableAreasData as WalkableAreasJson).central_trail as Record<string, unknown>;
     // Position Scruff based on which scene she came from
-    const entry = resolveEntryPoint(walkableAreasData.central_trail.entryPoints, fromScene);
+    const entry = resolveEntryPoint(sceneData.entryPoints as Record<string, number[]>, fromScene);
     this.scruff.setPosition(entry.x, entry.y);
 
     // Set fast_travel_unlocked on first visit
@@ -299,6 +335,13 @@ export class CentralTrail extends Scene {
       const dist = Math.sqrt(dx * dx + dy * dy);
       item.setProximity(dist < 100);
     }
+
+    // Apply depth scaling
+    if (this.depthScaleConfig) {
+      this.applyDepthScaling(this.depthScaleConfig, [this.scruff, this.sage]);
+    }
+    // Re-sort by Y
+    this.sortDepth();
   }
 
   exit(): void {

@@ -6,13 +6,17 @@ import { SceneArrow } from '../game/SceneArrow';
 import { DialogueBubble, DialogueRunner } from '../game/DialogueSystem';
 import { WalkableArea, resolveEntryPoint } from '../game/WalkableArea';
 import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
-import { Sprite, Assets } from 'pixi.js';
+import { ForegroundObject } from '../game/ForegroundObject';
+import type { DepthScaleConfig } from '../game/DepthSort';
+import { Sprite, Assets, Container } from 'pixi.js';
 import type { SceneId, FlagId } from '../game/GameState';
 import type { NPCConfig } from '../characters/NPC';
 import { SeedScatter } from '../minigames/SeedScatter';
 import dialogueData from '../data/dialogue.json';
 import walkableAreasData from '../data/walkable-areas.json';
 import npcConfigs from '../data/npc-configs.json';
+
+type WalkableAreasJson = Record<string, Record<string, unknown>>;
 
 export class SandyBarrens extends Scene {
   private scruff!: Scruff;
@@ -24,11 +28,15 @@ export class SandyBarrens extends Scene {
   private lastDialogueId: string | null = null;
   private walkableArea!: WalkableArea;
   private activeMinigame: SeedScatter | null = null;
+  private depthScaleConfig: DepthScaleConfig | null = null;
+  private foregrounds: ForegroundObject[] = [];
 
   /** Called by SceneManager wiring to navigate between scenes. */
   onSceneChange?: (sceneId: SceneId) => void;
 
   async setup(): Promise<void> {
+    const sceneData = (walkableAreasData as WalkableAreasJson).sandy_barrens as Record<string, unknown>;
+
     // 1. Background
     const bgTexture = await Assets.load('assets/backgrounds/sandy-barrens-bg.png');
     const bg = new Sprite(bgTexture);
@@ -36,25 +44,34 @@ export class SandyBarrens extends Scene {
     bg.height = 720;
     this.container.addChild(bg);
 
-    // 2. Walkable area
-    const areaData = walkableAreasData.sandy_barrens.polygons[0];
+    // 2. Depth container (Y-sorted every frame)
+    this.depthContainer = new Container();
+    this.container.addChild(this.depthContainer);
+
+    // 3. Walkable area with obstacles
+    const areaData = (sceneData.polygons as { points: number[][] }[])[0];
+    const obstacleData = (sceneData.obstacles as { points: number[][] }[] | undefined) ?? [];
     this.walkableArea = new WalkableArea(
       areaData.points.map(([x, y]: number[]) => ({ x, y })),
+      obstacleData.map((obs) => obs.points.map(([x, y]: number[]) => ({ x, y }))),
     );
 
-    // 3. Scruff
+    // 4. Depth scale config
+    this.depthScaleConfig = (sceneData.depthScale as DepthScaleConfig | undefined) ?? null;
+
+    // 5. Scruff
     this.scruff = new Scruff(this.tweens);
     await this.scruff.setup();
-    const start = resolveEntryPoint(walkableAreasData.sandy_barrens.entryPoints);
+    const start = resolveEntryPoint(sceneData.entryPoints as Record<string, number[]>);
     this.scruff.setPosition(start.x, start.y);
-    this.container.addChild(this.scruff.container);
+    this.depthContainer.addChild(this.scruff.container);
 
-    // 3. Sunny NPC (indigo snake)
+    // 6. Sunny NPC (indigo snake)
     this.sunny = new NPC(npcConfigs.sunny as NPCConfig, this.tweens);
     await this.sunny.setup();
-    this.container.addChild(this.sunny.container);
+    this.depthContainer.addChild(this.sunny.container);
 
-    // 4. Collectible: Florida rosemary cuttings (only if not already collected)
+    // 7. Collectible: Florida rosemary cuttings (only if not already collected)
     if (!this.gameState.hasItem('florida_rosemary_cuttings')) {
       const rosemary = new InteractiveItem(
         {
@@ -67,10 +84,19 @@ export class SandyBarrens extends Scene {
       );
       await rosemary.setup();
       this.items.push(rosemary);
-      this.container.addChild(rosemary.container);
+      this.depthContainer.addChild(rosemary.container);
     }
 
-    // 5. Sunny tap handler
+    // 8. Foreground objects
+    const fgData = (sceneData.foregrounds as { id: string; texturePath: string; x: number; y: number; depthY: number }[] | undefined) ?? [];
+    for (const fgCfg of fgData) {
+      const fg = new ForegroundObject(fgCfg);
+      await fg.setup();
+      this.foregrounds.push(fg);
+      this.depthContainer.addChild(fg.container);
+    }
+
+    // 9. Sunny tap handler
     this.sunny.container.on('pointertap', () => {
       if (this.scruff.isMoving() || this.dialogueRunner.isActive() || this.activeMinigame) return;
       this.scruff
@@ -103,7 +129,7 @@ export class SandyBarrens extends Scene {
         });
     });
 
-    // 6. Dialogue system
+    // 10. Dialogue system (above depthContainer)
     this.dialogueRunner = new DialogueRunner(
       dialogueData as Record<string, (typeof dialogueData)[keyof typeof dialogueData]>,
       (flag: string) => this.gameState.getFlag(flag as FlagId),
@@ -111,7 +137,7 @@ export class SandyBarrens extends Scene {
     this.dialogueBubble = new DialogueBubble();
     this.container.addChild(this.dialogueBubble.container);
 
-    // 7. Navigation arrows
+    // 11. Navigation arrows (above depthContainer)
     const leftArrow = new SceneArrow(
       'left',
       'central_trail',
@@ -128,7 +154,7 @@ export class SandyBarrens extends Scene {
     this.arrows.push(leftArrow);
     this.container.addChild(leftArrow.container);
 
-    // 8. Item tap handlers
+    // 12. Item tap handlers
     for (const item of this.items) {
       item.container.on('pointertap', () => {
         if (this.scruff.isMoving() || this.dialogueRunner.isActive() || this.activeMinigame) return;
@@ -141,7 +167,7 @@ export class SandyBarrens extends Scene {
       });
     }
 
-    // 9. Ground tap handler (background receives taps)
+    // 13. Ground tap handler (background receives taps)
     bg.eventMode = 'static';
     bg.on('pointertap', (e) => {
       if (this.scruff.isMoving() || this.activeMinigame) return;
@@ -168,9 +194,18 @@ export class SandyBarrens extends Scene {
       this.scruff.moveToConstrained(pos.x, pos.y, this.walkableArea);
     });
 
-    // Debug overlay
+    // 14. Debug overlay (above depthContainer)
     if (WalkableAreaDebug.isEnabled()) {
-      const debug = new WalkableAreaDebug(this.walkableArea, walkableAreasData.sandy_barrens.entryPoints, [this.sunny], 'sandy_barrens', 'sandy_barrens', ['sunny']);
+      const debug = new WalkableAreaDebug(
+        this.walkableArea,
+        sceneData.entryPoints as Record<string, number[]>,
+        [this.sunny],
+        'sandy_barrens',
+        'sandy_barrens',
+        ['sunny'],
+        this.walkableArea.getObstacles(),
+        this.foregrounds,
+      );
       this.container.addChild(debug.container);
     }
   }
@@ -205,8 +240,9 @@ export class SandyBarrens extends Scene {
   }
 
   enter(fromScene?: SceneId): void {
+    const sceneData = (walkableAreasData as WalkableAreasJson).sandy_barrens as Record<string, unknown>;
     // Position Scruff based on which scene she came from
-    const entry = resolveEntryPoint(walkableAreasData.sandy_barrens.entryPoints, fromScene);
+    const entry = resolveEntryPoint(sceneData.entryPoints as Record<string, number[]>, fromScene);
     this.scruff.setPosition(entry.x, entry.y);
   }
 
@@ -229,6 +265,13 @@ export class SandyBarrens extends Scene {
       const dist = Math.sqrt(dx * dx + dy * dy);
       item.setProximity(dist < 100);
     }
+
+    // Apply depth scaling
+    if (this.depthScaleConfig) {
+      this.applyDepthScaling(this.depthScaleConfig, [this.scruff, this.sunny]);
+    }
+    // Re-sort by Y
+    this.sortDepth();
   }
 
   exit(): void {

@@ -1,11 +1,15 @@
 import dialogueData from '../data/dialogue.json';
 import npcConfigs from '../data/npc-configs.json';
+import walkableAreasData from '../data/walkable-areas.json';
 import type { SceneId, FlagId, ItemId } from './GameState';
 import type { GameState } from './GameState';
 import type { SceneManager } from './SceneManager';
 import { WalkableAreaDebug } from './WalkableAreaDebug';
+import { ForegroundObject } from './ForegroundObject';
 import { DebugSaveClient } from './DebugSaveClient';
 import { DebugUndoStack } from './DebugUndoStack';
+import type { DepthScaleConfig } from './DepthSort';
+import type { Point } from './WalkableArea';
 
 interface DialogueLine {
   text: string;
@@ -280,6 +284,11 @@ export class DebugPanel {
     this.updateNav();
     this.renderTabs();
     this.renderActiveTab();
+    // New scenes create fresh WalkableAreaDebug instances that default to visible.
+    // Re-hide them if we're in play mode.
+    if (this.playMode) {
+      WalkableAreaDebug.setAllVisible(false);
+    }
   }
 
   private updateNav(): void {
@@ -768,6 +777,32 @@ export class DebugPanel {
 
   // ─── Geometry Tab ──────────────────────────────────
 
+  /** Resolve the walkable-areas.json data for the active scene. Handles dot-paths like tortoise_burrow.surface. */
+  private getSceneAreaData(): Record<string, unknown> | null {
+    if (!this.activeSceneId) return null;
+    const waData = walkableAreasData as Record<string, unknown>;
+    const raw = waData[this.activeSceneId];
+    if (!raw) return null;
+
+    // Check if it's a nested scene (has sub-areas like tortoise_burrow.surface)
+    const obj = raw as Record<string, unknown>;
+    if (obj.polygons) return obj;
+    // If it has sub-areas, return the first one (surface) for now
+    if (obj.surface) return obj.surface as Record<string, unknown>;
+    return obj;
+  }
+
+  /** Get the dot-path key for the active scene's walkable area data. */
+  private getSceneAreaPath(): string {
+    if (!this.activeSceneId) return '';
+    const waData = walkableAreasData as Record<string, unknown>;
+    const raw = waData[this.activeSceneId] as Record<string, unknown>;
+    if (!raw) return this.activeSceneId;
+    if (raw.polygons) return this.activeSceneId;
+    if (raw.surface) return `${this.activeSceneId}.surface`;
+    return this.activeSceneId;
+  }
+
   private renderGeometry(): void {
     const container = document.createElement('div');
 
@@ -777,7 +812,7 @@ export class DebugPanel {
     container.appendChild(heading);
 
     const instructions = document.createElement('div');
-    instructions.textContent = 'Drag vertices on canvas. Shift+click to add. Right-click to remove.';
+    instructions.textContent = 'Drag vertices on canvas. Shift+click edge to add vertex. Right-click vertex to remove.';
     Object.assign(instructions.style, { color: '#888', fontSize: '12px', marginBottom: '12px' });
     container.appendChild(instructions);
 
@@ -786,12 +821,185 @@ export class DebugPanel {
     Object.assign(info.style, { color: '#aaa', fontSize: '12px', marginBottom: '8px' });
     container.appendChild(info);
 
+    const sceneData = this.getSceneAreaData();
+
+    // ─── Depth Scale Section ─────────────────────
+    container.appendChild(this.buildSectionHeader('Depth Scale', '#4488ff'));
+
+    if (sceneData) {
+      const depthScale = (sceneData.depthScale as DepthScaleConfig | undefined) ?? null;
+
+      if (depthScale) {
+        const dsRow1 = document.createElement('div');
+        Object.assign(dsRow1.style, { display: 'flex', gap: '8px', marginBottom: '4px' });
+        dsRow1.appendChild(this.labeledField('minY:', this.makeNumberInput(depthScale.minY, (v) => { depthScale.minY = v; })));
+        dsRow1.appendChild(this.labeledField('maxY:', this.makeNumberInput(depthScale.maxY, (v) => { depthScale.maxY = v; })));
+        container.appendChild(dsRow1);
+
+        const dsRow2 = document.createElement('div');
+        Object.assign(dsRow2.style, { display: 'flex', gap: '8px', marginBottom: '8px' });
+        dsRow2.appendChild(this.labeledField('minScale:', this.makeNumberInput(depthScale.minScale, (v) => { depthScale.minScale = v; })));
+        dsRow2.appendChild(this.labeledField('maxScale:', this.makeNumberInput(depthScale.maxScale, (v) => { depthScale.maxScale = v; })));
+        container.appendChild(dsRow2);
+      } else {
+        const addDsBtn = document.createElement('button');
+        addDsBtn.textContent = '+ Enable Depth Scale';
+        Object.assign(addDsBtn.style, {
+          background: '#1a2a1a', color: '#66ff66', border: '1px solid #448844',
+          borderRadius: '3px', padding: '4px 12px', cursor: 'pointer',
+          fontFamily: 'monospace', fontSize: '11px', marginBottom: '8px',
+        });
+        addDsBtn.addEventListener('click', () => {
+          (sceneData as Record<string, unknown>).depthScale = { minY: 350, maxY: 700, minScale: 0.6, maxScale: 1.0 };
+          this.renderActiveTab();
+        });
+        container.appendChild(addDsBtn);
+      }
+    }
+
+    // ─── Obstacles Section ───────────────────────
+    container.appendChild(this.buildSectionHeader('Obstacles', '#ff4444'));
+
+    if (sceneData) {
+      const obstacles = (sceneData.obstacles as { points: number[][] }[] | undefined) ?? [];
+
+      for (let i = 0; i < obstacles.length; i++) {
+        const obsRow = document.createElement('div');
+        Object.assign(obsRow.style, {
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          padding: '3px 0', borderBottom: '1px solid #333',
+        });
+        const obsLabel = document.createElement('span');
+        obsLabel.textContent = `Obstacle ${i + 1} (${obstacles[i].points.length} vertices)`;
+        Object.assign(obsLabel.style, { color: '#ff8888', fontSize: '12px' });
+        obsRow.appendChild(obsLabel);
+
+        const rmBtn = document.createElement('button');
+        rmBtn.textContent = 'Remove';
+        Object.assign(rmBtn.style, {
+          background: 'none', color: '#ff6666', border: '1px solid #ff6666',
+          borderRadius: '3px', padding: '2px 8px', cursor: 'pointer',
+          fontFamily: 'monospace', fontSize: '11px',
+        });
+        rmBtn.addEventListener('click', () => {
+          obstacles.splice(i, 1);
+          // Also update the live WalkableAreaDebug instances
+          for (const inst of (WalkableAreaDebug as unknown as { instances: WalkableAreaDebug[] }).instances ?? []) {
+            // Trigger redraw via remove
+          }
+          this.sceneManager.getActiveScene()?.refreshDebugData();
+          this.renderActiveTab();
+        });
+        obsRow.appendChild(rmBtn);
+        container.appendChild(obsRow);
+      }
+
+      const addObsBtn = document.createElement('button');
+      addObsBtn.textContent = '+ Add Obstacle';
+      Object.assign(addObsBtn.style, {
+        background: '#2a1a1a', color: '#ff6666', border: '1px solid #884444',
+        borderRadius: '3px', padding: '4px 12px', cursor: 'pointer',
+        fontFamily: 'monospace', fontSize: '11px', marginTop: '4px', marginBottom: '8px',
+      });
+      addObsBtn.addEventListener('click', () => {
+        // Create a default triangle at center of walkable area
+        const newObs = { points: [[580, 450], [640, 420], [700, 450]] };
+        obstacles.push(newObs);
+        if (!(sceneData as Record<string, unknown>).obstacles) {
+          (sceneData as Record<string, unknown>).obstacles = obstacles;
+        }
+        this.sceneManager.getActiveScene()?.refreshDebugData();
+        this.renderActiveTab();
+      });
+      container.appendChild(addObsBtn);
+    }
+
+    // ─── Foregrounds Section ─────────────────────
+    container.appendChild(this.buildSectionHeader('Foregrounds', '#ff00ff'));
+
+    if (sceneData) {
+      const foregrounds = (sceneData.foregrounds as { id: string; texturePath: string; x: number; y: number; depthY: number }[] | undefined) ?? [];
+
+      for (let i = 0; i < foregrounds.length; i++) {
+        const fg = foregrounds[i];
+        const fgCard = document.createElement('div');
+        Object.assign(fgCard.style, {
+          marginBottom: '8px', padding: '6px', background: '#1a0f1e',
+          borderRadius: '4px', borderLeft: '3px solid #ff00ff',
+        });
+
+        const fgHeader = document.createElement('div');
+        Object.assign(fgHeader.style, { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' });
+        const fgTitle = document.createElement('span');
+        fgTitle.textContent = `Foreground ${i + 1}`;
+        Object.assign(fgTitle.style, { color: '#ff88ff', fontWeight: 'bold', fontSize: '12px' });
+        fgHeader.appendChild(fgTitle);
+
+        const rmFgBtn = document.createElement('button');
+        rmFgBtn.textContent = 'Remove';
+        Object.assign(rmFgBtn.style, {
+          background: 'none', color: '#ff6666', border: '1px solid #ff6666',
+          borderRadius: '3px', padding: '2px 8px', cursor: 'pointer',
+          fontFamily: 'monospace', fontSize: '11px',
+        });
+        rmFgBtn.addEventListener('click', () => {
+          foregrounds.splice(i, 1);
+          this.sceneManager.getActiveScene()?.refreshDebugData();
+          this.renderActiveTab();
+        });
+        fgHeader.appendChild(rmFgBtn);
+        fgCard.appendChild(fgHeader);
+
+        fgCard.appendChild(this.labeledField('id:', this.makeTextInput(fg.id, (v) => { fg.id = v; })));
+        fgCard.appendChild(this.labeledField('texturePath:', this.makeTextInput(fg.texturePath, (v) => { fg.texturePath = v; })));
+
+        const posRow = document.createElement('div');
+        Object.assign(posRow.style, { display: 'flex', gap: '8px' });
+        posRow.appendChild(this.labeledField('x:', this.makeNumberInput(fg.x, (v) => { fg.x = v; })));
+        posRow.appendChild(this.labeledField('y:', this.makeNumberInput(fg.y, (v) => { fg.y = v; })));
+        posRow.appendChild(this.labeledField('depthY:', this.makeNumberInput(fg.depthY, (v) => { fg.depthY = v; })));
+        fgCard.appendChild(posRow);
+
+        container.appendChild(fgCard);
+      }
+
+      const addFgBtn = document.createElement('button');
+      addFgBtn.textContent = '+ Add Foreground';
+      Object.assign(addFgBtn.style, {
+        background: '#1a0f1e', color: '#ff88ff', border: '1px solid #884488',
+        borderRadius: '3px', padding: '4px 12px', cursor: 'pointer',
+        fontFamily: 'monospace', fontSize: '11px', marginTop: '4px', marginBottom: '8px',
+      });
+      addFgBtn.addEventListener('click', () => {
+        const newFg = { id: `fg_${foregrounds.length + 1}`, texturePath: 'assets/foregrounds/placeholder.png', x: 640, y: 400, depthY: 450 };
+        foregrounds.push(newFg);
+        if (!(sceneData as Record<string, unknown>).foregrounds) {
+          (sceneData as Record<string, unknown>).foregrounds = foregrounds;
+        }
+        this.sceneManager.getActiveScene()?.refreshDebugData();
+        this.renderActiveTab();
+      });
+      container.appendChild(addFgBtn);
+    }
+
+    // ─── Canvas Instructions ─────────────────────
     const note = document.createElement('div');
-    note.textContent = 'Use the Save button on the canvas overlay to save geometry and NPC positions for the current scene.';
-    Object.assign(note.style, { color: '#888', fontSize: '11px', fontStyle: 'italic' });
+    note.textContent = 'Use the Save button on the canvas overlay to save all geometry changes.';
+    Object.assign(note.style, { color: '#888', fontSize: '11px', fontStyle: 'italic', marginTop: '12px' });
     container.appendChild(note);
 
     this.tabContent.appendChild(container);
+  }
+
+  private buildSectionHeader(text: string, color: string): HTMLDivElement {
+    const header = document.createElement('div');
+    header.textContent = text;
+    Object.assign(header.style, {
+      color, fontWeight: 'bold', fontSize: '13px',
+      marginTop: '12px', marginBottom: '6px',
+      paddingBottom: '3px', borderBottom: `1px solid ${color}44`,
+    });
+    return header;
   }
 
   // ─── Form helpers ──────────────────────────────────

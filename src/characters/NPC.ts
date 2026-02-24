@@ -92,18 +92,25 @@ export class NPC {
     this.startIdle();
   }
 
+  applyDepthScale(factor: number): void {
+    this.container.scale.set(factor);
+  }
+
   playHappy(): Promise<void> {
     return new Promise((resolve) => {
       this.stopIdle();
+      // Use sprite.scale so depth scale on container is not affected
+      const baseX = Math.abs(this.sprite.scale.x);
+      const baseY = Math.abs(this.sprite.scale.y);
       this.tweens.add({
-        target: this.container.scale as unknown as Record<string, number>,
-        props: { x: 1.2, y: 1.2 },
+        target: this.sprite.scale as unknown as Record<string, number>,
+        props: { x: baseX * 1.2, y: baseY * 1.2 },
         duration: 200,
         easing: Easing.easeOut,
         onComplete: () => {
           this.tweens.add({
-            target: this.container.scale as unknown as Record<string, number>,
-            props: { x: 1, y: 1 },
+            target: this.sprite.scale as unknown as Record<string, number>,
+            props: { x: baseX, y: baseY },
             duration: 300,
             easing: Easing.bounce,
             onComplete: () => {
