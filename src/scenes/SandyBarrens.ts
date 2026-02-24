@@ -4,10 +4,15 @@ import { NPC } from '../characters/NPC';
 import { InteractiveItem } from '../game/InteractiveItem';
 import { SceneArrow } from '../game/SceneArrow';
 import { DialogueBubble, DialogueRunner } from '../game/DialogueSystem';
+import { WalkableArea, resolveEntryPoint } from '../game/WalkableArea';
+import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
 import { Sprite, Assets } from 'pixi.js';
 import type { SceneId, FlagId } from '../game/GameState';
+import type { NPCConfig } from '../characters/NPC';
 import { SeedScatter } from '../minigames/SeedScatter';
 import dialogueData from '../data/dialogue.json';
+import walkableAreasData from '../data/walkable-areas.json';
+import npcConfigs from '../data/npc-configs.json';
 
 export class SandyBarrens extends Scene {
   private scruff!: Scruff;
@@ -17,6 +22,7 @@ export class SandyBarrens extends Scene {
   private dialogueBubble!: DialogueBubble;
   private dialogueRunner!: DialogueRunner;
   private lastDialogueId: string | null = null;
+  private walkableArea!: WalkableArea;
   private activeMinigame: SeedScatter | null = null;
 
   /** Called by SceneManager wiring to navigate between scenes. */
@@ -30,30 +36,21 @@ export class SandyBarrens extends Scene {
     bg.height = 720;
     this.container.addChild(bg);
 
-    // 2. Scruff
+    // 2. Walkable area
+    const areaData = walkableAreasData.sandy_barrens.polygons[0];
+    this.walkableArea = new WalkableArea(
+      areaData.points.map(([x, y]: number[]) => ({ x, y })),
+    );
+
+    // 3. Scruff
     this.scruff = new Scruff(this.tweens);
     await this.scruff.setup();
-    this.scruff.setPosition(640, 580);
+    const start = resolveEntryPoint(walkableAreasData.sandy_barrens.entryPoints);
+    this.scruff.setPosition(start.x, start.y);
     this.container.addChild(this.scruff.container);
 
     // 3. Sunny NPC (indigo snake)
-    this.sunny = new NPC(
-      {
-        id: 'sunny',
-        name: 'Sunny',
-        texturePath: 'assets/characters/sunny.png',
-        width: 160,
-        height: 80,
-        x: 700,
-        y: 480,
-        dialogueDefault: 'sunny_intro',
-        dialogueHasItem: null,
-        dialogueAfter: 'sunny_after',
-        wantsItem: null,
-        helpedFlag: 'sunny_helped',
-      },
-      this.tweens,
-    );
+    this.sunny = new NPC(npcConfigs.sunny as NPCConfig, this.tweens);
     await this.sunny.setup();
     this.container.addChild(this.sunny.container);
 
@@ -167,11 +164,15 @@ export class SandyBarrens extends Scene {
       }
 
       const pos = e.getLocalPosition(this.container);
-      // Only allow movement in the ground area
-      if (pos.y > 300) {
-        this.scruff.moveTo(pos.x, pos.y);
-      }
+      // Constrain movement to walkable area
+      this.scruff.moveToConstrained(pos.x, pos.y, this.walkableArea);
     });
+
+    // Debug overlay
+    if (WalkableAreaDebug.isEnabled()) {
+      const debug = new WalkableAreaDebug(this.walkableArea, walkableAreasData.sandy_barrens.entryPoints, [this.sunny], 'sandy_barrens', 'sandy_barrens', ['sunny']);
+      this.container.addChild(debug.container);
+    }
   }
 
   private async handleDialogueEnd(): Promise<void> {
@@ -203,9 +204,10 @@ export class SandyBarrens extends Scene {
     this.activeMinigame = minigame;
   }
 
-  enter(): void {
-    // Reset Scruff position when entering
-    this.scruff.setPosition(640, 580);
+  enter(fromScene?: SceneId): void {
+    // Position Scruff based on which scene she came from
+    const entry = resolveEntryPoint(walkableAreasData.sandy_barrens.entryPoints, fromScene);
+    this.scruff.setPosition(entry.x, entry.y);
   }
 
   update(deltaMs: number): void {

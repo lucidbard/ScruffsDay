@@ -13,6 +13,8 @@ import { PineClearing } from './scenes/PineClearing';
 import { SandyBarrens } from './scenes/SandyBarrens';
 import { OwlsOverlook } from './scenes/OwlsOverlook';
 import { IntroSequence } from './scenes/IntroSequence';
+import { WalkableAreaDebug } from './game/WalkableAreaDebug';
+import { DebugPanel } from './game/DebugPanel';
 
 const GAME_WIDTH = 1280;
 const GAME_HEIGHT = 720;
@@ -97,6 +99,29 @@ async function init() {
   });
   gameContainer.addChild(menuBtn);
 
+  // Debug cog button (next to hamburger, only in debug mode)
+  let debugPanel: DebugPanel | null = null;
+  if (WalkableAreaDebug.isEnabled()) {
+    const cogBtn = new Container();
+    const cogBg = new Graphics();
+    cogBg.roundRect(-20, -20, 40, 40, 8);
+    cogBg.fill({ color: 0x3e2723, alpha: 0.6 });
+    cogBg.stroke({ width: 2, color: 0xfff8dc });
+    const cogIcon = new Text({
+      text: '\u2699',
+      style: new TextStyle({ fontSize: 24, fill: '#FFF8DC' }),
+    });
+    cogIcon.anchor.set(0.5, 0.5);
+    cogBtn.addChild(cogBg, cogIcon);
+    cogBtn.position.set(GAME_WIDTH - 90, 40);
+    cogBtn.eventMode = 'static';
+    cogBtn.cursor = 'pointer';
+    cogBtn.on('pointertap', () => {
+      debugPanel?.toggle();
+    });
+    gameContainer.addChild(cogBtn);
+  }
+
   // Menu overlay on top of everything
   gameContainer.addChild(menuOverlay.container);
 
@@ -171,6 +196,11 @@ async function init() {
     scene.onSceneChange = (id) => sceneManager.switchTo(id);
     return scene;
   });
+
+  // Debug panel (overlay, toggled by cog button)
+  if (WalkableAreaDebug.isEnabled()) {
+    debugPanel = new DebugPanel(sceneManager, gameState);
+  }
 
   // Start at intro if not seen, otherwise scrub thicket
   if (!gameState.getFlag('intro_seen')) {

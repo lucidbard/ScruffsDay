@@ -17,6 +17,9 @@ export class SceneManager {
   private switching = false;
   readonly container = new Container();
 
+  /** Called after a scene transition completes. */
+  onSceneSwitch?: (sceneId: SceneId) => void;
+
   constructor(
     private app: Application,
     private gameState: GameState,
@@ -71,13 +74,17 @@ export class SceneManager {
         scene.container,
         this.container.children.indexOf(overlay)
       );
-      scene.enter();
+      const fromScene = this.activeSceneId ?? undefined;
+      scene.enter(fromScene);
       this.activeScene = scene;
       this.activeSceneId = id;
       this.gameState.visitScene(id);
 
       // Auto-save on scene transition
       this.gameState.save();
+
+      // Notify listeners
+      this.onSceneSwitch?.(id);
 
       // Fade in
       await new Promise<void>((resolve) => {

@@ -127,7 +127,7 @@ export class IntroSequence extends Scene {
     this.container.addChildAt(hitArea, this.panels.length);
   }
 
-  enter(): void {
+  enter(_fromScene?: SceneId): void {
     this.currentPanel = 0;
     this.panels[0].alpha = 1;
     this.showPanel(0);

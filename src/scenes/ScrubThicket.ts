@@ -3,9 +3,12 @@ import { Scruff } from '../characters/Scruff';
 import { InteractiveItem } from '../game/InteractiveItem';
 import { SceneArrow } from '../game/SceneArrow';
 import { DialogueBubble, DialogueRunner } from '../game/DialogueSystem';
+import { WalkableArea, resolveEntryPoint } from '../game/WalkableArea';
+import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
 import { Sprite, Assets } from 'pixi.js';
 import type { SceneId, FlagId } from '../game/GameState';
 import dialogueData from '../data/dialogue.json';
+import walkableAreasData from '../data/walkable-areas.json';
 
 export class ScrubThicket extends Scene {
   private scruff!: Scruff;
@@ -13,6 +16,7 @@ export class ScrubThicket extends Scene {
   private arrows: SceneArrow[] = [];
   private dialogueBubble!: DialogueBubble;
   private dialogueRunner!: DialogueRunner;
+  private walkableArea!: WalkableArea;
 
   /** Called by SceneManager wiring to navigate between scenes. */
   onSceneChange?: (sceneId: SceneId) => void;
@@ -25,10 +29,17 @@ export class ScrubThicket extends Scene {
     bg.height = 720;
     this.container.addChild(bg);
 
-    // 2. Scruff
+    // 2. Walkable area
+    const areaData = walkableAreasData.scrub_thicket.polygons[0];
+    this.walkableArea = new WalkableArea(
+      areaData.points.map(([x, y]: number[]) => ({ x, y })),
+    );
+
+    // 3. Scruff
     this.scruff = new Scruff(this.tweens);
     await this.scruff.setup();
-    this.scruff.setPosition(640, 550);
+    const start = resolveEntryPoint(walkableAreasData.scrub_thicket.entryPoints);
+    this.scruff.setPosition(start.x, start.y);
     this.container.addChild(this.scruff.container);
 
     // 3. Collectible items (only if not already in inventory)
@@ -123,14 +134,22 @@ export class ScrubThicket extends Scene {
       }
 
       const pos = e.getLocalPosition(this.container);
-      // Only allow movement in the ground area
-      if (pos.y > 300) {
-        this.scruff.moveTo(pos.x, pos.y);
-      }
+      // Constrain movement to walkable area
+      this.scruff.moveToConstrained(pos.x, pos.y, this.walkableArea);
     });
+
+    // Debug overlay
+    if (WalkableAreaDebug.isEnabled()) {
+      const debug = new WalkableAreaDebug(this.walkableArea, walkableAreasData.scrub_thicket.entryPoints, []);
+      this.container.addChild(debug.container);
+    }
   }
 
-  enter(): void {
+  enter(fromScene?: SceneId): void {
+    // Position Scruff based on which scene she came from
+    const entry = resolveEntryPoint(walkableAreasData.scrub_thicket.entryPoints, fromScene);
+    this.scruff.setPosition(entry.x, entry.y);
+
     // Show tutorial dialogue on first visit
     if (!this.gameState.getFlag('tutorial_complete')) {
       const line = this.dialogueRunner.start('tutorial');

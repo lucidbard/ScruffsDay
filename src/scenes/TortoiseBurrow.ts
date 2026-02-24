@@ -3,9 +3,14 @@ import { Scruff } from '../characters/Scruff';
 import { NPC } from '../characters/NPC';
 import { SceneArrow } from '../game/SceneArrow';
 import { DialogueBubble, DialogueRunner } from '../game/DialogueSystem';
+import { WalkableArea, resolveEntryPoint } from '../game/WalkableArea';
+import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
 import { Container, Graphics, Sprite, Assets } from 'pixi.js';
 import type { SceneId, FlagId } from '../game/GameState';
+import type { NPCConfig } from '../characters/NPC';
 import dialogueData from '../data/dialogue.json';
+import walkableAreasData from '../data/walkable-areas.json';
+import npcConfigs from '../data/npc-configs.json';
 
 export class TortoiseBurrow extends Scene {
   private scruff!: Scruff;
@@ -15,6 +20,9 @@ export class TortoiseBurrow extends Scene {
   private dialogueBubble!: DialogueBubble;
   private dialogueRunner!: DialogueRunner;
   private lastDialogueId: string | null = null;
+
+  private surfaceWalkable!: WalkableArea;
+  private undergroundWalkable!: WalkableArea;
 
   // Underground sub-area
   private surfaceContainer!: Container;
@@ -37,30 +45,25 @@ export class TortoiseBurrow extends Scene {
     bg.height = 720;
     this.surfaceContainer.addChild(bg);
 
-    // 2. Scruff
+    // 2. Walkable areas
+    const surfData = walkableAreasData.tortoise_burrow.surface.polygons[0];
+    this.surfaceWalkable = new WalkableArea(
+      surfData.points.map(([x, y]: number[]) => ({ x, y })),
+    );
+    const ugData = walkableAreasData.tortoise_burrow.underground.polygons[0];
+    this.undergroundWalkable = new WalkableArea(
+      ugData.points.map(([x, y]: number[]) => ({ x, y })),
+    );
+
+    // 3. Scruff
     this.scruff = new Scruff(this.tweens);
     await this.scruff.setup();
-    this.scruff.setPosition(640, 580);
+    const start = resolveEntryPoint(walkableAreasData.tortoise_burrow.surface.entryPoints);
+    this.scruff.setPosition(start.x, start.y);
     this.surfaceContainer.addChild(this.scruff.container);
 
     // 3. Shelly NPC
-    this.shelly = new NPC(
-      {
-        id: 'shelly',
-        name: 'Shelly',
-        texturePath: 'assets/characters/shelly.png',
-        width: 120,
-        height: 100,
-        x: 500,
-        y: 500,
-        dialogueDefault: 'shelly_intro',
-        dialogueHasItem: 'shelly_has_item',
-        dialogueAfter: 'shelly_after',
-        wantsItem: 'saw_palmetto_fronds',
-        helpedFlag: 'shelly_helped',
-      },
-      this.tweens,
-    );
+    this.shelly = new NPC(npcConfigs.shelly as NPCConfig, this.tweens);
     await this.shelly.setup();
     this.surfaceContainer.addChild(this.shelly.container);
 
@@ -155,11 +158,15 @@ export class TortoiseBurrow extends Scene {
       }
 
       const pos = e.getLocalPosition(this.container);
-      // Only allow movement in the ground area
-      if (pos.y > 300) {
-        this.scruff.moveTo(pos.x, pos.y);
-      }
+      // Constrain movement to walkable area
+      this.scruff.moveToConstrained(pos.x, pos.y, this.surfaceWalkable);
     });
+
+    // Debug overlay (surface)
+    if (WalkableAreaDebug.isEnabled()) {
+      const debug = new WalkableAreaDebug(this.surfaceWalkable, walkableAreasData.tortoise_burrow.surface.entryPoints, [this.shelly], 'tortoise_burrow', 'tortoise_burrow.surface', ['shelly']);
+      this.surfaceContainer.addChild(debug.container);
+    }
   }
 
   private async setupUnderground(): Promise<void> {
@@ -191,23 +198,7 @@ export class TortoiseBurrow extends Scene {
     this.underground.addChild(lightArea);
 
     // Pip NPC
-    this.pip = new NPC(
-      {
-        id: 'pip',
-        name: 'Pip',
-        texturePath: 'assets/characters/pip.png',
-        width: 60,
-        height: 80,
-        x: 500,
-        y: 450,
-        dialogueDefault: 'pip_intro',
-        dialogueHasItem: 'pip_has_item',
-        dialogueAfter: 'pip_after',
-        wantsItem: 'scrub_hickory_nuts',
-        helpedFlag: 'pip_helped',
-      },
-      this.tweens,
-    );
+    this.pip = new NPC(npcConfigs.pip as NPCConfig, this.tweens);
     await this.pip.setup();
     this.underground.addChild(this.pip.container);
 
@@ -261,11 +252,15 @@ export class TortoiseBurrow extends Scene {
       }
 
       const pos = e.getLocalPosition(this.underground);
-      // Allow movement in the underground area (below the ceiling roots)
-      if (pos.y > 150) {
-        this.scruff.moveTo(pos.x, pos.y);
-      }
+      // Constrain movement to underground walkable area
+      this.scruff.moveToConstrained(pos.x, pos.y, this.undergroundWalkable);
     });
+
+    // Debug overlay (underground)
+    if (WalkableAreaDebug.isEnabled()) {
+      const ugDebug = new WalkableAreaDebug(this.undergroundWalkable, walkableAreasData.tortoise_burrow.underground.entryPoints, [this.pip], 'tortoise_burrow', 'tortoise_burrow.underground', ['pip']);
+      this.underground.addChild(ugDebug.container);
+    }
   }
 
   /** Advance current dialogue, showing next line or ending it. */
@@ -296,7 +291,8 @@ export class TortoiseBurrow extends Scene {
     // Move scruff from surface container to underground container
     this.surfaceContainer.removeChild(this.scruff.container);
     this.underground.addChild(this.scruff.container);
-    this.scruff.setPosition(640, 550);
+    const ugEntry = resolveEntryPoint(walkableAreasData.tortoise_burrow.underground.entryPoints);
+    this.scruff.setPosition(ugEntry.x, ugEntry.y);
 
     // Toggle visibility
     this.surfaceContainer.visible = false;
@@ -314,7 +310,8 @@ export class TortoiseBurrow extends Scene {
     // Move scruff back to surface container
     this.underground.removeChild(this.scruff.container);
     this.surfaceContainer.addChild(this.scruff.container);
-    this.scruff.setPosition(640, 580);
+    const sfEntry = resolveEntryPoint(walkableAreasData.tortoise_burrow.surface.entryPoints);
+    this.scruff.setPosition(sfEntry.x, sfEntry.y);
 
     // Toggle visibility
     this.underground.visible = false;
@@ -354,13 +351,14 @@ export class TortoiseBurrow extends Scene {
     this.lastDialogueId = null;
   }
 
-  enter(): void {
+  enter(fromScene?: SceneId): void {
     // Always return to surface view when entering the scene
     if (this.isUnderground) {
       this.switchToSurface();
     }
-    // Reset Scruff position when entering
-    this.scruff.setPosition(640, 580);
+    // Position Scruff based on which scene she came from
+    const entry = resolveEntryPoint(walkableAreasData.tortoise_burrow.surface.entryPoints, fromScene);
+    this.scruff.setPosition(entry.x, entry.y);
 
     // Enable burrow entrance if shelly has been helped
     if (this.gameState.getFlag('shelly_helped')) {

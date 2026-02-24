@@ -3,11 +3,16 @@ import { Scruff } from '../characters/Scruff';
 import { NPC } from '../characters/NPC';
 import { SceneArrow } from '../game/SceneArrow';
 import { DialogueBubble, DialogueRunner } from '../game/DialogueSystem';
+import { WalkableArea, resolveEntryPoint } from '../game/WalkableArea';
+import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
 import { Sprite, Assets, Container, Graphics, Text, TextStyle } from 'pixi.js';
 import type { SceneId, FlagId } from '../game/GameState';
+import type { NPCConfig } from '../characters/NPC';
 import { NightWatch } from '../minigames/NightWatch';
 import { Easing } from '../game/Tween';
 import dialogueData from '../data/dialogue.json';
+import walkableAreasData from '../data/walkable-areas.json';
+import npcConfigs from '../data/npc-configs.json';
 
 export class OwlsOverlook extends Scene {
   private scruff!: Scruff;
@@ -16,6 +21,7 @@ export class OwlsOverlook extends Scene {
   private dialogueBubble!: DialogueBubble;
   private dialogueRunner!: DialogueRunner;
   private lastDialogueId: string | null = null;
+  private walkableArea!: WalkableArea;
   private activeMinigame: NightWatch | null = null;
 
   /** Called by SceneManager wiring to navigate between scenes. */
@@ -29,30 +35,21 @@ export class OwlsOverlook extends Scene {
     bg.height = 720;
     this.container.addChild(bg);
 
-    // 2. Scruff
+    // 2. Walkable area
+    const areaData = walkableAreasData.owls_overlook.polygons[0];
+    this.walkableArea = new WalkableArea(
+      areaData.points.map(([x, y]: number[]) => ({ x, y })),
+    );
+
+    // 3. Scruff
     this.scruff = new Scruff(this.tweens);
     await this.scruff.setup();
-    this.scruff.setPosition(640, 620);
+    const start = resolveEntryPoint(walkableAreasData.owls_overlook.entryPoints);
+    this.scruff.setPosition(start.x, start.y);
     this.container.addChild(this.scruff.container);
 
     // 3. Sage NPC (owl) - perched on the dead tree
-    this.sage = new NPC(
-      {
-        id: 'sage',
-        name: 'Sage',
-        texturePath: 'assets/characters/sage.png',
-        width: 100,
-        height: 140,
-        x: 640,
-        y: 420,
-        dialogueDefault: 'sage_finale_intro',
-        dialogueHasItem: null,
-        dialogueAfter: 'sage_finale_after',
-        wantsItem: null,
-        helpedFlag: null,
-      },
-      this.tweens,
-    );
+    this.sage = new NPC(npcConfigs.sage_overlook as NPCConfig, this.tweens);
     await this.sage.setup();
     this.container.addChild(this.sage.container);
 
@@ -134,11 +131,15 @@ export class OwlsOverlook extends Scene {
       }
 
       const pos = e.getLocalPosition(this.container);
-      // Only allow movement in the ground area
-      if (pos.y > 500) {
-        this.scruff.moveTo(pos.x, pos.y);
-      }
+      // Constrain movement to walkable area
+      this.scruff.moveToConstrained(pos.x, pos.y, this.walkableArea);
     });
+
+    // Debug overlay
+    if (WalkableAreaDebug.isEnabled()) {
+      const debug = new WalkableAreaDebug(this.walkableArea, walkableAreasData.owls_overlook.entryPoints, [this.sage], 'owls_overlook', 'owls_overlook', ['sage_overlook']);
+      this.container.addChild(debug.container);
+    }
   }
 
   /** Check if the player has all four proof items. */
@@ -340,9 +341,10 @@ export class OwlsOverlook extends Scene {
     });
   }
 
-  enter(): void {
-    // Reset Scruff position when entering
-    this.scruff.setPosition(640, 620);
+  enter(fromScene?: SceneId): void {
+    // Position Scruff based on which scene she came from
+    const entry = resolveEntryPoint(walkableAreasData.owls_overlook.entryPoints, fromScene);
+    this.scruff.setPosition(entry.x, entry.y);
   }
 
   update(deltaMs: number): void {

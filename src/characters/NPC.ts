@@ -84,6 +84,14 @@ export class NPC {
     }
   }
 
+  setDebugPosition(x: number, y: number): void {
+    this.config.x = x;
+    this.config.y = y;
+    this.stopIdle();
+    this.container.position.set(x, y);
+    this.startIdle();
+  }
+
   playHappy(): Promise<void> {
     return new Promise((resolve) => {
       this.stopIdle();

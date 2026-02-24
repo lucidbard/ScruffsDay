@@ -1,6 +1,7 @@
 import { Container, Sprite, Assets } from 'pixi.js';
 import type { TweenManager } from '../game/Tween';
 import { Easing } from '../game/Tween';
+import type { WalkableArea } from '../game/WalkableArea';
 
 export class Scruff {
   readonly container = new Container();
@@ -30,7 +31,9 @@ export class Scruff {
   }
 
   setPosition(x: number, y: number): void {
+    this.stopIdle();
     this.container.position.set(x, y);
+    this.startIdle();
   }
 
   moveTo(targetX: number, targetY: number): Promise<void> {
@@ -72,6 +75,15 @@ export class Scruff {
         },
       });
     });
+  }
+
+  /** Move to target, clamping to walkable area boundary if outside. */
+  moveToConstrained(targetX: number, targetY: number, walkableArea: WalkableArea): Promise<void> {
+    if (walkableArea.contains(targetX, targetY)) {
+      return this.moveTo(targetX, targetY);
+    }
+    const clamped = walkableArea.clampToEdge(targetX, targetY);
+    return this.moveTo(clamped.x, clamped.y);
   }
 
   isMoving(): boolean { return this.moving; }

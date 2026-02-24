@@ -1,5 +1,5 @@
 import { Container, Application } from 'pixi.js';
-import type { GameState } from './GameState';
+import type { GameState, SceneId } from './GameState';
 import type { TweenManager } from './Tween';
 
 export abstract class Scene {
@@ -15,7 +15,7 @@ export abstract class Scene {
   }
 
   abstract setup(): Promise<void>;
-  abstract enter(): void;
+  abstract enter(fromScene?: SceneId): void;
   abstract update(deltaMs: number): void;
   abstract exit(): void;
 

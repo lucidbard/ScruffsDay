@@ -4,9 +4,14 @@ import { NPC } from '../characters/NPC';
 import { InteractiveItem } from '../game/InteractiveItem';
 import { SceneArrow } from '../game/SceneArrow';
 import { DialogueBubble, DialogueRunner } from '../game/DialogueSystem';
+import { WalkableArea, resolveEntryPoint } from '../game/WalkableArea';
+import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
 import { Sprite, Assets, Graphics, Container, Text, TextStyle } from 'pixi.js';
 import type { SceneId, FlagId } from '../game/GameState';
+import type { NPCConfig } from '../characters/NPC';
 import dialogueData from '../data/dialogue.json';
+import walkableAreasData from '../data/walkable-areas.json';
+import npcConfigs from '../data/npc-configs.json';
 
 export class CentralTrail extends Scene {
   private scruff!: Scruff;
@@ -16,6 +21,7 @@ export class CentralTrail extends Scene {
   private dialogueBubble!: DialogueBubble;
   private dialogueRunner!: DialogueRunner;
   private lastDialogueId: string | null = null;
+  private walkableArea!: WalkableArea;
   private upArrow!: SceneArrow;
   private signpost!: Container;
 
@@ -30,30 +36,21 @@ export class CentralTrail extends Scene {
     bg.height = 720;
     this.container.addChild(bg);
 
-    // 2. Scruff
+    // 2. Walkable area
+    const areaData = walkableAreasData.central_trail.polygons[0];
+    this.walkableArea = new WalkableArea(
+      areaData.points.map(([x, y]: number[]) => ({ x, y })),
+    );
+
+    // 3. Scruff
     this.scruff = new Scruff(this.tweens);
     await this.scruff.setup();
-    this.scruff.setPosition(640, 580);
+    const start = resolveEntryPoint(walkableAreasData.central_trail.entryPoints);
+    this.scruff.setPosition(start.x, start.y);
     this.container.addChild(this.scruff.container);
 
     // 3. Sage the Owl NPC
-    this.sage = new NPC(
-      {
-        id: 'sage',
-        name: 'Sage',
-        texturePath: 'assets/characters/sage.png',
-        width: 100,
-        height: 140,
-        x: 900,
-        y: 400,
-        dialogueDefault: 'sage_intro',
-        dialogueHasItem: null,
-        dialogueAfter: null,
-        wantsItem: null,
-        helpedFlag: null,
-      },
-      this.tweens,
-    );
+    this.sage = new NPC(npcConfigs.sage as NPCConfig, this.tweens);
     await this.sage.setup();
     this.container.addChild(this.sage.container);
 
@@ -264,16 +261,21 @@ export class CentralTrail extends Scene {
       }
 
       const pos = e.getLocalPosition(this.container);
-      // Only allow movement in the ground area
-      if (pos.y > 300) {
-        this.scruff.moveTo(pos.x, pos.y);
-      }
+      // Constrain movement to walkable area
+      this.scruff.moveToConstrained(pos.x, pos.y, this.walkableArea);
     });
+
+    // Debug overlay
+    if (WalkableAreaDebug.isEnabled()) {
+      const debug = new WalkableAreaDebug(this.walkableArea, walkableAreasData.central_trail.entryPoints, [this.sage], 'central_trail', 'central_trail', ['sage']);
+      this.container.addChild(debug.container);
+    }
   }
 
-  enter(): void {
-    // Reset Scruff position when entering
-    this.scruff.setPosition(640, 580);
+  enter(fromScene?: SceneId): void {
+    // Position Scruff based on which scene she came from
+    const entry = resolveEntryPoint(walkableAreasData.central_trail.entryPoints, fromScene);
+    this.scruff.setPosition(entry.x, entry.y);
 
     // Set fast_travel_unlocked on first visit
     if (!this.gameState.getFlag('fast_travel_unlocked')) {
