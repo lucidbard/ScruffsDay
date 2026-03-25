@@ -8,55 +8,5 @@
     "mp4": "assets/animated/scrub-thicket-loop.mp4",
     "webm": "assets/animated/scrub-thicket-loop.webm",
     "output_dir": "/home/john/ScruffsDay/public/assets/animated/scrub-thicket/loop"
-  },
-  {
-    "name": "central-trail",
-    "type": "background",
-    "frames": 25,
-    "duration": 1.5625,
-    "fps": 16,
-    "mp4": "assets/animated/central-trail-loop.mp4",
-    "webm": "assets/animated/central-trail-loop.webm",
-    "output_dir": "/home/john/ScruffsDay/public/assets/animated/central-trail/loop"
-  },
-  {
-    "name": "tortoise-burrow",
-    "type": "background",
-    "frames": 25,
-    "duration": 1.5625,
-    "fps": 16,
-    "mp4": "assets/animated/tortoise-burrow-loop.mp4",
-    "webm": "assets/animated/tortoise-burrow-loop.webm",
-    "output_dir": "/home/john/ScruffsDay/public/assets/animated/tortoise-burrow/loop"
-  },
-  {
-    "name": "pine-clearing",
-    "type": "background",
-    "frames": 25,
-    "duration": 1.5625,
-    "fps": 16,
-    "mp4": "assets/animated/pine-clearing-loop.mp4",
-    "webm": "assets/animated/pine-clearing-loop.webm",
-    "output_dir": "/home/john/ScruffsDay/public/assets/animated/pine-clearing/loop"
-  },
-  {
-    "name": "sandy-barrens",
-    "type": "background",
-    "frames": 25,
-    "duration": 1.5625,
-    "fps": 16,
-    "mp4": "assets/animated/sandy-barrens-loop.mp4",
-    "webm": "assets/animated/sandy-barrens-loop.webm",
-    "output_dir": "/home/john/ScruffsDay/public/assets/animated/sandy-barrens/loop"
-  },
-  {
-    "name": "owls-overlook",
-    "type": "background",
-    "frames": 25,
-    "duration": 1.5625,
-    "fps": 16,
-    "mp4": "assets/animated/owls-overlook-loop.mp4",
-    "webm": "assets/animated/owls-overlook-loop.webm",
-    "output_dir": "/home/john/ScruffsDay/public/assets/animated/owls-overlook/loop"
   }
 ]

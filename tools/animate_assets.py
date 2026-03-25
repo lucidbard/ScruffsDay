@@ -637,8 +637,11 @@ async def animate_asset(asset: dict, comfyui_url: str, seed: int = 42,
             entry = await wait_for_completion(session, comfyui_url, prompt_id)
             print(f"      Done!")
 
-            # Download frames
+            # Download frames (clear old frames first)
             combined_dir = asset_output_dir / "loop"
+            if combined_dir.exists():
+                import shutil as _sh
+                _sh.rmtree(combined_dir)
             combined_dir.mkdir(exist_ok=True)
             frames = await download_output_frames(
                 session, comfyui_url, entry, combined_dir, f"{name}_loop"
