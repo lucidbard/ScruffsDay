@@ -9,6 +9,7 @@ import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
 import { ForegroundObject } from '../game/ForegroundObject';
 import type { DepthScaleConfig } from '../game/DepthSort';
 import { Sprite, Assets, Graphics, Container, Text, TextStyle } from 'pixi.js';
+import { AnimatedBackground } from '../game/AnimatedBackground';
 import type { SceneId, FlagId } from '../game/GameState';
 import type { NPCConfig } from '../characters/NPC';
 import dialogueData from '../data/dialogue.json';
@@ -30,6 +31,7 @@ export class CentralTrail extends Scene {
   private signpost!: Container;
   private depthScaleConfig: DepthScaleConfig | null = null;
   private foregrounds: ForegroundObject[] = [];
+  private animBg: AnimatedBackground | null = null;
 
   /** Called by SceneManager wiring to navigate between scenes. */
   onSceneChange?: (sceneId: SceneId) => void;
@@ -37,11 +39,10 @@ export class CentralTrail extends Scene {
   async setup(): Promise<void> {
     const sceneData = (walkableAreasData as WalkableAreasJson).central_trail as Record<string, unknown>;
 
-    // 1. Background
-    const bgTexture = await Assets.load('assets/backgrounds/central-trail-bg.png');
-    const bg = new Sprite(bgTexture);
-    bg.width = 1280;
-    bg.height = 720;
+    // 1. Background (animated video with static fallback)
+    this.animBg = new AnimatedBackground(1280, 720);
+    await this.animBg.load('central-trail', 'assets/backgrounds/central-trail-bg.png');
+    const bg = this.animBg.sprite;
     this.container.addChild(bg);
 
     // 2. Depth container (Y-sorted every frame)
@@ -320,6 +321,9 @@ export class CentralTrail extends Scene {
 
     // Show/hide up arrow based on sunny_helped flag
     this.upArrow.container.visible = this.gameState.getFlag('sunny_helped');
+
+    // Resume animated background
+    this.animBg?.resume();
   }
 
   update(_deltaMs: number): void {
@@ -346,5 +350,6 @@ export class CentralTrail extends Scene {
 
   exit(): void {
     this.dialogueBubble.hide();
+    this.animBg?.pause();
   }
 }

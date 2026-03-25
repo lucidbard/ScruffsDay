@@ -7,6 +7,7 @@ import { WalkableArea, resolveEntryPoint } from '../game/WalkableArea';
 import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
 import { ForegroundObject } from '../game/ForegroundObject';
 import type { DepthScaleConfig } from '../game/DepthSort';
+import { AnimatedBackground } from '../game/AnimatedBackground';
 import { Sprite, Assets, Container, Graphics, Text, TextStyle } from 'pixi.js';
 import type { SceneId, FlagId } from '../game/GameState';
 import type { NPCConfig } from '../characters/NPC';
@@ -29,6 +30,7 @@ export class OwlsOverlook extends Scene {
   private activeMinigame: NightWatch | null = null;
   private depthScaleConfig: DepthScaleConfig | null = null;
   private foregrounds: ForegroundObject[] = [];
+  private animBg: AnimatedBackground | null = null;
 
   /** Called by SceneManager wiring to navigate between scenes. */
   onSceneChange?: (sceneId: SceneId) => void;
@@ -37,10 +39,9 @@ export class OwlsOverlook extends Scene {
     const sceneData = (walkableAreasData as WalkableAreasJson).owls_overlook as Record<string, unknown>;
 
     // 1. Background
-    const bgTexture = await Assets.load('assets/backgrounds/owls-overlook-bg.png');
-    const bg = new Sprite(bgTexture);
-    bg.width = 1280;
-    bg.height = 720;
+    this.animBg = new AnimatedBackground(1280, 720);
+    await this.animBg.load('owls-overlook', 'assets/backgrounds/owls-overlook-bg.png');
+    const bg = this.animBg.sprite;
     this.container.addChild(bg);
 
     // 2. Depth container (Y-sorted every frame)
@@ -381,6 +382,8 @@ export class OwlsOverlook extends Scene {
     // Position Scruff based on which scene she came from
     const entry = resolveEntryPoint(sceneData.entryPoints as Record<string, number[]>, fromScene);
     this.scruff.setPosition(entry.x, entry.y);
+
+    this.animBg?.resume();
   }
 
   update(deltaMs: number): void {
@@ -404,6 +407,7 @@ export class OwlsOverlook extends Scene {
   }
 
   exit(): void {
+    this.animBg?.pause();
     this.dialogueBubble.hide();
     if (this.activeMinigame) {
       this.activeMinigame.exit();

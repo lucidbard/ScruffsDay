@@ -2,6 +2,7 @@ import { Container, Sprite, Assets } from 'pixi.js';
 import type { TweenManager } from '../game/Tween';
 import { Easing } from '../game/Tween';
 import type { ItemId, FlagId } from '../game/GameState';
+import { AnimatedNPCTexture } from '../game/AnimatedNPCTexture';
 
 export interface NPCConfig {
   id: string;
@@ -25,6 +26,7 @@ export class NPC {
   private tweens: TweenManager;
   private idleTweenId: number | null = null;
   private interactRadius = 120;
+  private animTexture: AnimatedNPCTexture | null = null;
 
   get id(): string { return this.config.id; }
   get name(): string { return this.config.name; }
@@ -35,7 +37,9 @@ export class NPC {
   }
 
   async setup(): Promise<void> {
-    const texture = await Assets.load(this.config.texturePath);
+    // Try animated video texture, fall back to static
+    this.animTexture = new AnimatedNPCTexture();
+    const texture = await this.animTexture.load(this.config.id, this.config.texturePath);
     this.sprite = new Sprite(texture);
     this.sprite.anchor.set(0.5, 1);
     // Scale proportionally to target height

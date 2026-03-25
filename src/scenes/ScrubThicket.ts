@@ -7,6 +7,7 @@ import { WalkableArea, resolveEntryPoint } from '../game/WalkableArea';
 import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
 import { ForegroundObject } from '../game/ForegroundObject';
 import type { DepthScaleConfig } from '../game/DepthSort';
+import { AnimatedBackground } from '../game/AnimatedBackground';
 import { Sprite, Assets, Container } from 'pixi.js';
 import type { SceneId, FlagId } from '../game/GameState';
 import dialogueData from '../data/dialogue.json';
@@ -23,6 +24,7 @@ export class ScrubThicket extends Scene {
   private walkableArea!: WalkableArea;
   private depthScaleConfig: DepthScaleConfig | null = null;
   private foregrounds: ForegroundObject[] = [];
+  private animBg: AnimatedBackground | null = null;
 
   /** Called by SceneManager wiring to navigate between scenes. */
   onSceneChange?: (sceneId: SceneId) => void;
@@ -31,10 +33,9 @@ export class ScrubThicket extends Scene {
     const sceneData = (walkableAreasData as WalkableAreasJson).scrub_thicket as Record<string, unknown>;
 
     // 1. Background
-    const bgTexture = await Assets.load('assets/backgrounds/scrub-thicket-bg.png');
-    const bg = new Sprite(bgTexture);
-    bg.width = 1280;
-    bg.height = 720;
+    this.animBg = new AnimatedBackground(1280, 720);
+    await this.animBg.load('scrub-thicket', 'assets/backgrounds/scrub-thicket-bg.png');
+    const bg = this.animBg.sprite;
     this.container.addChild(bg);
 
     // 2. Depth container (Y-sorted every frame)
@@ -67,6 +68,7 @@ export class ScrubThicket extends Scene {
           texturePath: 'assets/items/saw-palmetto-fronds.png',
           x: 300,
           y: 450,
+          height: 140,
         },
         this.tweens,
       );
@@ -199,6 +201,8 @@ export class ScrubThicket extends Scene {
       }
       this.gameState.setFlag('tutorial_complete');
     }
+
+    this.animBg?.resume();
   }
 
   update(_deltaMs: number): void {
@@ -219,6 +223,7 @@ export class ScrubThicket extends Scene {
   }
 
   exit(): void {
+    this.animBg?.pause();
     this.dialogueBubble.hide();
   }
 }

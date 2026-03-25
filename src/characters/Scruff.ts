@@ -8,7 +8,6 @@ export class Scruff {
   private sprite!: Sprite;
   private tweens: TweenManager;
   private moving = false;
-  private idleTweenId: number | null = null;
   private speed = 200; // pixels per second
 
   // Sprite animation
@@ -106,16 +105,7 @@ export class Scruff {
   }
 
   private startIdle(): void {
-    // Bob tween
-    this.idleTweenId = this.tweens.add({
-      target: this.container.position as unknown as Record<string, number>,
-      props: { y: this.container.y - 4 },
-      duration: 800,
-      yoyo: true,
-      loop: true,
-      easing: Easing.easeInOut,
-    });
-    // Idle frame cycling
+    // Idle frame cycling only — no bounce
     this.idleFrameIndex = 0;
     this.sprite.texture = this.idleTextures[0];
     this.idleAnimInterval = window.setInterval(() => {
@@ -125,10 +115,6 @@ export class Scruff {
   }
 
   private stopIdle(): void {
-    if (this.idleTweenId !== null) {
-      this.tweens.cancel(this.idleTweenId);
-      this.idleTweenId = null;
-    }
     if (this.idleAnimInterval !== null) {
       clearInterval(this.idleAnimInterval);
       this.idleAnimInterval = null;

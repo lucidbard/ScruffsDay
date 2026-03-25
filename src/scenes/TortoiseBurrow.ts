@@ -8,6 +8,7 @@ import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
 import { ForegroundObject } from '../game/ForegroundObject';
 import { depthSort } from '../game/DepthSort';
 import type { DepthScaleConfig } from '../game/DepthSort';
+import { AnimatedBackground } from '../game/AnimatedBackground';
 import { Container, Graphics, Sprite, Assets } from 'pixi.js';
 import type { SceneId, FlagId } from '../game/GameState';
 import type { NPCConfig } from '../characters/NPC';
@@ -45,6 +46,7 @@ export class TortoiseBurrow extends Scene {
   // Foreground objects per sub-area
   private surfaceForegrounds: ForegroundObject[] = [];
   private undergroundForegrounds: ForegroundObject[] = [];
+  private animBg: AnimatedBackground | null = null;
 
   /** Called by SceneManager wiring to navigate between scenes. */
   onSceneChange?: (sceneId: SceneId) => void;
@@ -59,10 +61,9 @@ export class TortoiseBurrow extends Scene {
     this.container.addChild(this.surfaceContainer);
 
     // 1. Background
-    const bgTexture = await Assets.load('assets/backgrounds/tortoise-burrow-bg.png');
-    const bg = new Sprite(bgTexture);
-    bg.width = 1280;
-    bg.height = 720;
+    this.animBg = new AnimatedBackground(1280, 720);
+    await this.animBg.load('tortoise-burrow', 'assets/backgrounds/tortoise-burrow-bg.png');
+    const bg = this.animBg.sprite;
     this.surfaceContainer.addChild(bg);
 
     // 2. Surface depth container (Y-sorted every frame)
@@ -446,6 +447,8 @@ export class TortoiseBurrow extends Scene {
     if (this.gameState.getFlag('shelly_helped')) {
       this.burrowEntrance.eventMode = 'static';
     }
+
+    this.animBg?.resume();
   }
 
   update(_deltaMs: number): void {
@@ -477,6 +480,7 @@ export class TortoiseBurrow extends Scene {
   }
 
   exit(): void {
+    this.animBg?.pause();
     this.dialogueBubble.hide();
   }
 }
