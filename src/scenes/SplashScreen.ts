@@ -47,6 +47,26 @@ export class SplashScreen extends Scene {
     aboutText.position.set(640, 450);
     this.content.addChild(aboutText);
 
+    // Website link
+    const link = new Text({
+      text: 'cupletfern.org',
+      style: new TextStyle({
+        fontFamily: 'Georgia, serif',
+        fontSize: 20,
+        fill: '#1565C0',
+        align: 'center',
+      }),
+    });
+    link.anchor.set(0.5, 0);
+    link.position.set(640, 530);
+    link.eventMode = 'static';
+    link.cursor = 'pointer';
+    link.on('pointertap', (e) => {
+      e.stopPropagation();
+      window.open('http://cupletfern.org/', '_blank');
+    });
+    this.content.addChild(link);
+
     // Tap prompt
     const prompt = new Text({
       text: 'tap to continue',
