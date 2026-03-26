@@ -13,6 +13,7 @@ import { PineClearing } from './scenes/PineClearing';
 import { SandyBarrens } from './scenes/SandyBarrens';
 import { OwlsOverlook } from './scenes/OwlsOverlook';
 import { IntroSequence } from './scenes/IntroSequence';
+import { SplashScreen } from './scenes/SplashScreen';
 import { WalkableAreaDebug } from './game/WalkableAreaDebug';
 import { DebugPanel } from './game/DebugPanel';
 
@@ -151,6 +152,12 @@ async function init() {
   });
 
   // Register scenes
+  sceneManager.register('splash', (app, gs, tw) => {
+    const scene = new SplashScreen(app, gs, tw);
+    scene.onSceneChange = (id) => sceneManager.switchTo(id);
+    return scene;
+  });
+
   sceneManager.register('intro', (app, gs, tw) => {
     const scene = new IntroSequence(app, gs, tw);
     scene.onSceneChange = (id) => {
@@ -205,7 +212,7 @@ async function init() {
   // Hide inventory/menu during intro, show for all other scenes
   const origOnSwitch = sceneManager.onSceneSwitch;
   sceneManager.onSceneSwitch = (id) => {
-    if (id === 'intro') {
+    if (id === 'splash' || id === 'intro') {
       inventoryUI.container.visible = false;
       menuBtn.visible = false;
     } else {
@@ -215,9 +222,9 @@ async function init() {
     origOnSwitch?.(id);
   };
 
-  // Start at intro if not seen, otherwise scrub thicket
+  // Start at splash -> intro if not seen, otherwise scrub thicket
   if (!gameState.getFlag('intro_seen')) {
-    await sceneManager.switchTo('intro');
+    await sceneManager.switchTo('splash');
   } else {
     await sceneManager.switchTo('scrub_thicket');
   }

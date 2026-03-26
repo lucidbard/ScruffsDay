@@ -9,6 +9,7 @@ export type ItemId =
   | 'pip_map';
 
 export type SceneId =
+  | 'splash'
   | 'intro'
   | 'scrub_thicket'
   | 'tortoise_burrow'
