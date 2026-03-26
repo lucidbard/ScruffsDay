@@ -47,6 +47,9 @@ const SCENE_LABELS: Record<string, string> = {
   pine_clearing: 'Pine Clearing',
   sandy_barrens: 'Sandy Barrens',
   owls_overlook: "Owl's Overlook",
+  vine_buster: 'Vine Buster',
+  seed_scatter: 'Seed Scatter',
+  night_watch: 'Night Watch',
 };
 
 const ALL_FLAGS: FlagId[] = [

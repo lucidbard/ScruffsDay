@@ -16,7 +16,10 @@ export type SceneId =
   | 'central_trail'
   | 'pine_clearing'
   | 'sandy_barrens'
-  | 'owls_overlook';
+  | 'owls_overlook'
+  | 'vine_buster'
+  | 'seed_scatter'
+  | 'night_watch';
 
 export type FlagId =
   | 'intro_seen'

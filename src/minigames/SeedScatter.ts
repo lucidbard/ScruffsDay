@@ -49,6 +49,7 @@ export class SeedScatter extends Scene {
   // Drag state
   private isDragging = false;
   private dragStart = { x: 0, y: 0 };
+  private dragEnd = { x: 0, y: 0 };
   private aimLine: Graphics | null = null;
 
   // Wind
@@ -64,6 +65,8 @@ export class SeedScatter extends Scene {
   private seedsText!: Text;
   private windArrow!: Container;
   private windLabel!: Text;
+  private windArrowGraphic!: Graphics;
+  private windAnimTime = 0;
   private gameActive = false;
 
   // Scruff sprite (simple bird shape at top)
@@ -140,25 +143,33 @@ export class SeedScatter extends Scene {
 
     // Wind indicator
     this.windArrow = new Container();
+    this.windArrow.position.set(1140, 45);
+
+    // Background pill
     const arrowBg = new Graphics();
-    arrowBg.roundRect(-50, -20, 100, 40, 8);
-    arrowBg.fill({ color: 0xfff8dc, alpha: 0.8 });
+    arrowBg.roundRect(-65, -30, 130, 60, 12);
+    arrowBg.fill({ color: 0xfff8dc, alpha: 0.85 });
     arrowBg.stroke({ width: 2, color: 0x3e2723 });
     this.windArrow.addChild(arrowBg);
 
+    // "Wind" label at top
     this.windLabel = new Text({
       text: 'Wind',
       style: new TextStyle({
-        fontSize: 14,
+        fontSize: 12,
         fill: '#3E2723',
         fontWeight: 'bold',
         fontFamily: 'Arial, sans-serif',
       }),
     });
-    this.windLabel.anchor.set(0.5, 0.5);
-    this.windLabel.position.set(0, 0);
+    this.windLabel.anchor.set(0.5, 0);
+    this.windLabel.position.set(0, -26);
     this.windArrow.addChild(this.windLabel);
-    this.windArrow.position.set(1180, 30);
+
+    // Arrow shaft + head (drawn in randomizeWind)
+    this.windArrowGraphic = new Graphics();
+    this.windArrow.addChild(this.windArrowGraphic);
+
     this.container.addChild(this.windArrow);
 
     // Score display
@@ -290,6 +301,10 @@ export class SeedScatter extends Scene {
   update(deltaMs: number): void {
     if (!this.gameActive) return;
     const dt = deltaMs / 1000;
+
+    // Animate wind streaks
+    this.windAnimTime += dt;
+    this.drawWindStreaks();
 
     // Move Scruff back and forth at top
     this.scruffX += this.scruffDirection * this.scruffSpeed * dt;
@@ -473,10 +488,67 @@ export class SeedScatter extends Scene {
     this.windDirection += (Math.random() - 0.5) * 0.6;
     this.windStrength = 40 + Math.random() * 80;
 
-    // Update wind indicator
-    const dir = Math.cos(this.windDirection) > 0 ? 'right' : 'left';
-    const strength = this.windStrength < 60 ? 'light' : this.windStrength < 90 ? 'medium' : 'strong';
-    this.windLabel.text = `Wind: ${strength} ${dir}`;
+    // Update wind label with color hint
+    const strength = this.windStrength < 60 ? 'Light' : this.windStrength < 90 ? 'Medium' : 'Strong';
+    const color = this.windStrength < 60 ? '#4488CC' : this.windStrength < 90 ? '#CC8822' : '#CC3333';
+    this.windLabel.text = `Wind: ${strength}`;
+    this.windLabel.style.fill = color;
+
+    this.windAnimTime = 0;
+    this.drawWindStreaks();
+  }
+
+  /** Draw animated chevron streaks in the wind direction. */
+  private drawWindStreaks(): void {
+    const g = this.windArrowGraphic;
+    g.clear();
+
+    const angle = this.windDirection;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const perpX = -sin;
+    const perpY = cos;
+
+    // Color by strength
+    const streakColor = this.windStrength < 60 ? 0x4488cc : this.windStrength < 90 ? 0xcc8822 : 0xcc3333;
+
+    // Number of streaks scales with strength
+    const streakCount = this.windStrength < 60 ? 2 : this.windStrength < 90 ? 3 : 4;
+    const spacing = 10;
+    const streakLen = 12 + (this.windStrength / 120) * 10;
+    const chevronAngle = 0.45; // spread angle for chevron arms
+
+    // Animation: streaks drift in wind direction and loop
+    const cycleSpeed = 1.5 + (this.windStrength / 120) * 2; // faster for stronger wind
+    const cyclePeriod = 1.0;
+    const drift = ((this.windAnimTime * cycleSpeed) % cyclePeriod) / cyclePeriod; // 0-1
+
+    for (let i = 0; i < streakCount; i++) {
+      // Spread streaks perpendicular to wind
+      const perpOffset = (i - (streakCount - 1) / 2) * spacing;
+      // Stagger phase per streak
+      const phase = (drift + i * 0.25) % 1;
+      // Fade in at start, fade out at end
+      const alpha = phase < 0.15 ? phase / 0.15 : phase > 0.75 ? (1 - phase) / 0.25 : 1;
+      // Drift position along wind direction
+      const driftOffset = (phase - 0.5) * 30;
+
+      const cx = perpX * perpOffset + cos * driftOffset;
+      const cy = perpY * perpOffset + sin * driftOffset;
+
+      // Draw chevron: two angled lines forming a ">" pointing in wind direction
+      const armLen = streakLen * 0.5;
+      // Left arm of chevron
+      const armCos1 = Math.cos(angle - chevronAngle);
+      const armSin1 = Math.sin(angle - chevronAngle);
+      g.moveTo(cx - armCos1 * armLen, cy - armSin1 * armLen);
+      g.lineTo(cx, cy);
+      // Right arm of chevron
+      const armCos2 = Math.cos(angle + chevronAngle);
+      const armSin2 = Math.sin(angle + chevronAngle);
+      g.lineTo(cx - armCos2 * armLen, cy - armSin2 * armLen);
+      g.stroke({ width: 2.5, color: streakColor, alpha: alpha * 0.9 });
+    }
   }
 
   private onPointerDown(e: { getLocalPosition: (target: Container) => { x: number; y: number } }): void {
@@ -493,9 +565,10 @@ export class SeedScatter extends Scene {
   private onPointerMove(e: { getLocalPosition: (target: Container) => { x: number; y: number } }): void {
     if (!this.isDragging || !this.aimLine || !this.currentSeed) return;
     const pos = e.getLocalPosition(this.container);
+    this.dragEnd = { x: pos.x, y: pos.y };
 
     this.aimLine.clear();
-    // Draw dotted line from seed to pointer
+    // Draw line from seed to pointer
     this.aimLine.moveTo(this.currentSeed.position.x, this.currentSeed.position.y);
     this.aimLine.lineTo(pos.x, pos.y);
     this.aimLine.stroke({ width: 3, color: 0xff6347, alpha: 0.7 });
@@ -515,13 +588,28 @@ export class SeedScatter extends Scene {
       this.aimLine = null;
     }
 
-    // Drop the seed - give it a small initial downward velocity
-    // The seed will mostly fall straight down with gravity + wind
+    // Compute launch velocity from drag vector (seed position → drag end)
+    const dx = this.dragEnd.x - this.currentSeed.position.x;
+    const dy = this.dragEnd.y - this.currentSeed.position.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    // Scale drag distance to a reasonable launch speed, capped for kids
+    const maxSpeed = 350;
+    const minSpeed = 60;
+    const speed = Math.min(maxSpeed, Math.max(minSpeed, dist * 1.2));
+
+    if (dist > 5) {
+      // Normalize and apply speed
+      this.seedVelocity = { x: (dx / dist) * speed, y: (dy / dist) * speed };
+    } else {
+      // Tiny/no drag — just drop straight down
+      this.seedVelocity = { x: 0, y: minSpeed };
+    }
+
     this.seedFalling = true;
-    this.seedVelocity = { x: 0, y: 30 };
   }
 
-  private handleLanding(x: number, _y: number): void {
+  private handleLanding(x: number, y: number): void {
     if (!this.currentSeed) return;
 
     // Check if landed on sandy patch (good)
@@ -529,9 +617,8 @@ export class SeedScatter extends Scene {
     let hitInvasive = false;
 
     for (const patch of this.sandyPatches) {
-      if (x >= patch.x && x <= patch.x + patch.w) {
+      if (x >= patch.x && x <= patch.x + patch.w && y >= patch.y && y <= patch.y + patch.h) {
         hitSandy = true;
-        // Show sprout
         this.showSprout(x, GROUND_Y + 10);
         break;
       }
@@ -539,7 +626,7 @@ export class SeedScatter extends Scene {
 
     if (!hitSandy) {
       for (const patch of this.invasivePatches) {
-        if (x >= patch.x && x <= patch.x + patch.w) {
+        if (x >= patch.x && x <= patch.x + patch.w && y >= patch.y && y <= patch.y + patch.h) {
           hitInvasive = true;
           break;
         }

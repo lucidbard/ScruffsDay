@@ -14,6 +14,9 @@ import { SandyBarrens } from './scenes/SandyBarrens';
 import { OwlsOverlook } from './scenes/OwlsOverlook';
 import { IntroSequence } from './scenes/IntroSequence';
 import { SplashScreen } from './scenes/SplashScreen';
+import { VineBuster } from './minigames/VineBuster';
+import { SeedScatter } from './minigames/SeedScatter';
+import { NightWatch } from './minigames/NightWatch';
 import { WalkableAreaDebug } from './game/WalkableAreaDebug';
 import { DebugPanel } from './game/DebugPanel';
 
@@ -201,6 +204,24 @@ async function init() {
   sceneManager.register('owls_overlook', (app, gs, tw) => {
     const scene = new OwlsOverlook(app, gs, tw);
     scene.onSceneChange = (id) => sceneManager.switchTo(id);
+    return scene;
+  });
+
+  sceneManager.register('vine_buster', (_app, gs, tw) => {
+    const scene = new VineBuster(_app, gs, tw);
+    scene.onComplete = () => sceneManager.switchTo('pine_clearing');
+    return scene;
+  });
+
+  sceneManager.register('seed_scatter', (_app, gs, tw) => {
+    const scene = new SeedScatter(_app, gs, tw);
+    scene.onComplete = () => sceneManager.switchTo('sandy_barrens');
+    return scene;
+  });
+
+  sceneManager.register('night_watch', (_app, gs, tw) => {
+    const scene = new NightWatch(_app, gs, tw);
+    scene.onComplete = () => sceneManager.switchTo('owls_overlook');
     return scene;
   });
 

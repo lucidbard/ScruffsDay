@@ -92,6 +92,7 @@ export class NightWatch extends Scene {
   private feedbackText!: Text;
   private roundText!: Text;
   private instructionText!: Text;
+  private pendingTimers: ReturnType<typeof setTimeout>[] = [];
   onComplete?: () => void;
 
   async setup(): Promise<void> {
@@ -524,8 +525,8 @@ export class NightWatch extends Scene {
       this.showFeedback('Try again!', '#FF6347');
 
       // Brief delay then replay
-      setTimeout(() => {
-        // Hide all icons
+      this.scheduleTimer(() => {
+        if (!this.gameActive) return;
         for (const icon of this.animalIcons) {
           icon.visible = false;
         }
@@ -539,7 +540,8 @@ export class NightWatch extends Scene {
     }
 
     // Correct so far - dim after brief flash
-    setTimeout(() => {
+    this.scheduleTimer(() => {
+      if (!this.gameActive) return;
       this.redrawZoneBg(idx, false);
       this.animalIcons[idx].visible = false;
     }, 300);
@@ -556,8 +558,8 @@ export class NightWatch extends Scene {
         this.animalIcons[seqIdx].alpha = 1;
       }
 
-      setTimeout(() => {
-        // Hide all
+      this.scheduleTimer(() => {
+        if (!this.gameActive) return;
         for (const icon of this.animalIcons) {
           icon.visible = false;
         }
@@ -567,7 +569,6 @@ export class NightWatch extends Scene {
 
         this.round++;
         if (this.round >= MAX_ROUNDS) {
-          // Game complete!
           this.showVictory();
         } else {
           this.startRound();
@@ -672,9 +673,20 @@ export class NightWatch extends Scene {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  private scheduleTimer(callback: () => void, ms: number): void {
+    const id = setTimeout(() => {
+      const idx = this.pendingTimers.indexOf(id);
+      if (idx !== -1) this.pendingTimers.splice(idx, 1);
+      callback();
+    }, ms);
+    this.pendingTimers.push(id);
+  }
+
   exit(): void {
     this.gameActive = false;
     this.showingSequence = false;
     this.waitingForInput = false;
+    for (const id of this.pendingTimers) clearTimeout(id);
+    this.pendingTimers = [];
   }
 }

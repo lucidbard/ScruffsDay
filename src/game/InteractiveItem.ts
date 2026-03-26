@@ -1,7 +1,7 @@
-import { Container, Sprite, Assets, Graphics } from 'pixi.js';
-import type { TweenManager } from './Tween';
-import { Easing } from './Tween';
-import type { ItemId } from './GameState';
+import { Container, Sprite, Assets, Graphics } from "pixi.js";
+import type { TweenManager } from "./Tween";
+import { Easing } from "./Tween";
+import type { ItemId } from "./GameState";
 
 export interface ItemConfig {
   itemId: ItemId;
@@ -19,6 +19,7 @@ export class InteractiveItem {
   private glow = new Graphics();
   private tweens: TweenManager;
   private config: ItemConfig;
+  private glowTweenId: number | null = null;
   private baseY: number;
 
   constructor(config: ItemConfig, tweens: TweenManager) {
@@ -32,7 +33,6 @@ export class InteractiveItem {
     const texture = await Assets.load(this.config.texturePath);
     this.sprite = new Sprite(texture);
     this.sprite.anchor.set(0.5, 1);
-    // Scale proportionally to target height
     const targetHeight = this.config.height ?? 48;
     const scale = targetHeight / texture.height;
     this.sprite.scale.set(scale);
@@ -41,8 +41,20 @@ export class InteractiveItem {
     this.glow.fill({ color: 0xFFD700, alpha: 0.15 });
     this.container.addChild(this.glow, this.sprite);
     this.container.position.set(this.config.x, this.config.y);
-    this.container.eventMode = 'static';
-    this.container.cursor = 'pointer';
+    this.container.eventMode = "static";
+    this.container.cursor = "pointer";
+    this.startGlowPulse();
+  }
+
+  private startGlowPulse(): void {
+    this.glowTweenId = this.tweens.add({
+      target: this.glow.scale as unknown as Record<string, number>,
+      props: { x: 1.4, y: 1.4 },
+      duration: 900,
+      yoyo: true,
+      loop: true,
+      easing: Easing.easeInOut,
+    });
   }
 
   setProximity(near: boolean): void {
@@ -55,6 +67,9 @@ export class InteractiveItem {
 
   playCollect(): Promise<void> {
     return new Promise((resolve) => {
+      if (this.glowTweenId !== null) {
+        this.tweens.cancel(this.glowTweenId);
+      }
       this.tweens.add({
         target: this.container.scale as unknown as Record<string, number>,
         props: { x: 0, y: 0 },
