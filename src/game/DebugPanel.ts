@@ -245,6 +245,22 @@ export class DebugPanel {
       btn.addEventListener('click', () => this.sceneManager.switchTo(sceneId as SceneId));
       btnRow.appendChild(btn);
     }
+
+    // Replay Intro button
+    const introBtn = document.createElement('button');
+    introBtn.textContent = 'Replay Intro';
+    Object.assign(introBtn.style, {
+      background: '#2a1a3e', color: '#cc88ff', border: '1px solid #8844cc',
+      borderRadius: '4px', padding: '6px 12px', cursor: 'pointer',
+      fontFamily: 'monospace', fontSize: '12px',
+    });
+    introBtn.addEventListener('click', () => {
+      this.gameState.clearFlag('intro_seen');
+      this.gameState.save();
+      this.sceneManager.switchTo('intro' as SceneId);
+    });
+    btnRow.appendChild(introBtn);
+
     this.navContainer.appendChild(btnRow);
   }
 

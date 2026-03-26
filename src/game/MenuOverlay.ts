@@ -10,6 +10,7 @@ export class MenuOverlay {
     darkBg.rect(0, 0, 1280, 720);
     darkBg.fill({ color: 0x000000, alpha: 0.7 });
     darkBg.eventMode = 'static'; // blocks clicks to game below
+    darkBg.on('pointertap', () => this.hide());
     this.container.addChild(darkBg);
 
     // Panel
@@ -17,6 +18,7 @@ export class MenuOverlay {
     panel.roundRect(440, 210, 400, 300, 16);
     panel.fill({ color: 0xfff8dc });
     panel.stroke({ width: 3, color: 0x3e2723 });
+    panel.eventMode = 'static'; // prevent clicks from reaching darkBg
     this.container.addChild(panel);
 
     // Title

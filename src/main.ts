@@ -202,10 +202,21 @@ async function init() {
     debugPanel = new DebugPanel(sceneManager, gameState);
   }
 
+  // Hide inventory/menu during intro, show for all other scenes
+  const origOnSwitch = sceneManager.onSceneSwitch;
+  sceneManager.onSceneSwitch = (id) => {
+    if (id === 'intro') {
+      inventoryUI.container.visible = false;
+      menuBtn.visible = false;
+    } else {
+      inventoryUI.container.visible = true;
+      menuBtn.visible = true;
+    }
+    origOnSwitch?.(id);
+  };
+
   // Start at intro if not seen, otherwise scrub thicket
   if (!gameState.getFlag('intro_seen')) {
-    inventoryUI.container.visible = false;
-    menuBtn.visible = false;
     await sceneManager.switchTo('intro');
   } else {
     await sceneManager.switchTo('scrub_thicket');

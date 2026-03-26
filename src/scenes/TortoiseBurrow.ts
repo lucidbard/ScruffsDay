@@ -174,7 +174,7 @@ export class TortoiseBurrow extends Scene {
 
     // 11. Burrow entrance (dark oval, tappable when shelly_helped)
     this.burrowEntrance = new Graphics();
-    this.burrowEntrance.ellipse(560, 500, 50, 30);
+    this.burrowEntrance.ellipse(750, 430, 60, 40);
     this.burrowEntrance.fill({ color: 0x1a0f00 });
     this.burrowEntrance.eventMode = 'none'; // disabled by default
     this.burrowEntrance.cursor = 'pointer';
