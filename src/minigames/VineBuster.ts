@@ -1,5 +1,5 @@
 import { Scene } from '../game/Scene';
-import { Container, Graphics, Text, TextStyle } from 'pixi.js';
+import { Assets, Container, Graphics, Sprite, Text, TextStyle } from 'pixi.js';
 import { Easing } from '../game/Tween';
 
 interface VinePoint {
@@ -76,30 +76,26 @@ export class VineBuster extends Scene {
     ground.fill({ color: 0xd2b48c });
     this.container.addChild(ground);
 
-    // Tree in center (simple trunk + canopy)
-    const trunk = new Graphics();
-    trunk.rect(610, 250, 60, 300);
-    trunk.fill({ color: 0x8b6914 });
-    trunk.stroke({ width: 3, color: 0x000000 });
-    this.container.addChild(trunk);
-
-    const canopy = new Graphics();
-    canopy.circle(640, 220, 120);
-    canopy.fill({ color: 0x2e8b57 });
-    canopy.stroke({ width: 3, color: 0x000000 });
-    this.container.addChild(canopy);
-
-    const canopy2 = new Graphics();
-    canopy2.circle(570, 260, 70);
-    canopy2.fill({ color: 0x3a9b64 });
-    canopy2.stroke({ width: 2, color: 0x000000 });
-    this.container.addChild(canopy2);
-
-    const canopy3 = new Graphics();
-    canopy3.circle(710, 260, 70);
-    canopy3.fill({ color: 0x3a9b64 });
-    canopy3.stroke({ width: 2, color: 0x000000 });
-    this.container.addChild(canopy3);
+    // Sand pine tree sprite
+    try {
+      const treeTex = await Assets.load('assets/minigames/sand-pine-tree.png');
+      const tree = new Sprite(treeTex);
+      tree.anchor.set(0.5, 1);
+      tree.position.set(640, 520);
+      const treeScale = 420 / treeTex.height;
+      tree.scale.set(treeScale);
+      this.container.addChild(tree);
+    } catch {
+      // Fallback: simple procedural tree
+      const trunk = new Graphics();
+      trunk.rect(610, 250, 60, 300);
+      trunk.fill({ color: 0x8b6914 });
+      this.container.addChild(trunk);
+      const canopy = new Graphics();
+      canopy.circle(640, 220, 120);
+      canopy.fill({ color: 0x2e8b57 });
+      this.container.addChild(canopy);
+    }
 
     // Vine layer (between tree and UI)
     this.vineLayer = new Container();

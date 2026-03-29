@@ -2,7 +2,7 @@
   "sage": {
     "id": "sage",
     "name": "Sage",
-    "texturePath": "assets/characters/sage.png",
+    "texturePath": "assets/characters/sage-new.png",
     "width": 100,
     "height": 140,
     "x": 900,
@@ -16,7 +16,7 @@
   "sage_overlook": {
     "id": "sage",
     "name": "Sage",
-    "texturePath": "assets/characters/sage.png",
+    "texturePath": "assets/characters/sage-new.png",
     "width": 100,
     "height": 140,
     "x": 640,
@@ -30,7 +30,7 @@
   "shelly": {
     "id": "shelly",
     "name": "Shelly",
-    "texturePath": "assets/characters/shelly.png",
+    "texturePath": "assets/characters/shelly-new.png",
     "width": 120,
     "height": 100,
     "x": 535,
@@ -44,7 +44,7 @@
   "pip": {
     "id": "pip",
     "name": "Pip",
-    "texturePath": "assets/characters/pip.png",
+    "texturePath": "assets/characters/pip-new.png",
     "width": 60,
     "height": 80,
     "x": 500,
@@ -58,7 +58,7 @@
   "flicker": {
     "id": "flicker",
     "name": "Flicker",
-    "texturePath": "assets/characters/flicker.png",
+    "texturePath": "assets/characters/flicker-new.png",
     "width": 80,
     "height": 140,
     "x": 400,
@@ -72,7 +72,7 @@
   "sunny": {
     "id": "sunny",
     "name": "Sunny",
-    "texturePath": "assets/characters/sunny.png",
+    "texturePath": "assets/characters/sunny-new.png",
     "width": 160,
     "height": 80,
     "x": 700,

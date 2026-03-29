@@ -30,6 +30,10 @@ export class SceneManager {
     this.factories.set(id, factory);
   }
 
+  has(id: string): boolean {
+    return this.factories.has(id as SceneId);
+  }
+
   async switchTo(id: SceneId): Promise<void> {
     if (this.switching) return;
     this.switching = true;

@@ -65,6 +65,9 @@ async function init() {
     }
   }
 
+  // Preload UI textures so they're cached for immediate use
+  try { await Assets.load('assets/ui/dialogue-bubble-bg.png'); } catch { /* optional */ }
+
   // Core systems
   const gameState = GameState.load() ?? new GameState();
   const tweens = new TweenManager();
@@ -243,8 +246,16 @@ async function init() {
     origOnSwitch?.(id);
   };
 
-  // Start at splash -> intro if not seen, otherwise scrub thicket
-  if (!gameState.getFlag('intro_seen')) {
+  // Debug: allow jumping directly to a scene via ?scene=scene_id
+  const urlParams = new URLSearchParams(window.location.search);
+  const debugScene = urlParams.get('scene');
+
+  if (debugScene && sceneManager.has(debugScene)) {
+    gameState.setFlag('intro_seen');
+    inventoryUI.container.visible = true;
+    menuBtn.visible = true;
+    await sceneManager.switchTo(debugScene as import('./game/GameState').SceneId);
+  } else if (!gameState.getFlag('intro_seen')) {
     await sceneManager.switchTo('splash');
   } else {
     await sceneManager.switchTo('scrub_thicket');

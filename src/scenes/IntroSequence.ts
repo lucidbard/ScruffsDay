@@ -10,30 +10,30 @@ interface PanelDef {
 
 const PANELS: PanelDef[] = [
   {
-    image: 'assets/intro/panel-1.png',
+    image: 'assets/intro/panel-1.jpg',
     narration: 'It was a beautiful spring morning at Lyonia Preserve...',
   },
   {
-    image: 'assets/intro/panel-2.png',
+    image: 'assets/intro/panel-2.jpg',
     narration: 'Scruff, a young Florida scrub jay, loved his home in the scrub thicket.',
   },
   {
-    image: 'assets/intro/panel-3.png',
+    image: 'assets/intro/panel-3.jpg',
     narration:
       'But something was wrong. Strange plants were growing everywhere, crowding out the plants that belonged here.',
   },
   {
-    image: 'assets/intro/panel-4.png',
+    image: 'assets/intro/panel-4.jpg',
     narration:
       'The animals of the preserve were in trouble. Without their native plants, they couldn\u2019t find food or shelter.',
   },
   {
-    image: 'assets/intro/panel-5.png',
+    image: 'assets/intro/panel-5.jpg',
     narration:
       'Scruff knew what he had to do. He would find the native plants and bring them to his friends!',
   },
   {
-    image: 'assets/intro/panel-6.png',
+    image: 'assets/intro/panel-6.jpg',
     narration: '',
   },
 ];
@@ -51,9 +51,9 @@ export class IntroSequence extends Scene {
   onSceneChange?: (sceneId: SceneId) => void;
 
   async setup(): Promise<void> {
-    // Preload all panel textures and create sprites
-    for (const panel of PANELS) {
-      const texture = await Assets.load(panel.image);
+    // Preload all panel textures in parallel
+    const textures = await Promise.all(PANELS.map((p) => Assets.load(p.image)));
+    for (const texture of textures) {
       const sprite = new Sprite(texture);
       sprite.width = 1280;
       sprite.height = 720;

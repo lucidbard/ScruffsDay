@@ -1,7 +1,15 @@
-import { Container, Sprite, Assets, Texture } from 'pixi.js';
+import { Container, Rectangle, Sprite, Assets, Texture } from 'pixi.js';
 import type { TweenManager } from '../game/Tween';
 import { Easing } from '../game/Tween';
 import type { WalkableArea } from '../game/WalkableArea';
+
+const IDLE_SHEET_FRAMES = 25;
+const IDLE_FRAME_W = 232;
+const IDLE_FRAME_H = 256;
+
+const FLY_SHEET_FRAMES = 25;
+const FLY_FRAME_W = 256;
+const FLY_FRAME_H = 228;
 
 export class Scruff {
   readonly container = new Container();
@@ -11,8 +19,11 @@ export class Scruff {
   private speed = 200; // pixels per second
 
   // Sprite animation
-  private idleTextures: Texture[] = [];  // 3 idle frames
-  private flyTextures: Texture[] = [];   // 3 fly frames
+  private idleTextures: Texture[] = [];
+  private flyTextures: Texture[] = [];
+  private pickupTexture: Texture | null = null;
+  private talkingTexture: Texture | null = null;
+  private happyTexture: Texture | null = null;
   private idleFrameIndex = 0;
   private flyFrameIndex = 0;
   private flyFrameDir = 1;               // +1 or -1 for ping-pong
@@ -27,22 +38,50 @@ export class Scruff {
   }
 
   async setup(): Promise<void> {
-    const [idle1, idle2, idle3, fly1, fly2, fly3] = await Promise.all([
-      Assets.load('assets/characters/scruff-idle-1.png'),
-      Assets.load('assets/characters/scruff-idle-2.png'),
-      Assets.load('assets/characters/scruff-idle-3.png'),
-      Assets.load('assets/characters/scruff-fly-1.png'),
-      Assets.load('assets/characters/scruff-fly-2.png'),
-      Assets.load('assets/characters/scruff-fly-3.png'),
+    const [idleSheet, idleFront, flySheet, flying, pickup, talking, happy] = await Promise.all([
+      Assets.load('assets/characters/scruff-idle-sheet.png'),
+      Assets.load('assets/characters/scruff-idle-front.png'),
+      Assets.load('assets/characters/scruff-fly-sheet.png').catch(() => null),
+      Assets.load('assets/characters/scruff-flying.png'),
+      Assets.load('assets/characters/scruff-pickup.png'),
+      Assets.load('assets/characters/scruff-talking.png'),
+      Assets.load('assets/characters/scruff-happy.png'),
     ]);
-    this.idleTextures = [idle1, idle2, idle3];
-    this.flyTextures = [fly1, fly2, fly3];
+
+    // Slice idle spritesheet into individual frame textures
+    if (idleSheet) {
+      for (let i = 0; i < IDLE_SHEET_FRAMES; i++) {
+        const frame = new Texture({
+          source: idleSheet.source,
+          frame: new Rectangle(i * IDLE_FRAME_W, 0, IDLE_FRAME_W, IDLE_FRAME_H),
+        });
+        this.idleTextures.push(frame);
+      }
+    } else {
+      this.idleTextures = [idleFront];
+    }
+
+    // Slice fly spritesheet, fall back to static flying image
+    if (flySheet) {
+      for (let i = 0; i < FLY_SHEET_FRAMES; i++) {
+        const frame = new Texture({
+          source: flySheet.source,
+          frame: new Rectangle(i * FLY_FRAME_W, 0, FLY_FRAME_W, FLY_FRAME_H),
+        });
+        this.flyTextures.push(frame);
+      }
+    } else {
+      this.flyTextures = [flying];
+    }
+    this.pickupTexture = pickup;
+    this.talkingTexture = talking;
+    this.happyTexture = happy;
 
     this.sprite = new Sprite(this.idleTextures[0]);
     this.sprite.anchor.set(0.5, 1); // anchor at bottom-center (feet)
     // Scale proportionally to target height
     const targetHeight = 140;
-    const scale = targetHeight / idle1.height;
+    const scale = targetHeight / IDLE_FRAME_H;
     this.sprite.scale.set(scale);
     this.container.addChild(this.sprite);
     this.startIdle();
@@ -105,13 +144,13 @@ export class Scruff {
   }
 
   private startIdle(): void {
-    // Idle frame cycling only — no bounce
     this.idleFrameIndex = 0;
     this.sprite.texture = this.idleTextures[0];
+    // 25 frames at ~16fps = 62ms per frame
     this.idleAnimInterval = window.setInterval(() => {
       this.idleFrameIndex = (this.idleFrameIndex + 1) % this.idleTextures.length;
       this.sprite.texture = this.idleTextures[this.idleFrameIndex];
-    }, 300);
+    }, 62);
   }
 
   private stopIdle(): void {
@@ -123,17 +162,12 @@ export class Scruff {
 
   private startFlyAnim(): void {
     this.flyFrameIndex = 0;
-    this.flyFrameDir = 1;
     this.sprite.texture = this.flyTextures[0];
+    // 25 frames at ~16fps = 62ms per frame
     this.flyAnimInterval = window.setInterval(() => {
-      this.flyFrameIndex += this.flyFrameDir;
-      if (this.flyFrameIndex >= this.flyTextures.length - 1) {
-        this.flyFrameDir = -1;
-      } else if (this.flyFrameIndex <= 0) {
-        this.flyFrameDir = 1;
-      }
+      this.flyFrameIndex = (this.flyFrameIndex + 1) % this.flyTextures.length;
       this.sprite.texture = this.flyTextures[this.flyFrameIndex];
-    }, 120);
+    }, 62);
   }
 
   private stopFlyAnim(): void {
@@ -146,6 +180,7 @@ export class Scruff {
   playPickup(): Promise<void> {
     return new Promise((resolve) => {
       this.stopIdle();
+      if (this.pickupTexture) this.sprite.texture = this.pickupTexture;
       this.tweens.add({
         target: this.container.position as unknown as Record<string, number>,
         props: { y: this.container.y - 30 },
