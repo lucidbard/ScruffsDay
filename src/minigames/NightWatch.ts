@@ -100,27 +100,20 @@ export class NightWatch extends Scene {
     const assetsToLoad = HABITATS.flatMap(h => [h.spritePath, h.bgPath]);
     await Assets.load(assetsToLoad);
 
-    // Night sky background
-    const bg = new Graphics();
-    bg.rect(0, 0, 1280, 720);
-    bg.fill({ color: 0x1a1a3e });
+    // Illustrated night sky background
+    let bg: Sprite | Graphics;
+    try {
+      const bgTex = await Assets.load('assets/backgrounds/night-watch-bg.jpg');
+      bg = new Sprite(bgTex);
+      (bg as Sprite).width = 1280;
+      (bg as Sprite).height = 720;
+    } catch {
+      bg = new Graphics();
+      (bg as Graphics).rect(0, 0, 1280, 720);
+      (bg as Graphics).fill({ color: 0x1a1a3e });
+    }
     bg.eventMode = 'static';
     this.container.addChild(bg);
-
-    // Stars
-    this.drawStars();
-
-    // Preserve silhouette at bottom
-    const land = new Graphics();
-    land.moveTo(0, 600);
-    land.quadraticCurveTo(200, 570, 400, 580);
-    land.quadraticCurveTo(640, 560, 900, 575);
-    land.quadraticCurveTo(1100, 565, 1280, 580);
-    land.lineTo(1280, 720);
-    land.lineTo(0, 720);
-    land.closePath();
-    land.fill({ color: 0x0a0a1e });
-    this.container.addChild(land);
 
     // Title
     const title = new Text({

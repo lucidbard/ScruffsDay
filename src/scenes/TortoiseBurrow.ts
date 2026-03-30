@@ -288,28 +288,19 @@ export class TortoiseBurrow extends Scene {
     this.underground.visible = false;
     this.container.addChild(this.underground);
 
-    // Underground background - dark brown earth
-    const ugBg = new Graphics();
-    ugBg.rect(0, 0, 1280, 720);
-    ugBg.fill({ color: 0x2D1B0E });
+    // Underground background - illustrated burrow interior
+    let ugBg: Sprite | Graphics;
+    try {
+      const ugTex = await Assets.load('assets/backgrounds/underground-bg.jpg');
+      ugBg = new Sprite(ugTex);
+      (ugBg as Sprite).width = 1280;
+      (ugBg as Sprite).height = 720;
+    } catch {
+      ugBg = new Graphics();
+      (ugBg as Graphics).rect(0, 0, 1280, 720);
+      (ugBg as Graphics).fill({ color: 0x2D1B0E });
+    }
     this.underground.addChild(ugBg);
-
-    // Root decorations across the ceiling
-    const roots = new Graphics();
-    roots.moveTo(100, 50);
-    roots.bezierCurveTo(300, 80, 500, 20, 700, 60);
-    roots.moveTo(400, 30);
-    roots.bezierCurveTo(600, 70, 800, 10, 1100, 50);
-    roots.moveTo(200, 70);
-    roots.bezierCurveTo(400, 40, 600, 90, 900, 45);
-    roots.stroke({ width: 4, color: 0x5C3D1E });
-    this.underground.addChild(roots);
-
-    // Light area in center (slightly lighter brown)
-    const lightArea = new Graphics();
-    lightArea.ellipse(640, 400, 300, 200);
-    lightArea.fill({ color: 0x3E2A14, alpha: 0.5 });
-    this.underground.addChild(lightArea);
 
     // Underground depth container (Y-sorted every frame)
     this.undergroundDepthContainer = new Container();

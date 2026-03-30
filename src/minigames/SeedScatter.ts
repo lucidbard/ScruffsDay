@@ -90,17 +90,19 @@ export class SeedScatter extends Scene {
       ...Object.values(SEED_TEXTURES)
     ]);
 
-    // Sky background
-    const bg = new Graphics();
-    bg.rect(0, 0, 1280, 720);
-    bg.fill({ color: 0xa8d8ea });
+    // Illustrated background (aerial view of scrub landscape)
+    let bg: Sprite | Graphics;
+    try {
+      const bgTex = await Assets.load('assets/backgrounds/seed-scatter-bg.jpg');
+      bg = new Sprite(bgTex);
+      (bg as Sprite).width = 1280;
+      (bg as Sprite).height = 720;
+    } catch {
+      bg = new Graphics();
+      (bg as Graphics).rect(0, 0, 1280, 720);
+      (bg as Graphics).fill({ color: 0xa8d8ea });
+    }
     this.container.addChild(bg);
-
-    // Ground (sandy texture)
-    const ground = new Graphics();
-    ground.rect(0, GROUND_Y, 1280, 220);
-    ground.fill({ color: 0xe8d5a8 });
-    this.container.addChild(ground);
 
     // Build zone layout
     this.buildZones();
@@ -289,17 +291,12 @@ export class SeedScatter extends Scene {
 
     // Interaction area
     bg.eventMode = 'static';
-    ground.eventMode = 'static';
 
     // Pointer events on the whole game area
-    bg.on('pointerdown', (e) => this.onPointerDown(e));
-    bg.on('pointermove', (e) => this.onPointerMove(e));
+    bg.on('pointerdown', (e: import('pixi.js').FederatedPointerEvent) => this.onPointerDown(e));
+    bg.on('pointermove', (e: import('pixi.js').FederatedPointerEvent) => this.onPointerMove(e));
     bg.on('pointerup', () => this.onPointerUp());
     bg.on('pointerupoutside', () => this.onPointerUp());
-    ground.on('pointerdown', (e) => this.onPointerDown(e));
-    ground.on('pointermove', (e) => this.onPointerMove(e));
-    ground.on('pointerup', () => this.onPointerUp());
-    ground.on('pointerupoutside', () => this.onPointerUp());
 
     // Add instructions on top
     this.container.addChild(instrOverlay);

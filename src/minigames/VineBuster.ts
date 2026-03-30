@@ -64,38 +64,19 @@ export class VineBuster extends Scene {
   private pieceLayer!: Container;
 
   async setup(): Promise<void> {
-    // Sky background
-    const bg = new Graphics();
-    bg.rect(0, 0, 1280, 720);
-    bg.fill({ color: 0x87ceeb });
-    this.container.addChild(bg);
-
-    // Ground
-    const ground = new Graphics();
-    ground.rect(0, 500, 1280, 220);
-    ground.fill({ color: 0xd2b48c });
-    this.container.addChild(ground);
-
-    // Sand pine tree sprite
+    // Illustrated background (with fallback to solid colors)
+    let bg: Sprite | Graphics;
     try {
-      const treeTex = await Assets.load('assets/minigames/sand-pine-tree.png');
-      const tree = new Sprite(treeTex);
-      tree.anchor.set(0.5, 1);
-      tree.position.set(640, 520);
-      const treeScale = 420 / treeTex.height;
-      tree.scale.set(treeScale);
-      this.container.addChild(tree);
+      const bgTex = await Assets.load('assets/backgrounds/vine-buster-bg.jpg');
+      bg = new Sprite(bgTex);
+      (bg as Sprite).width = 1280;
+      (bg as Sprite).height = 720;
     } catch {
-      // Fallback: simple procedural tree
-      const trunk = new Graphics();
-      trunk.rect(610, 250, 60, 300);
-      trunk.fill({ color: 0x8b6914 });
-      this.container.addChild(trunk);
-      const canopy = new Graphics();
-      canopy.circle(640, 220, 120);
-      canopy.fill({ color: 0x2e8b57 });
-      this.container.addChild(canopy);
+      bg = new Graphics();
+      (bg as Graphics).rect(0, 0, 1280, 720);
+      (bg as Graphics).fill({ color: 0x87ceeb });
     }
+    this.container.addChild(bg);
 
     // Vine layer (between tree and UI)
     this.vineLayer = new Container();
@@ -208,15 +189,10 @@ export class VineBuster extends Scene {
 
     // Swipe input
     bg.eventMode = 'static';
-    ground.eventMode = 'static';
     bg.on('pointerdown', (e) => this.onSwipeStart(e));
     bg.on('pointermove', (e) => this.onSwipeMove(e));
     bg.on('pointerup', () => this.onSwipeEnd());
     bg.on('pointerupoutside', () => this.onSwipeEnd());
-    ground.on('pointerdown', (e) => this.onSwipeStart(e));
-    ground.on('pointermove', (e) => this.onSwipeMove(e));
-    ground.on('pointerup', () => this.onSwipeEnd());
-    ground.on('pointerupoutside', () => this.onSwipeEnd());
 
     // Instructions on top
     this.container.addChild(instrOverlay);
