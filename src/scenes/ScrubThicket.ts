@@ -8,6 +8,7 @@ import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
 import { ForegroundObject } from '../game/ForegroundObject';
 import { PerchSystem } from '../game/PerchSystem';
 import { PerchDebugOverlay } from '../game/PerchDebugOverlay';
+import { AmbientAudio } from '../game/AmbientAudio';
 import type { DepthScaleConfig } from '../game/DepthSort';
 import { AnimatedBackground } from '../game/AnimatedBackground';
 import { Sprite, Assets, Container, Texture } from 'pixi.js';
@@ -28,6 +29,7 @@ export class ScrubThicket extends Scene {
   private foregrounds: ForegroundObject[] = [];
   private animBg: AnimatedBackground | null = null;
   private perchSystem = new PerchSystem();
+  private ambientAudio = new AmbientAudio();
 
   /** Called by SceneManager wiring to navigate between scenes. */
   onSceneChange?: (sceneId: SceneId) => void;
@@ -63,6 +65,14 @@ export class ScrubThicket extends Scene {
     const start = resolveEntryPoint(sceneData.entryPoints as Record<string, number[]>);
     this.scruff.setPosition(start.x, start.y);
     this.depthContainer.addChild(this.scruff.container);
+
+    // 5b. Ambient audio with call sync
+    await this.ambientAudio.load(
+      'assets/sounds/scrub-jay-ambient.mp3',
+      'assets/sounds/scrub-jay-calls.json',
+      () => this.scruff.setTalking(true),
+      () => this.scruff.setTalking(false),
+    );
 
     // 6. Collectible items (only if not already in inventory)
     // Saw palmetto only appears after Scruff learns Shelly needs it
@@ -224,6 +234,7 @@ export class ScrubThicket extends Scene {
     }
 
     this.animBg?.resume();
+    this.ambientAudio.play();
   }
 
   update(_deltaMs: number): void {
@@ -245,6 +256,7 @@ export class ScrubThicket extends Scene {
 
   exit(): void {
     this.animBg?.pause();
+    this.ambientAudio.pause();
     this.dialogueBubble.hide();
   }
 }

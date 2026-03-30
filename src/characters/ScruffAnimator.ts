@@ -37,10 +37,8 @@ interface AnimClip {
 }
 
 // Spritesheet frame dimensions
-const IDLE_W = 232, IDLE_H = 256;
-const TURN_W = 256, TURN_H = 256;
-const HOP_W = 256, HOP_H = 256;
-const FLY_W = 256, FLY_H = 228;
+// All spritesheets normalized to 256x256 per frame
+const FRAME_W = 256, FRAME_H = 256;
 
 export class ScruffAnimator {
   private sprite: Sprite;
@@ -70,19 +68,19 @@ export class ScruffAnimator {
 
     // Slice sheets into clips
     this.clips['idle_front'] = {
-      frames: idleSheet ? this.sliceSheet(idleSheet, IDLE_W, IDLE_H, 25) : [idleFront],
+      frames: idleSheet ? this.sliceSheet(idleSheet, FRAME_W, FRAME_H, 25) : [idleFront],
       fps: 16,
       loop: true,
     };
 
     this.clips['talking'] = {
-      frames: talkSheet ? this.sliceSheet(talkSheet, IDLE_W, IDLE_H, 25) : this.clips['idle_front']!.frames,
+      frames: talkSheet ? this.sliceSheet(talkSheet, FRAME_W, FRAME_H, 25) : this.clips['idle_front']!.frames,
       fps: 16,
       loop: true,
     };
 
     this.clips['turning'] = {
-      frames: turnSheet ? this.sliceSheet(turnSheet, TURN_W, TURN_H, 13) : [idleFront],
+      frames: turnSheet ? this.sliceSheet(turnSheet, FRAME_W, FRAME_H, 13) : [idleFront],
       fps: 32,
       loop: false,
     };
@@ -95,13 +93,13 @@ export class ScruffAnimator {
     };
 
     this.clips['hopping'] = {
-      frames: hopSheet ? this.sliceSheet(hopSheet, HOP_W, HOP_H, 13) : [idleFront],
+      frames: hopSheet ? this.sliceSheet(hopSheet, FRAME_W, FRAME_H, 13) : [idleFront],
       fps: 16,
       loop: true,
     };
 
     this.clips['flying'] = {
-      frames: flySheet ? this.sliceSheet(flySheet, FLY_W, FLY_H, 25) : [idleFront],
+      frames: flySheet ? this.sliceSheet(flySheet, FRAME_W, FRAME_H, 25) : [idleFront],
       fps: 16,
       loop: true,
     };
