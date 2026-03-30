@@ -1,8 +1,11 @@
-import { Container, Sprite, Assets } from 'pixi.js';
+import { Container, Rectangle, Sprite, Assets, Texture } from 'pixi.js';
 import type { TweenManager } from '../game/Tween';
 import { Easing } from '../game/Tween';
 import type { ItemId, FlagId } from '../game/GameState';
 import { AnimatedNPCTexture } from '../game/AnimatedNPCTexture';
+
+const IDLE_FRAMES = 25;
+const FRAME_SIZE = 256;
 
 export interface NPCConfig {
   id: string;
@@ -27,6 +30,9 @@ export class NPC {
   private idleTweenId: number | null = null;
   private interactRadius = 120;
   private animTexture: AnimatedNPCTexture | null = null;
+  private idleFrames: Texture[] = [];
+  private idleFrameIndex = 0;
+  private idleSheetInterval: number | null = null;
 
   get id(): string { return this.config.id; }
   get name(): string { return this.config.name; }
@@ -37,13 +43,31 @@ export class NPC {
   }
 
   async setup(): Promise<void> {
-    // Try animated video texture, fall back to static
-    this.animTexture = new AnimatedNPCTexture();
-    const texture = await this.animTexture.load(this.config.id, this.config.texturePath);
-    this.sprite = new Sprite(texture);
+    // Try spritesheet idle animation first
+    const sheetPath = `assets/characters/${this.config.id}-idle-sheet.png`;
+    let baseTexture: Texture;
+
+    try {
+      const sheet = await Assets.load(sheetPath);
+      if (sheet) {
+        for (let i = 0; i < IDLE_FRAMES; i++) {
+          this.idleFrames.push(new Texture({
+            source: sheet.source,
+            frame: new Rectangle(i * FRAME_SIZE, 0, FRAME_SIZE, FRAME_SIZE),
+          }));
+        }
+        baseTexture = this.idleFrames[0];
+      } else {
+        throw new Error('no sheet');
+      }
+    } catch {
+      // Fall back to static texture
+      baseTexture = await Assets.load(this.config.texturePath);
+    }
+
+    this.sprite = new Sprite(baseTexture);
     this.sprite.anchor.set(0.5, 1);
-    // Scale proportionally to target height
-    const scale = this.config.height / texture.height;
+    const scale = this.config.height / baseTexture.height;
     this.sprite.scale.set(scale);
     this.container.addChild(this.sprite);
     this.container.position.set(this.config.x, this.config.y);
@@ -70,6 +94,16 @@ export class NPC {
   }
 
   private startIdle(amplitude = 4): void {
+    // If we have spritesheet frames, cycle them instead of bobbing
+    if (this.idleFrames.length > 1) {
+      this.idleFrameIndex = 0;
+      this.idleSheetInterval = window.setInterval(() => {
+        this.idleFrameIndex = (this.idleFrameIndex + 1) % this.idleFrames.length;
+        this.sprite.texture = this.idleFrames[this.idleFrameIndex];
+      }, 62); // ~16fps
+      return;
+    }
+    // Fallback: gentle bob tween
     this.idleTweenId = this.tweens.add({
       target: this.container.position as unknown as Record<string, number>,
       props: { y: this.config.y - amplitude },
@@ -81,6 +115,10 @@ export class NPC {
   }
 
   private stopIdle(): void {
+    if (this.idleSheetInterval !== null) {
+      clearInterval(this.idleSheetInterval);
+      this.idleSheetInterval = null;
+    }
     if (this.idleTweenId !== null) {
       this.tweens.cancel(this.idleTweenId);
       this.idleTweenId = null;
