@@ -47,6 +47,8 @@ export class ScruffAnimator {
   private frameIndex = 0;
   private animInterval: number | null = null;
   private onAnimComplete: (() => void) | null = null;
+  private idleVariants: string[] = [];
+  private idleTimer: number | null = null;
 
   // Clips (loaded async)
   private clips: Partial<Record<string, AnimClip>> = {};
@@ -57,21 +59,43 @@ export class ScruffAnimator {
 
   async loadAll(): Promise<void> {
     // Load all spritesheets in parallel
-    const [idleSheet, talkSheet, turnSheet, hopSheet, flySheet, idleFront] = await Promise.all([
+    const [idleSheet, talkSheet, turnSheet, hopSheet, flySheet, idleFront,
+           headbobSheet, lookaroundSheet, ruffleSheet] = await Promise.all([
       Assets.load('assets/characters/scruff-idle-sheet.png').catch(() => null),
       Assets.load('assets/characters/scruff-talking-sheet.png').catch(() => null),
       Assets.load('assets/characters/scruff-turn-sheet.png').catch(() => null),
       Assets.load('assets/characters/scruff-hop-sheet.png').catch(() => null),
       Assets.load('assets/characters/scruff-fly-sheet.png').catch(() => null),
       Assets.load('assets/characters/scruff-idle-front.png'),
+      Assets.load('assets/characters/scruff-idle-headbob.png').catch(() => null),
+      Assets.load('assets/characters/scruff-idle-lookaround.png').catch(() => null),
+      Assets.load('assets/characters/scruff-idle-ruffle.png').catch(() => null),
     ]);
 
     // Slice sheets into clips
     this.clips['idle_front'] = {
       frames: idleSheet ? this.sliceSheet(idleSheet, FRAME_W, FRAME_H, 25) : [idleFront],
       fps: 16,
-      loop: true,
+      loop: false, // play once, then pick next random idle
     };
+
+    // Idle variants (non-looping, cycle randomly)
+    if (headbobSheet) {
+      this.clips['idle_headbob'] = { frames: this.sliceSheet(headbobSheet, FRAME_W, FRAME_H, 25), fps: 16, loop: false };
+      this.idleVariants.push('idle_headbob');
+    }
+    if (lookaroundSheet) {
+      this.clips['idle_lookaround'] = { frames: this.sliceSheet(lookaroundSheet, FRAME_W, FRAME_H, 25), fps: 16, loop: false };
+      this.idleVariants.push('idle_lookaround');
+    }
+    if (ruffleSheet) {
+      this.clips['idle_ruffle'] = { frames: this.sliceSheet(ruffleSheet, FRAME_W, FRAME_H, 25), fps: 16, loop: false };
+      this.idleVariants.push('idle_ruffle');
+    }
+    // idle_front (preening) only used as fallback if no variants loaded
+    if (this.idleVariants.length === 0) {
+      this.idleVariants.push('idle_front');
+    }
 
     this.clips['talking'] = {
       frames: talkSheet ? this.sliceSheet(talkSheet, FRAME_W, FRAME_H, 25) : this.clips['idle_front']!.frames,
@@ -134,11 +158,32 @@ export class ScruffAnimator {
     return this.direction;
   }
 
-  /** Play the idle front animation. */
+  /** Play a random idle animation, cycling to a new one when it finishes. */
   playIdleFront(): void {
     this.direction = 'right'; // neutral
     this.applyFlip();
-    this.play('idle_front');
+    this.playRandomIdle();
+  }
+
+  private playRandomIdle(): void {
+    if (this.idleTimer !== null) {
+      clearTimeout(this.idleTimer);
+      this.idleTimer = null;
+    }
+    const clipName = this.idleVariants.length > 0
+      ? this.idleVariants[Math.floor(Math.random() * this.idleVariants.length)]
+      : 'idle_front';
+
+    this.play(clipName, () => {
+      // After clip finishes, wait 1-3s then play another random idle
+      this.idleTimer = window.setTimeout(() => {
+        if (this.state !== 'turning' && this.state !== 'landing'
+            && this.state !== 'hopping' && this.state !== 'flying'
+            && this.state !== 'talking') {
+          this.playRandomIdle();
+        }
+      }, 1000 + Math.random() * 2000);
+    });
   }
 
   /** Play talking animation. */
@@ -221,6 +266,10 @@ export class ScruffAnimator {
     if (this.animInterval !== null) {
       clearInterval(this.animInterval);
       this.animInterval = null;
+    }
+    if (this.idleTimer !== null) {
+      clearTimeout(this.idleTimer);
+      this.idleTimer = null;
     }
     this.onAnimComplete = null;
   }

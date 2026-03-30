@@ -136,7 +136,7 @@ export class ScrubThicket extends Scene {
     );
     arrow.container.on('pointertap', () => {
       if (this.scruff.isMoving() || this.dialogueRunner.isActive()) return;
-      this.scruff.moveTo(arrow.container.x, 300).then(() => {
+      this.scruff.flyToAndShrink(arrow.container.x, arrow.container.y + 40, 0.3).then(() => {
         this.onSceneChange?.(arrow.targetScene);
       });
     });

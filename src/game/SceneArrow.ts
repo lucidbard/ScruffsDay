@@ -45,9 +45,9 @@ export class SceneArrow {
   }
 
   private buildHorizontalSign(direction: 'left' | 'right', labelText: string): void {
-    const signW = 130;
-    const signH = 32;
-    const pointW = 18;
+    const signW = 260;
+    const signH = 64;
+    const pointW = 36;
     const isLeft = direction === 'left';
 
     const sign = new Graphics();
@@ -70,7 +70,7 @@ export class SceneArrow {
     }
     // Wood grain fill
     sign.fill({ color: 0x8B6914 });
-    sign.stroke({ width: 2, color: 0x5D4418 });
+    sign.stroke({ width: 3, color: 0x5D4418 });
 
     // Wood grain lines
     const grainY1 = signH * 0.3;
@@ -90,7 +90,7 @@ export class SceneArrow {
       text: labelText,
       style: new TextStyle({
         fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
-        fontSize: 15,
+        fontSize: 24,
         fill: '#FFF8DC',
         fontWeight: 'bold',
         align: 'center',
@@ -105,9 +105,9 @@ export class SceneArrow {
   }
 
   private buildVerticalSign(direction: 'up' | 'down', labelText: string): void {
-    const signW = 120;
-    const signH = 28;
-    const pointH = 14;
+    const signW = 240;
+    const signH = 56;
+    const pointH = 28;
     const isUp = direction === 'up';
 
     const sign = new Graphics();
@@ -129,7 +129,7 @@ export class SceneArrow {
       sign.closePath();
     }
     sign.fill({ color: 0x8B6914 });
-    sign.stroke({ width: 2, color: 0x5D4418 });
+    sign.stroke({ width: 3, color: 0x5D4418 });
 
     // Wood grain
     const grainY = isUp ? pointH + signH * 0.4 : signH * 0.4;
@@ -143,7 +143,7 @@ export class SceneArrow {
       text: labelText,
       style: new TextStyle({
         fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
-        fontSize: 15,
+        fontSize: 24,
         fill: '#FFF8DC',
         fontWeight: 'bold',
         align: 'center',

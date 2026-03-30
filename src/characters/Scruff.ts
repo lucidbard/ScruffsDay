@@ -4,7 +4,7 @@ import { Easing } from '../game/Tween';
 import type { WalkableArea } from '../game/WalkableArea';
 import { ScruffAnimator, type Direction } from './ScruffAnimator';
 
-const TARGET_HEIGHT = 140;
+const TARGET_HEIGHT = 80;
 const HOP_THRESHOLD = 150; // pixels — below this, hop instead of fly
 
 export class Scruff {
@@ -97,6 +97,9 @@ export class Scruff {
     this.moving = false;
   }
 
+  /** Set a depth scale function that's called each frame during movement. */
+  onDepthUpdate?: (y: number) => void;
+
   /** Animate position along an arc trajectory. */
   private animateArc(targetX: number, targetY: number, distance: number, arcHeight: number): Promise<void> {
     return new Promise((resolve) => {
@@ -117,11 +120,13 @@ export class Scruff {
         const arc = -4 * arcHeight * t * (t - 1);
 
         this.container.position.set(linearX, linearY - arc);
+        this.onDepthUpdate?.(linearY);
 
         if (t < 1) {
           requestAnimationFrame(animate);
         } else {
           this.container.position.set(targetX, targetY);
+          this.onDepthUpdate?.(targetY);
           resolve();
         }
       };
@@ -140,8 +145,46 @@ export class Scruff {
 
   isMoving(): boolean { return this.moving; }
 
+  /** Apply depth-based scale. Lower Y (further back) = smaller. */
   applyDepthScale(factor: number): void {
     this.container.scale.set(factor);
+  }
+
+  /** Shrink into distance for scene exit transitions. */
+  async flyToAndShrink(targetX: number, targetY: number, targetScale = 0.2): Promise<void> {
+    this.moving = true;
+    const dir: import('./ScruffAnimator').Direction = targetX < this.container.x ? 'left' : 'right';
+    await this.animator.turnToward(dir);
+    this.animator.playFlying(dir);
+
+    const startX = this.container.x;
+    const startY = this.container.y;
+    const startScale = this.container.scale.x;
+    const dx = targetX - startX;
+    const dy = targetY - startY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const duration = Math.max((distance / this.speed) * 1000, 400);
+    const arcHeight = Math.min(100, distance * 0.2);
+
+    await new Promise<void>((resolve) => {
+      const startTime = performance.now();
+      const animate = () => {
+        const elapsed = performance.now() - startTime;
+        const t = Math.min(1, elapsed / duration);
+        const ease = t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
+
+        this.container.position.set(startX + dx * ease, startY + dy * ease - (-4 * arcHeight * t * (t - 1)));
+        const s = startScale + (targetScale - startScale) * ease;
+        this.container.scale.set(s);
+
+        if (t < 1) requestAnimationFrame(animate);
+        else { this.container.position.set(targetX, targetY); resolve(); }
+      };
+      requestAnimationFrame(animate);
+    });
+
+    this.animator.stop();
+    this.moving = false;
   }
 
   /** Start or stop talking animation (mouth movement). */

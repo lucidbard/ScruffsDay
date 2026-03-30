@@ -191,21 +191,41 @@ export class TortoiseBurrow extends Scene {
     });
     this.surfaceContainer.addChild(this.burrowEntrance);
 
-    // Debug: show burrow entrance area + make draggable
+    // Debug: show burrow entrance area, draggable to reposition
     if (WalkableAreaDebug.isEnabled()) {
       const burrowDebug = new Graphics();
-      burrowDebug.ellipse(burrowX, burrowY, burrowRX, burrowRY);
-      burrowDebug.stroke({ width: 2, color: 0xFF00FF, alpha: 0.8 });
-      burrowDebug.fill({ color: 0xFF00FF, alpha: 0.15 });
+      burrowDebug.ellipse(0, 0, burrowRX, burrowRY);
+      burrowDebug.stroke({ width: 3, color: 0xFF00FF, alpha: 0.9 });
+      burrowDebug.fill({ color: 0xFF00FF, alpha: 0.2 });
+      burrowDebug.position.set(burrowX, burrowY);
+      burrowDebug.eventMode = 'static';
+      burrowDebug.cursor = 'grab';
       this.surfaceContainer.addChild(burrowDebug);
 
       const { Text: T, TextStyle: TS } = await import('pixi.js');
       const coordLabel = new T({
         text: `Burrow (${burrowX}, ${burrowY})`,
-        style: new TS({ fontSize: 12, fill: '#FF00FF', fontWeight: 'bold' }),
+        style: new TS({ fontSize: 14, fill: '#FF00FF', fontWeight: 'bold' }),
       });
-      coordLabel.position.set(burrowX - 50, burrowY - burrowRY - 18);
+      coordLabel.position.set(burrowX + burrowRX + 8, burrowY - 8);
       this.surfaceContainer.addChild(coordLabel);
+
+      // Draggable
+      let dragging = false;
+      burrowDebug.on('pointerdown', () => { dragging = true; burrowDebug.cursor = 'grabbing'; });
+      this.surfaceContainer.eventMode = 'static';
+      this.surfaceContainer.on('pointermove', (e) => {
+        if (!dragging) return;
+        const pos = e.getLocalPosition(this.surfaceContainer);
+        burrowDebug.position.set(pos.x, pos.y);
+        coordLabel.text = `Burrow (${Math.round(pos.x)}, ${Math.round(pos.y)})`;
+        coordLabel.position.set(pos.x + burrowRX + 8, pos.y - 8);
+        // Update the actual entrance hitbox
+        this.burrowEntrance.clear();
+        this.burrowEntrance.ellipse(pos.x, pos.y, burrowRX, burrowRY);
+        this.burrowEntrance.fill({ color: 0x000000, alpha: 0.001 });
+      });
+      this.surfaceContainer.on('pointerup', () => { dragging = false; burrowDebug.cursor = 'grab'; });
     }
 
     // 12. Underground sub-area
