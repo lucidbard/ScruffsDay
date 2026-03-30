@@ -12,7 +12,7 @@ import { AmbientAudio } from '../game/AmbientAudio';
 import type { DepthScaleConfig } from '../game/DepthSort';
 import { AnimatedBackground } from '../game/AnimatedBackground';
 import { Sprite, Assets, Container, Texture } from 'pixi.js';
-import type { SceneId, FlagId } from '../game/GameState';
+import type { SceneId, FlagId, SceneDirection } from '../game/GameState';
 import dialogueData from '../data/dialogue.json';
 import walkableAreasData from '../data/walkable-areas.json';
 
@@ -32,7 +32,7 @@ export class ScrubThicket extends Scene {
   private ambientAudio = new AmbientAudio();
 
   /** Called by SceneManager wiring to navigate between scenes. */
-  onSceneChange?: (sceneId: SceneId) => void;
+  onSceneChange?: (sceneId: SceneId, dir?: SceneDirection) => void;
 
   async setup(): Promise<void> {
     const sceneData = (walkableAreasData as WalkableAreasJson).scrub_thicket as Record<string, unknown>;
@@ -212,11 +212,27 @@ export class ScrubThicket extends Scene {
     }
   }
 
-  enter(fromScene?: SceneId): void {
+  enter(fromScene?: SceneId, exitDirection?: SceneDirection): void {
     const sceneData = (walkableAreasData as WalkableAreasJson).scrub_thicket as Record<string, unknown>;
     // Position Scruff based on which scene she came from
     const entry = resolveEntryPoint(sceneData.entryPoints as Record<string, number[]>, fromScene);
-    this.scruff.setPosition(entry.x, entry.y);
+    
+    // Arrival animation: Fly in from the same side for vertical (sky), opposite for horizontal
+    if (exitDirection) {
+      const flyInDist = 100;
+      let startX = entry.x;
+      let startY = entry.y;
+
+      if (exitDirection === 'up') startY = -flyInDist;
+      else if (exitDirection === 'down') startY = 720 + flyInDist;
+      else if (exitDirection === 'left') startX = 1280 + flyInDist;
+      else if (exitDirection === 'right') startX = -flyInDist;
+
+      this.scruff.setPosition(startX, startY, false);
+      this.scruff.flyTo(entry.x, entry.y);
+    } else {
+      this.scruff.setPosition(entry.x, entry.y);
+    }
 
     // Show tutorial dialogue on first visit
     if (!this.gameState.getFlag('tutorial_complete')) {

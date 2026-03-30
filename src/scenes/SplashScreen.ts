@@ -1,13 +1,13 @@
 import { Scene } from '../game/Scene';
 import { Assets, Container, Graphics, Sprite, Text, TextStyle } from 'pixi.js';
 import { Easing } from '../game/Tween';
-import type { SceneId } from '../game/GameState';
+import type { SceneId, SceneDirection } from '../game/GameState';
 
 export class SplashScreen extends Scene {
   private content!: Container;
   private ready = false;
 
-  onSceneChange?: (sceneId: SceneId) => void;
+  onSceneChange?: (sceneId: SceneId, dir?: SceneDirection) => void;
 
   async setup(): Promise<void> {
     // Dark background

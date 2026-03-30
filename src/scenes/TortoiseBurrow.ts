@@ -12,7 +12,7 @@ import { depthSort } from '../game/DepthSort';
 import type { DepthScaleConfig } from '../game/DepthSort';
 import { AnimatedBackground } from '../game/AnimatedBackground';
 import { Container, Graphics, Sprite, Assets } from 'pixi.js';
-import type { SceneId, FlagId } from '../game/GameState';
+import type { SceneId, FlagId, SceneDirection } from '../game/GameState';
 import type { NPCConfig } from '../characters/NPC';
 import dialogueData from '../data/dialogue.json';
 import walkableAreasData from '../data/walkable-areas.json';
@@ -52,7 +52,7 @@ export class TortoiseBurrow extends Scene {
   private perchSystem = new PerchSystem();
 
   /** Called by SceneManager wiring to navigate between scenes. */
-  onSceneChange?: (sceneId: SceneId) => void;
+  onSceneChange?: (sceneId: SceneId, dir?: SceneDirection) => void;
 
   async setup(): Promise<void> {
     const tbData = (walkableAreasData as WalkableAreasJson).tortoise_burrow as Record<string, Record<string, unknown>>;
@@ -177,16 +177,24 @@ export class TortoiseBurrow extends Scene {
     this.arrows.push(upArrow);
     this.surfaceContainer.addChild(upArrow.container);
 
-    // 11. Burrow entrance (invisible clickable area, tappable when shelly_helped)
-    const burrowX = 750, burrowY = 500, burrowRX = 80, burrowRY = 50;
+    // 11. Burrow entrance (aligned with dark hole in background art)
+    const burrowX = 670, burrowY = 380, burrowRX = 90, burrowRY = 55;
     this.burrowEntrance = new Graphics();
     this.burrowEntrance.ellipse(burrowX, burrowY, burrowRX, burrowRY);
     this.burrowEntrance.fill({ color: 0x000000, alpha: 0.001 });
-    this.burrowEntrance.eventMode = 'none'; // disabled by default
+    this.burrowEntrance.eventMode = 'static';
     this.burrowEntrance.cursor = 'pointer';
     this.burrowEntrance.on('pointertap', () => {
-      if (this.gameState.getFlag('shelly_helped') && !this.isUnderground) {
-        this.switchToUnderground();
+      if (!this.isUnderground) {
+        if (this.gameState.getFlag('shelly_helped')) {
+          this.switchToUnderground();
+        } else {
+          // Hint that they need to help Shelly first
+          const line = this.dialogueRunner.start('shelly_intro');
+          if (line) {
+            this.dialogueBubble.show(line.speaker, line.text, this.scruff.x, this.scruff.y - 100);
+          }
+        }
       }
     });
     this.surfaceContainer.addChild(this.burrowEntrance);
@@ -468,8 +476,6 @@ export class TortoiseBurrow extends Scene {
     ) {
       this.gameState.removeItem('saw_palmetto_fronds');
       this.gameState.setFlag('shelly_helped');
-      // Enable burrow entrance now that shelly is helped
-      this.burrowEntrance.eventMode = 'static';
       await this.shelly.playHappy();
     }
 
@@ -488,7 +494,7 @@ export class TortoiseBurrow extends Scene {
     this.lastDialogueId = null;
   }
 
-  enter(fromScene?: SceneId): void {
+  enter(fromScene?: SceneId, exitDirection?: SceneDirection): void {
     // Always return to surface view when entering the scene
     if (this.isUnderground) {
       this.switchToSurface();
@@ -496,7 +502,23 @@ export class TortoiseBurrow extends Scene {
     // Position Scruff based on which scene she came from
     const surfaceData = (walkableAreasData as WalkableAreasJson).tortoise_burrow.surface as Record<string, unknown>;
     const entry = resolveEntryPoint(surfaceData.entryPoints as Record<string, number[]>, fromScene);
-    this.scruff.setPosition(entry.x, entry.y);
+    
+    // Arrival animation: Fly in from the same side for vertical (sky), opposite for horizontal
+    if (exitDirection) {
+      const flyInDist = 100;
+      let startX = entry.x;
+      let startY = entry.y;
+
+      if (exitDirection === 'up') startY = -flyInDist;
+      else if (exitDirection === 'down') startY = 720 + flyInDist;
+      else if (exitDirection === 'left') startX = 1280 + flyInDist;
+      else if (exitDirection === 'right') startX = -flyInDist;
+
+      this.scruff.setPosition(startX, startY, false);
+      this.scruff.flyTo(entry.x, entry.y);
+    } else {
+      this.scruff.setPosition(entry.x, entry.y);
+    }
 
     // Enable burrow entrance if shelly has been helped
     if (this.gameState.getFlag('shelly_helped')) {

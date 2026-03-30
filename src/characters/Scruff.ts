@@ -39,10 +39,10 @@ export class Scruff {
     this.animator.playIdleFront();
   }
 
-  setPosition(x: number, y: number): void {
+  setPosition(x: number, y: number, playIdle = true): void {
     this.animator?.stop();
     this.container.position.set(x, y);
-    this.animator?.playIdleFront();
+    if (playIdle) this.animator?.playIdleFront();
   }
 
   moveTo(targetX: number, targetY: number): Promise<void> {

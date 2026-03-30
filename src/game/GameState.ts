@@ -21,6 +21,8 @@ export type SceneId =
   | 'seed_scatter'
   | 'night_watch';
 
+export type SceneDirection = 'left' | 'right' | 'up' | 'down';
+
 export type FlagId =
   | 'intro_seen'
   | 'tutorial_complete'

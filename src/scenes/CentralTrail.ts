@@ -12,7 +12,7 @@ import { PerchDebugOverlay } from '../game/PerchDebugOverlay';
 import type { DepthScaleConfig } from '../game/DepthSort';
 import { Sprite, Assets, Graphics, Container, Text, TextStyle } from 'pixi.js';
 import { AnimatedBackground } from '../game/AnimatedBackground';
-import type { SceneId, FlagId } from '../game/GameState';
+import type { SceneId, FlagId, SceneDirection } from '../game/GameState';
 import type { NPCConfig } from '../characters/NPC';
 import dialogueData from '../data/dialogue.json';
 import walkableAreasData from '../data/walkable-areas.json';
@@ -37,7 +37,7 @@ export class CentralTrail extends Scene {
   private perchSystem = new PerchSystem();
 
   /** Called by SceneManager wiring to navigate between scenes. */
-  onSceneChange?: (sceneId: SceneId) => void;
+  onSceneChange?: (sceneId: SceneId, dir?: SceneDirection) => void;
 
   async setup(): Promise<void> {
     const sceneData = (walkableAreasData as WalkableAreasJson).central_trail as Record<string, unknown>;
@@ -325,11 +325,27 @@ export class CentralTrail extends Scene {
     }
   }
 
-  enter(fromScene?: SceneId): void {
+  enter(fromScene?: SceneId, exitDirection?: SceneDirection): void {
     const sceneData = (walkableAreasData as WalkableAreasJson).central_trail as Record<string, unknown>;
     // Position Scruff based on which scene she came from
     const entry = resolveEntryPoint(sceneData.entryPoints as Record<string, number[]>, fromScene);
-    this.scruff.setPosition(entry.x, entry.y);
+    
+    // Arrival animation: Fly in from the same side for vertical (sky), opposite for horizontal
+    if (exitDirection) {
+      const flyInDist = 100;
+      let startX = entry.x;
+      let startY = entry.y;
+
+      if (exitDirection === 'up') startY = -flyInDist;
+      else if (exitDirection === 'down') startY = 720 + flyInDist;
+      else if (exitDirection === 'left') startX = 1280 + flyInDist;
+      else if (exitDirection === 'right') startX = -flyInDist;
+
+      this.scruff.setPosition(startX, startY, false);
+      this.scruff.flyTo(entry.x, entry.y);
+    } else {
+      this.scruff.setPosition(entry.x, entry.y);
+    }
 
     // Set fast_travel_unlocked on first visit
     if (!this.gameState.getFlag('fast_travel_unlocked')) {
