@@ -45,9 +45,9 @@ export class SceneArrow {
   }
 
   private buildHorizontalSign(direction: 'left' | 'right', labelText: string): void {
-    const signW = 260;
-    const signH = 64;
-    const pointW = 36;
+    const signW = 200;
+    const signH = 50;
+    const pointW = 28;
     const isLeft = direction === 'left';
 
     const sign = new Graphics();
@@ -105,9 +105,9 @@ export class SceneArrow {
   }
 
   private buildVerticalSign(direction: 'up' | 'down', labelText: string): void {
-    const signW = 240;
-    const signH = 56;
-    const pointH = 28;
+    const signW = 180;
+    const signH = 44;
+    const pointH = 22;
     const isUp = direction === 'up';
 
     const sign = new Graphics();

@@ -1,5 +1,5 @@
 import { Scene } from '../game/Scene';
-import { Container, Graphics, Text, TextStyle } from 'pixi.js';
+import { Container, Graphics, Text, TextStyle, Sprite, Assets } from 'pixi.js';
 import { Easing } from '../game/Tween';
 
 /** Habitat zone definition. */
@@ -11,8 +11,8 @@ interface Habitat {
   w: number;
   h: number;
   color: number;       // base outline color for the zone
-  animalColor: number;  // color for the animal icon
-  animalShape: 'circle' | 'oval' | 'hexCircle' | 'smallCircle';
+  spritePath: string;  // path to character head sprite
+  bgPath: string;      // path to habitat thumbnail/icon
 }
 
 const HABITATS: Habitat[] = [
@@ -24,8 +24,8 @@ const HABITATS: Habitat[] = [
     w: 180,
     h: 120,
     color: 0x4169e1,
-    animalColor: 0x4169e1,
-    animalShape: 'circle',
+    spritePath: 'assets/characters/scruff.png',
+    bgPath: 'assets/backgrounds/scrub-thicket-bg.png',
   },
   {
     name: 'Tortoise Burrow',
@@ -35,8 +35,8 @@ const HABITATS: Habitat[] = [
     w: 200,
     h: 110,
     color: 0x8b6914,
-    animalColor: 0x8b6914,
-    animalShape: 'hexCircle',
+    spritePath: 'assets/characters/shelly.png',
+    bgPath: 'assets/backgrounds/tortoise-burrow-bg.png',
   },
   {
     name: 'Pine Clearing',
@@ -46,8 +46,8 @@ const HABITATS: Habitat[] = [
     w: 200,
     h: 130,
     color: 0xcd3333,
-    animalColor: 0xcd3333,
-    animalShape: 'circle',
+    spritePath: 'assets/characters/flicker.png',
+    bgPath: 'assets/backgrounds/pine-clearing-bg.png',
   },
   {
     name: 'Sandy Barrens',
@@ -57,8 +57,8 @@ const HABITATS: Habitat[] = [
     w: 210,
     h: 120,
     color: 0x191970,
-    animalColor: 0x191970,
-    animalShape: 'oval',
+    spritePath: 'assets/characters/sunny.png',
+    bgPath: 'assets/backgrounds/sandy-barrens-bg.png',
   },
   {
     name: 'Underground',
@@ -68,16 +68,16 @@ const HABITATS: Habitat[] = [
     w: 180,
     h: 100,
     color: 0xd2b48c,
-    animalColor: 0xd2b48c,
-    animalShape: 'smallCircle',
+    spritePath: 'assets/characters/pip.png',
+    bgPath: 'assets/backgrounds/tortoise-burrow-bg.png', // Fallback to surface burrow
   },
 ];
 
 /** How many animals to show per round: round 1 = 2, round 2 = 3, round 3 = 4, round 4 = 5. */
 const ROUND_LENGTHS = [2, 3, 4, 5];
 const MAX_ROUNDS = ROUND_LENGTHS.length;
-const FLASH_DURATION = 1500; // ms per animal flash
-const FLASH_GAP = 400;       // ms gap between flashes
+const FLASH_DURATION = 1400; // ms per animal flash
+const FLASH_GAP = 300;       // ms gap between flashes
 
 export class NightWatch extends Scene {
   private round = 0;
@@ -96,6 +96,10 @@ export class NightWatch extends Scene {
   onComplete?: () => void;
 
   async setup(): Promise<void> {
+    // 1. Preload assets
+    const assetsToLoad = HABITATS.flatMap(h => [h.spritePath, h.bgPath]);
+    await Assets.load(assetsToLoad);
+
     // Night sky background
     const bg = new Graphics();
     bg.rect(0, 0, 1280, 720);
@@ -165,11 +169,22 @@ export class NightWatch extends Scene {
       const h = HABITATS[i];
       const zone = new Container();
 
-      // Zone background (dim by default)
+      // Habitat thumbnail background
+      const thumb = new Sprite(Assets.get(h.bgPath));
+      thumb.width = h.w;
+      thumb.height = h.h;
+      // Mask for rounded corners
+      const mask = new Graphics();
+      mask.roundRect(0, 0, h.w, h.h, 12);
+      mask.fill({ color: 0xffffff });
+      thumb.mask = mask;
+      zone.addChild(thumb, mask);
+
+      // Zone border/overlay (dim by default)
       const zoneBg = new Graphics();
       zoneBg.roundRect(0, 0, h.w, h.h, 12);
-      zoneBg.fill({ color: h.color, alpha: 0.15 });
-      zoneBg.stroke({ width: 2, color: h.color, alpha: 0.4 });
+      zoneBg.fill({ color: 0x000000, alpha: 0.5 }); // dim overlay
+      zoneBg.stroke({ width: 3, color: h.color, alpha: 0.6 });
       zone.addChild(zoneBg);
       this.zoneBgs.push(zoneBg);
 
@@ -177,16 +192,18 @@ export class NightWatch extends Scene {
       const label = new Text({
         text: h.name,
         style: new TextStyle({
-          fontSize: 13,
-          fill: '#AAAACC',
+          fontSize: 14,
+          fill: '#FFFFFF',
+          fontWeight: 'bold',
           fontFamily: 'Arial, sans-serif',
+          stroke: { width: 3, color: 0x000000, alpha: 0.7 }
         }),
       });
       label.anchor.set(0.5, 0);
-      label.position.set(h.w / 2, h.h + 4);
+      label.position.set(h.w / 2, h.h + 8);
       zone.addChild(label);
 
-      // Animal icon (hidden initially)
+      // Animal icon (using actual head sprite)
       const animalIcon = this.createAnimalIcon(h);
       animalIcon.position.set(h.w / 2, h.h / 2);
       animalIcon.visible = false;
@@ -298,7 +315,7 @@ export class NightWatch extends Scene {
   }
 
   update(_deltaMs: number): void {
-    // Game logic is event-driven (timeouts + taps), no per-frame update needed
+    // Game logic is event-driven
   }
 
   private drawStars(): void {
@@ -334,79 +351,31 @@ export class NightWatch extends Scene {
 
   private createAnimalIcon(h: Habitat): Container {
     const icon = new Container();
-    const g = new Graphics();
-
-    switch (h.animalShape) {
-      case 'circle': {
-        // Scruff (blue circle) or Flicker (red circle)
-        g.circle(0, 0, 22);
-        g.fill({ color: h.animalColor });
-        g.stroke({ width: 3, color: 0xffffff });
-        break;
-      }
-      case 'hexCircle': {
-        // Shelly (brown circle with hex pattern)
-        g.circle(0, 0, 24);
-        g.fill({ color: h.animalColor });
-        g.stroke({ width: 3, color: 0xffffff });
-        // Hex pattern lines
-        const hex = new Graphics();
-        for (let a = 0; a < 6; a++) {
-          const angle = (a * Math.PI * 2) / 6;
-          hex.moveTo(0, 0);
-          hex.lineTo(Math.cos(angle) * 14, Math.sin(angle) * 14);
-        }
-        hex.stroke({ width: 1.5, color: 0xffffff, alpha: 0.5 });
-        icon.addChild(g, hex);
-        // Add name label
-        const nameLabel = new Text({
-          text: h.animalName,
-          style: new TextStyle({ fontSize: 11, fill: '#FFFFFF', fontWeight: 'bold', fontFamily: 'Arial, sans-serif' }),
-        });
-        nameLabel.anchor.set(0.5, 0);
-        nameLabel.position.set(0, 28);
-        icon.addChild(nameLabel);
-        return icon;
-      }
-      case 'oval': {
-        // Sunny (dark blue long oval)
-        g.ellipse(0, 0, 14, 28);
-        g.fill({ color: h.animalColor });
-        g.stroke({ width: 3, color: 0xffffff });
-        break;
-      }
-      case 'smallCircle': {
-        // Pip (small tan circle with big ears)
-        g.circle(0, 0, 16);
-        g.fill({ color: h.animalColor });
-        g.stroke({ width: 3, color: 0xffffff });
-        // Ears
-        const ears = new Graphics();
-        ears.circle(-12, -14, 8);
-        ears.circle(12, -14, 8);
-        ears.fill({ color: h.animalColor });
-        ears.stroke({ width: 2, color: 0xffffff });
-        icon.addChild(g, ears);
-        const nameLabel2 = new Text({
-          text: h.animalName,
-          style: new TextStyle({ fontSize: 11, fill: '#FFFFFF', fontWeight: 'bold', fontFamily: 'Arial, sans-serif' }),
-        });
-        nameLabel2.anchor.set(0.5, 0);
-        nameLabel2.position.set(0, 22);
-        icon.addChild(nameLabel2);
-        return icon;
-      }
-    }
-
-    icon.addChild(g);
+    const sprite = new Sprite(Assets.get(h.spritePath));
+    sprite.anchor.set(0.5, 0.5);
+    sprite.scale.set(0.6); // smaller than inventory icons
+    
+    // Add white glow/outline background
+    const glow = new Graphics();
+    glow.circle(0, 0, 32);
+    glow.fill({ color: 0xffffff, alpha: 0.8 });
+    glow.stroke({ width: 3, color: h.color });
+    
+    icon.addChild(glow, sprite);
 
     // Name label below icon
     const nameLabel = new Text({
       text: h.animalName,
-      style: new TextStyle({ fontSize: 11, fill: '#FFFFFF', fontWeight: 'bold', fontFamily: 'Arial, sans-serif' }),
+      style: new TextStyle({ 
+        fontSize: 14, 
+        fill: '#FFFFFF', 
+        fontWeight: 'bold', 
+        fontFamily: 'Arial, sans-serif',
+        stroke: { width: 3, color: 0x000000 }
+      }),
     });
     nameLabel.anchor.set(0.5, 0);
-    nameLabel.position.set(0, h.animalShape === 'oval' ? 32 : 26);
+    nameLabel.position.set(0, 36);
     icon.addChild(nameLabel);
 
     return icon;
@@ -456,13 +425,20 @@ export class NightWatch extends Scene {
       // Show animal
       this.animalIcons[habitatIdx].visible = true;
       this.animalIcons[habitatIdx].alpha = 0;
+      this.animalIcons[habitatIdx].scale.set(0.5);
 
-      // Fade in
+      // Pop-in and fade in
       this.tweens.add({
         target: this.animalIcons[habitatIdx] as unknown as Record<string, number>,
         props: { alpha: 1 },
         duration: 300,
         easing: Easing.easeOut,
+      });
+      this.tweens.add({
+        target: this.animalIcons[habitatIdx].scale as unknown as Record<string, number>,
+        props: { x: 1.1, y: 1.1 },
+        duration: 350,
+        easing: Easing.bounce,
       });
 
       await this.delay(FLASH_DURATION);
@@ -471,7 +447,7 @@ export class NightWatch extends Scene {
       this.tweens.add({
         target: this.animalIcons[habitatIdx] as unknown as Record<string, number>,
         props: { alpha: 0 },
-        duration: 300,
+        duration: 250,
         easing: Easing.easeIn,
         onComplete: () => {
           this.animalIcons[habitatIdx].visible = false;
@@ -499,11 +475,11 @@ export class NightWatch extends Scene {
     bg.clear();
     bg.roundRect(0, 0, h.w, h.h, 12);
     if (lit) {
-      bg.fill({ color: h.color, alpha: 0.5 });
-      bg.stroke({ width: 3, color: 0xffe44d, alpha: 0.9 });
+      bg.fill({ color: h.color, alpha: 0 }); // clear overlay when lit
+      bg.stroke({ width: 5, color: 0xffe44d, alpha: 1.0 });
     } else {
-      bg.fill({ color: h.color, alpha: 0.15 });
-      bg.stroke({ width: 2, color: h.color, alpha: 0.4 });
+      bg.fill({ color: 0x000000, alpha: 0.65 }); // darker overlay when dim
+      bg.stroke({ width: 3, color: h.color, alpha: 0.6 });
     }
   }
 
@@ -516,6 +492,7 @@ export class NightWatch extends Scene {
     this.redrawZoneBg(idx, true);
     this.animalIcons[idx].visible = true;
     this.animalIcons[idx].alpha = 1;
+    this.animalIcons[idx].scale.set(1.1);
 
     // Check if correct so far
     const guessIndex = this.playerGuess.length - 1;
@@ -544,7 +521,7 @@ export class NightWatch extends Scene {
       if (!this.gameActive) return;
       this.redrawZoneBg(idx, false);
       this.animalIcons[idx].visible = false;
-    }, 300);
+    }, 400);
 
     // Check if round is complete
     if (this.playerGuess.length === this.sequence.length) {
@@ -556,6 +533,7 @@ export class NightWatch extends Scene {
         this.redrawZoneBg(seqIdx, true);
         this.animalIcons[seqIdx].visible = true;
         this.animalIcons[seqIdx].alpha = 1;
+        this.animalIcons[seqIdx].scale.set(1.0);
       }
 
       this.scheduleTimer(() => {
@@ -605,6 +583,7 @@ export class NightWatch extends Scene {
       this.redrawZoneBg(i, true);
       this.animalIcons[i].visible = true;
       this.animalIcons[i].alpha = 1;
+      this.animalIcons[i].scale.set(1.0);
     }
 
     const overlay = new Container();

@@ -1,6 +1,6 @@
 import { Application, Container, Graphics } from 'pixi.js';
 import type { Scene } from './Scene';
-import type { SceneId, GameState } from './GameState';
+import type { SceneId, GameState, SceneDirection } from './GameState';
 import { Easing, type TweenManager } from './Tween';
 
 type SceneFactory = (
@@ -34,7 +34,7 @@ export class SceneManager {
     return this.factories.has(id as SceneId);
   }
 
-  async switchTo(id: SceneId): Promise<void> {
+  async switchTo(id: SceneId, exitDirection?: SceneDirection): Promise<void> {
     if (this.switching) return;
     this.switching = true;
 
@@ -79,10 +79,14 @@ export class SceneManager {
         this.container.children.indexOf(overlay)
       );
       const fromScene = this.activeSceneId ?? undefined;
-      scene.enter(fromScene);
+      scene.enter(fromScene, exitDirection);
       this.activeScene = scene;
       this.activeSceneId = id;
-      this.gameState.visitScene(id);
+
+      // Only track gameplay scenes for persistence
+      if (id !== 'splash' && id !== 'intro') {
+        this.gameState.visitScene(id);
+      }
 
       // Auto-save on scene transition
       this.gameState.save();

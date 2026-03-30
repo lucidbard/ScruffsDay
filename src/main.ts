@@ -1,4 +1,4 @@
-import { Application, Assets, Container, Graphics, Text, Texture, TextStyle } from 'pixi.js';
+import { Application, Assets, Container, Graphics, Sprite, Text, Texture, TextStyle } from 'pixi.js';
 import { GameState } from './game/GameState';
 import type { ItemId } from './game/GameState';
 import { TweenManager } from './game/Tween';
@@ -6,6 +6,7 @@ import { SceneManager } from './game/SceneManager';
 import { InputManager } from './game/InputManager';
 import { InventoryUI } from './game/InventoryUI';
 import { MenuOverlay } from './game/MenuOverlay';
+import { FastTravelMapOverlay } from './game/FastTravelMapOverlay';
 import { ScrubThicket } from './scenes/ScrubThicket';
 import { TortoiseBurrow } from './scenes/TortoiseBurrow';
 import { CentralTrail } from './scenes/CentralTrail';
@@ -67,6 +68,7 @@ async function init() {
 
   // Preload UI textures so they're cached for immediate use
   try { await Assets.load('assets/ui/dialogue-bubble-bg.png'); } catch { /* optional */ }
+  try { await Assets.load('assets/ui/map-icon.png'); } catch { /* optional */ }
 
   // Core systems
   const gameState = GameState.load() ?? new GameState();
@@ -77,6 +79,8 @@ async function init() {
 
   // Menu overlay
   const menuOverlay = new MenuOverlay(gameState);
+  const fastTravelMap = new FastTravelMapOverlay(gameState);
+  await fastTravelMap.setup();
 
   // Layer order: scenes behind, UI in front, menu on top
   gameContainer.addChild(sceneManager.container);
@@ -98,6 +102,9 @@ async function init() {
   menuBtn.eventMode = 'static';
   menuBtn.cursor = 'pointer';
   menuBtn.on('pointertap', () => {
+    if (fastTravelMap.isVisible()) {
+      fastTravelMap.hide();
+    }
     if (menuOverlay.isVisible()) {
       menuOverlay.hide();
     } else {
@@ -105,6 +112,46 @@ async function init() {
     }
   });
   gameContainer.addChild(menuBtn);
+
+  // Fast-travel map button (hidden until unlocked)
+  const mapBtn = new Container();
+  const mapBtnBg = new Graphics();
+  mapBtnBg.roundRect(-20, -20, 40, 40, 8);
+  mapBtnBg.fill({ color: 0x3e2723, alpha: 0.6 });
+  mapBtnBg.stroke({ width: 2, color: 0xfff8dc });
+  mapBtn.addChild(mapBtnBg);
+
+  const mapIconTexture = Assets.cache.get('assets/ui/map-icon.png');
+  if (mapIconTexture) {
+    const mapIcon = new Sprite(mapIconTexture as Texture);
+    mapIcon.anchor.set(0.5, 0.5);
+    const iconScale = Math.min(26 / mapIcon.texture.width, 26 / mapIcon.texture.height);
+    mapIcon.scale.set(iconScale);
+    mapBtn.addChild(mapIcon);
+  } else {
+    const mapFallback = new Text({
+      text: 'M',
+      style: new TextStyle({ fontSize: 22, fill: '#FFF8DC', fontWeight: 'bold' }),
+    });
+    mapFallback.anchor.set(0.5, 0.5);
+    mapBtn.addChild(mapFallback);
+  }
+
+  mapBtn.position.set(GAME_WIDTH - 90, 40);
+  mapBtn.eventMode = 'static';
+  mapBtn.cursor = 'pointer';
+  mapBtn.visible = false;
+  mapBtn.on('pointertap', () => {
+    if (menuOverlay.isVisible()) {
+      menuOverlay.hide();
+    }
+    if (fastTravelMap.isVisible()) {
+      fastTravelMap.hide();
+    } else {
+      fastTravelMap.show();
+    }
+  });
+  gameContainer.addChild(mapBtn);
 
   // Debug cog button (next to hamburger, only in debug mode)
   let debugPanel: DebugPanel | null = null;
@@ -120,7 +167,7 @@ async function init() {
     });
     cogIcon.anchor.set(0.5, 0.5);
     cogBtn.addChild(cogBg, cogIcon);
-    cogBtn.position.set(GAME_WIDTH - 90, 40);
+    cogBtn.position.set(GAME_WIDTH - 140, 40);
     cogBtn.eventMode = 'static';
     cogBtn.cursor = 'pointer';
     cogBtn.on('pointertap', () => {
@@ -131,6 +178,7 @@ async function init() {
 
   // Menu overlay on top of everything
   gameContainer.addChild(menuOverlay.container);
+  gameContainer.addChild(fastTravelMap.container);
 
   inventoryUI.layout(GAME_WIDTH, GAME_HEIGHT);
 
@@ -155,58 +203,68 @@ async function init() {
     tweens.update(deltaMs);
     sceneManager.update(deltaMs);
     inventoryUI.refresh();
+
+    const activeSceneId = sceneManager.getActiveSceneId();
+    const mapAvailable =
+      activeSceneId !== 'splash' &&
+      activeSceneId !== 'intro' &&
+      gameState.getFlag('fast_travel_unlocked');
+    mapBtn.visible = mapAvailable;
+    if (!mapAvailable && fastTravelMap.isVisible()) {
+      fastTravelMap.hide();
+    }
   });
 
   // Register scenes
   sceneManager.register('splash', (app, gs, tw) => {
     const scene = new SplashScreen(app, gs, tw);
-    scene.onSceneChange = (id) => sceneManager.switchTo(id);
+    scene.onSceneChange = (id, dir) => sceneManager.switchTo(id, dir);
     return scene;
   });
 
   sceneManager.register('intro', (app, gs, tw) => {
     const scene = new IntroSequence(app, gs, tw);
-    scene.onSceneChange = (id) => {
+    scene.onSceneChange = (id, dir) => {
       inventoryUI.container.visible = true;
       menuBtn.visible = true;
-      sceneManager.switchTo(id);
+      sceneManager.switchTo(id, dir);
     };
     return scene;
   });
 
   sceneManager.register('scrub_thicket', (app, gs, tw) => {
     const scene = new ScrubThicket(app, gs, tw);
-    scene.onSceneChange = (id) => sceneManager.switchTo(id);
+    scene.onSceneChange = (id, dir) => sceneManager.switchTo(id, dir);
     return scene;
   });
 
   sceneManager.register('tortoise_burrow', (app, gs, tw) => {
     const scene = new TortoiseBurrow(app, gs, tw);
-    scene.onSceneChange = (id) => sceneManager.switchTo(id);
+    scene.onSceneChange = (id, dir) => sceneManager.switchTo(id, dir);
     return scene;
   });
 
   sceneManager.register('central_trail', (app, gs, tw) => {
     const scene = new CentralTrail(app, gs, tw);
-    scene.onSceneChange = (id) => sceneManager.switchTo(id);
+    scene.onSceneChange = (id, dir) => sceneManager.switchTo(id, dir);
     return scene;
   });
 
   sceneManager.register('pine_clearing', (app, gs, tw) => {
     const scene = new PineClearing(app, gs, tw);
-    scene.onSceneChange = (id) => sceneManager.switchTo(id);
+    scene.onSceneChange = (id, dir) => sceneManager.switchTo(id, dir);
     return scene;
   });
 
   sceneManager.register('sandy_barrens', (app, gs, tw) => {
     const scene = new SandyBarrens(app, gs, tw);
-    scene.onSceneChange = (id) => sceneManager.switchTo(id);
+    scene.onSceneChange = (id, dir) => sceneManager.switchTo(id, dir);
     return scene;
   });
 
   sceneManager.register('owls_overlook', (app, gs, tw) => {
     const scene = new OwlsOverlook(app, gs, tw);
-    scene.onSceneChange = (id) => sceneManager.switchTo(id);
+    scene.onSceneChange = (id, dir) => sceneManager.switchTo(id, dir);
     return scene;
   });
 
@@ -228,6 +286,10 @@ async function init() {
     return scene;
   });
 
+  fastTravelMap.onTravel = (sceneId) => {
+    sceneManager.switchTo(sceneId);
+  };
+
   // Debug panel (overlay, toggled by cog button)
   if (WalkableAreaDebug.isEnabled()) {
     debugPanel = new DebugPanel(sceneManager, gameState);
@@ -236,9 +298,11 @@ async function init() {
   // Hide inventory/menu during intro, show for all other scenes
   const origOnSwitch = sceneManager.onSceneSwitch;
   sceneManager.onSceneSwitch = (id) => {
+    fastTravelMap.hide();
     if (id === 'splash' || id === 'intro') {
       inventoryUI.container.visible = false;
       menuBtn.visible = false;
+      mapBtn.visible = false;
     } else {
       inventoryUI.container.visible = true;
       menuBtn.visible = true;
@@ -258,7 +322,8 @@ async function init() {
   } else if (!gameState.getFlag('intro_seen')) {
     await sceneManager.switchTo('splash');
   } else {
-    await sceneManager.switchTo('scrub_thicket');
+    // If intro was seen, return to the last saved scene
+    await sceneManager.switchTo(gameState.currentScene);
   }
 }
 

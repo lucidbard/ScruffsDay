@@ -1,5 +1,5 @@
 import { Container, Application } from 'pixi.js';
-import type { GameState, SceneId } from './GameState';
+import type { GameState, SceneId, SceneDirection } from './GameState';
 import type { TweenManager } from './Tween';
 import { depthSort, computeDepthScale } from './DepthSort';
 import type { DepthScaleConfig } from './DepthSort';
@@ -18,7 +18,7 @@ export abstract class Scene {
   }
 
   abstract setup(): Promise<void>;
-  abstract enter(fromScene?: SceneId): void;
+  abstract enter(fromScene?: SceneId, exitDirection?: SceneDirection): void;
   abstract update(deltaMs: number): void;
   abstract exit(): void;
 

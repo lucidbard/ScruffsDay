@@ -1,5 +1,5 @@
 import { Scene } from '../game/Scene';
-import { Container, Graphics, Text, TextStyle } from 'pixi.js';
+import { Container, Graphics, Text, TextStyle, Sprite, Assets, Texture } from 'pixi.js';
 import { Easing } from '../game/Tween';
 
 interface SandyPatch {
@@ -25,11 +25,11 @@ const GRAVITY: Record<SeedType, number> = {
   acorn: 420,
 };
 
-/** Friendly colour per seed type. */
-const SEED_COLOR: Record<SeedType, number> = {
-  rosemary: 0x3cb371,
-  palmetto: 0x6b8e23,
-  acorn: 0x8b6914,
+/** Texture keys for each seed type. */
+const SEED_TEXTURES: Record<SeedType, string> = {
+  rosemary: 'assets/items/florida-rosemary-cuttings.png',
+  palmetto: 'assets/items/saw-palmetto-fronds.png',
+  acorn: 'assets/items/chapman-oak-acorns.png',
 };
 
 const TOTAL_SEEDS = 15;
@@ -69,11 +69,11 @@ export class SeedScatter extends Scene {
   private windAnimTime = 0;
   private gameActive = false;
 
-  // Scruff sprite (simple bird shape at top)
-  private scruffSprite!: Container;
+  // Scruff sprite (actual character sprite)
+  private scruffSprite!: Sprite;
   private scruffX = 640;
   private scruffDirection = 1; // 1 = right, -1 = left
-  private scruffSpeed = 80; // pixels/sec
+  private scruffSpeed = 120; // pixels/sec (faster for more challenge)
 
   // Seed type rotation
   private seedTypeOrder: SeedType[] = [];
@@ -84,13 +84,19 @@ export class SeedScatter extends Scene {
   onComplete?: () => void;
 
   async setup(): Promise<void> {
+    // 1. Preload assets
+    await Assets.load([
+      'assets/characters/scruff-flying.png',
+      ...Object.values(SEED_TEXTURES)
+    ]);
+
     // Sky background
     const bg = new Graphics();
     bg.rect(0, 0, 1280, 720);
     bg.fill({ color: 0xa8d8ea });
     this.container.addChild(bg);
 
-    // Ground
+    // Ground (sandy texture)
     const ground = new Graphics();
     ground.rect(0, GROUND_Y, 1280, 220);
     ground.fill({ color: 0xe8d5a8 });
@@ -102,43 +108,54 @@ export class SeedScatter extends Scene {
     // Draw sandy patches (tan - good targets)
     for (const patch of this.sandyPatches) {
       const g = new Graphics();
-      g.roundRect(patch.x, patch.y, patch.w, patch.h, 10);
+      g.roundRect(patch.x, patch.y, patch.w, patch.h, 15);
       g.fill({ color: 0xf5e8c8 });
-      g.stroke({ width: 2, color: 0xc8b28a });
-      this.container.addChild(g);
+      g.stroke({ width: 3, color: 0xc8b28a, alpha: 0.8 });
+      // Organic detail
+      const speckle = new Graphics();
+      for(let i=0; i<4; i++) {
+        speckle.circle(patch.x + Math.random()*patch.w, patch.y + Math.random()*patch.h, 2);
+      }
+      speckle.fill({ color: 0xd2b48c, alpha: 0.4 });
+      this.container.addChild(g, speckle);
     }
 
-    // Draw invasive patches (dark green - bad targets)
+    // Draw invasive patches (overgrown dark green - bad targets)
     for (const patch of this.invasivePatches) {
       const g = new Graphics();
-      g.roundRect(patch.x, patch.y, patch.w, patch.h, 8);
+      g.roundRect(patch.x, patch.y, patch.w, patch.h, 12);
       g.fill({ color: 0x2d5a1e });
-      g.stroke({ width: 2, color: 0x1a3a10 });
-      // Leaf detail
-      const leaf = new Graphics();
-      leaf.circle(patch.x + patch.w / 2, patch.y + patch.h / 2, Math.min(patch.w, patch.h) / 3);
-      leaf.fill({ color: 0x3a6b28 });
-      this.container.addChild(g, leaf);
+      g.stroke({ width: 3, color: 0x1a3a10, alpha: 0.9 });
+      // Leaf detail (simplified Homestar-style clumps)
+      const leaves = new Graphics();
+      leaves.circle(patch.x + patch.w/4, patch.y + patch.h/4, 15);
+      leaves.circle(patch.x + patch.w/2, patch.y + patch.h/3, 18);
+      leaves.circle(patch.x + 3*patch.w/4, patch.y + patch.h/2, 14);
+      leaves.fill({ color: 0x3a6b28 });
+      this.container.addChild(g, leaves);
     }
 
-    // Zone labels (subtle)
+    // Zone labels (hand-drawn style)
     for (const patch of this.sandyPatches) {
       const lbl = new Text({
-        text: 'sand',
+        text: 'PLANT HERE!',
         style: new TextStyle({
-          fontSize: 11,
+          fontSize: 12,
           fill: '#B8A080',
-          fontFamily: 'Arial, sans-serif',
+          fontWeight: 'bold',
+          fontFamily: 'Comic Sans MS, Arial, sans-serif',
         }),
       });
-      lbl.anchor.set(0.5, 0.5);
-      lbl.position.set(patch.x + patch.w / 2, patch.y + patch.h / 2);
+      lbl.anchor.set(0.5, 1);
+      lbl.position.set(patch.x + patch.w / 2, patch.y - 5);
       this.container.addChild(lbl);
     }
 
     // Scruff flying at top
-    this.scruffSprite = this.buildScruffSprite();
-    this.scruffSprite.position.set(this.scruffX, 60);
+    this.scruffSprite = new Sprite(Assets.get('assets/characters/scruff-flying.png'));
+    this.scruffSprite.anchor.set(0.5, 0.5);
+    this.scruffSprite.position.set(this.scruffX, 80);
+    this.scruffSprite.scale.set(0.8);
     this.container.addChild(this.scruffSprite);
 
     // Wind indicator
@@ -231,9 +248,9 @@ export class SeedScatter extends Scene {
         'Drag down from Scruff to aim, then release to drop a seed.\n' +
         'Watch out for the wind - it pushes seeds sideways!\n\n' +
         'Seed types:\n' +
-        '  Rosemary (green) - drops fairly straight\n' +
-        '  Palmetto (olive) - drifts a lot in the wind\n' +
-        '  Acorn (brown) - heavy, drops fast\n\n' +
+        '  Rosemary (thin) - light, drifts moderately\n' +
+        '  Palmetto (wide) - broad leaves, drifts A LOT in the wind!\n' +
+        '  Acorn (heavy) - fast and straight, less affected by wind.\n\n' +
         'Land on sandy patch: +10    Land on invasive: -5    Miss: -2\n' +
         `15 seeds total. Score ${WIN_SCORE} or more to win!`,
       style: new TextStyle({
@@ -311,11 +328,11 @@ export class SeedScatter extends Scene {
     if (this.scruffX > 1100) this.scruffDirection = -1;
     if (this.scruffX < 180) this.scruffDirection = 1;
     this.scruffSprite.position.x = this.scruffX;
-    this.scruffSprite.scale.x = this.scruffDirection > 0 ? 1 : -1;
+    this.scruffSprite.scale.x = this.scruffDirection > 0 ? 0.8 : -0.8;
 
     // Move seed attached to Scruff (before drop)
     if (this.currentSeed && !this.seedFalling) {
-      this.currentSeed.position.set(this.scruffX, 90);
+      this.currentSeed.position.set(this.scruffX, 110);
     }
 
     // Seed physics when falling
@@ -328,6 +345,7 @@ export class SeedScatter extends Scene {
 
       this.currentSeed.position.x += this.seedVelocity.x * dt;
       this.currentSeed.position.y += this.seedVelocity.y * dt;
+      this.currentSeed.rotation += dt * 5; // gentle spin
 
       // Check landing
       if (this.currentSeed.position.y >= GROUND_Y) {
@@ -336,9 +354,9 @@ export class SeedScatter extends Scene {
 
       // Check off-screen
       if (
-        this.currentSeed.position.x < -20 ||
-        this.currentSeed.position.x > 1300 ||
-        this.currentSeed.position.y > 740
+        this.currentSeed.position.x < -40 ||
+        this.currentSeed.position.x > 1320 ||
+        this.currentSeed.position.y > 760
       ) {
         this.handleMiss();
       }
@@ -369,54 +387,6 @@ export class SeedScatter extends Scene {
     ];
   }
 
-  private buildScruffSprite(): Container {
-    const c = new Container();
-    // Simple bird body
-    const body = new Graphics();
-    body.ellipse(0, 0, 28, 18);
-    body.fill({ color: 0x4169e1 });
-    body.stroke({ width: 2, color: 0x000000 });
-    c.addChild(body);
-
-    // Head
-    const head = new Graphics();
-    head.circle(24, -8, 12);
-    head.fill({ color: 0x4169e1 });
-    head.stroke({ width: 2, color: 0x000000 });
-    c.addChild(head);
-
-    // Eye
-    const eye = new Graphics();
-    eye.circle(28, -10, 3);
-    eye.fill({ color: 0xffffff });
-    eye.stroke({ width: 1, color: 0x000000 });
-    c.addChild(eye);
-    const pupil = new Graphics();
-    pupil.circle(29, -10, 1.5);
-    pupil.fill({ color: 0x000000 });
-    c.addChild(pupil);
-
-    // Beak
-    const beak = new Graphics();
-    beak.moveTo(34, -8);
-    beak.lineTo(42, -5);
-    beak.lineTo(34, -3);
-    beak.closePath();
-    beak.fill({ color: 0xffa500 });
-    beak.stroke({ width: 1, color: 0x000000 });
-    c.addChild(beak);
-
-    // Wings
-    const wing = new Graphics();
-    wing.moveTo(-10, -5);
-    wing.quadraticCurveTo(-30, -25, -15, 5);
-    wing.fill({ color: 0x5b8fd4 });
-    wing.stroke({ width: 1.5, color: 0x000000 });
-    c.addChild(wing);
-
-    return c;
-  }
-
   private spawnSeed(): void {
     if (this.seedsRemaining <= 0) return;
 
@@ -424,57 +394,28 @@ export class SeedScatter extends Scene {
     this.currentSeedType = this.seedTypeOrder[idx];
 
     const seed = new Container();
-    const color = SEED_COLOR[this.currentSeedType];
-
-    if (this.currentSeedType === 'palmetto') {
-      // Fan shape
-      const fan = new Graphics();
-      fan.moveTo(0, -8);
-      fan.lineTo(-10, 6);
-      fan.lineTo(-4, 4);
-      fan.lineTo(0, 10);
-      fan.lineTo(4, 4);
-      fan.lineTo(10, 6);
-      fan.closePath();
-      fan.fill({ color });
-      fan.stroke({ width: 1.5, color: 0x000000 });
-      seed.addChild(fan);
-    } else if (this.currentSeedType === 'acorn') {
-      // Acorn shape - oval with cap
-      const nut = new Graphics();
-      nut.ellipse(0, 2, 6, 8);
-      nut.fill({ color });
-      nut.stroke({ width: 1.5, color: 0x000000 });
-      seed.addChild(nut);
-      const cap = new Graphics();
-      cap.arc(0, -4, 7, Math.PI, 0);
-      cap.fill({ color: 0xa0781e });
-      cap.stroke({ width: 1, color: 0x000000 });
-      seed.addChild(cap);
-    } else {
-      // Rosemary - small green dot
-      const dot = new Graphics();
-      dot.circle(0, 0, 6);
-      dot.fill({ color });
-      dot.stroke({ width: 1.5, color: 0x000000 });
-      seed.addChild(dot);
-    }
+    const texPath = SEED_TEXTURES[this.currentSeedType];
+    const sprite = new Sprite(Assets.get(texPath));
+    sprite.anchor.set(0.5, 0.5);
+    sprite.scale.set(0.4); // smaller than inventory icons
+    seed.addChild(sprite);
 
     // Seed type label
     const typeLbl = new Text({
       text: this.currentSeedType,
       style: new TextStyle({
-        fontSize: 10,
-        fill: '#FFF',
+        fontSize: 11,
+        fill: '#3E2723',
         fontWeight: 'bold',
         fontFamily: 'Arial, sans-serif',
+        stroke: { width: 3, color: 0xffffff },
       }),
     });
     typeLbl.anchor.set(0.5, 0);
-    typeLbl.position.set(0, 14);
+    typeLbl.position.set(0, 20);
     seed.addChild(typeLbl);
 
-    seed.position.set(this.scruffX, 90);
+    seed.position.set(this.scruffX, 110);
     this.currentSeed = seed;
     this.seedFalling = false;
     this.seedVelocity = { x: 0, y: 0 };
