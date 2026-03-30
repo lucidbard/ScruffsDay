@@ -6,6 +6,8 @@ import { DialogueBubble, DialogueRunner } from '../game/DialogueSystem';
 import { WalkableArea, resolveEntryPoint } from '../game/WalkableArea';
 import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
 import { ForegroundObject } from '../game/ForegroundObject';
+import { PerchSystem } from '../game/PerchSystem';
+import { PerchDebugOverlay } from '../game/PerchDebugOverlay';
 import type { DepthScaleConfig } from '../game/DepthSort';
 import { AnimatedBackground } from '../game/AnimatedBackground';
 import { Sprite, Assets, Container } from 'pixi.js';
@@ -25,6 +27,7 @@ export class ScrubThicket extends Scene {
   private depthScaleConfig: DepthScaleConfig | null = null;
   private foregrounds: ForegroundObject[] = [];
   private animBg: AnimatedBackground | null = null;
+  private perchSystem = new PerchSystem();
 
   /** Called by SceneManager wiring to navigate between scenes. */
   onSceneChange?: (sceneId: SceneId) => void;
@@ -53,7 +56,8 @@ export class ScrubThicket extends Scene {
     // 4. Depth scale config
     this.depthScaleConfig = (sceneData.depthScale as DepthScaleConfig | undefined) ?? null;
 
-    // 5. Scruff
+    // 5. Perch system + Scruff
+    await this.perchSystem.load('scrub_thicket');
     this.scruff = new Scruff(this.tweens);
     await this.scruff.setup();
     const start = resolveEntryPoint(sceneData.entryPoints as Record<string, number[]>);
@@ -61,7 +65,8 @@ export class ScrubThicket extends Scene {
     this.depthContainer.addChild(this.scruff.container);
 
     // 6. Collectible items (only if not already in inventory)
-    if (!this.gameState.hasItem('saw_palmetto_fronds')) {
+    // Saw palmetto only appears after Scruff learns Shelly needs it
+    if (!this.gameState.hasItem('saw_palmetto_fronds') && this.gameState.getFlag('knows_saw_palmetto')) {
       const palmetto = new InteractiveItem(
         {
           itemId: 'saw_palmetto_fronds',
@@ -105,6 +110,7 @@ export class ScrubThicket extends Scene {
     this.dialogueRunner = new DialogueRunner(
       dialogueData as Record<string, (typeof dialogueData)[keyof typeof dialogueData]>,
       (flag: string) => this.gameState.getFlag(flag as FlagId),
+      (flag: string) => this.gameState.setFlag(flag as FlagId),
     );
     this.dialogueBubble = new DialogueBubble();
     this.container.addChild(this.dialogueBubble.container);
@@ -149,6 +155,7 @@ export class ScrubThicket extends Scene {
       if (this.dialogueRunner.isActive()) {
         const nextLine = this.dialogueRunner.next();
         if (nextLine) {
+          this.scruff.setTalking(true);
           this.dialogueBubble.show(
             nextLine.speaker,
             nextLine.text,
@@ -156,14 +163,21 @@ export class ScrubThicket extends Scene {
             this.scruff.y - 130,
           );
         } else {
+          this.scruff.setTalking(false);
           this.dialogueBubble.hide();
         }
         return;
       }
 
       const pos = e.getLocalPosition(this.container);
-      // Constrain movement to walkable area
-      this.scruff.moveToConstrained(pos.x, pos.y, this.walkableArea);
+      // Find nearest perch to tap point, or fall back to walkable area
+      const perch = this.perchSystem.nearestWithin(pos.x, pos.y, 120);
+      if (perch) {
+        const scaled = this.perchSystem.scaleToGame(perch);
+        this.scruff.flyTo(scaled.x, scaled.y);
+      } else {
+        this.scruff.moveToConstrained(pos.x, pos.y, this.walkableArea);
+      }
     });
 
     // 12. Debug overlay (above depthContainer)
@@ -180,6 +194,12 @@ export class ScrubThicket extends Scene {
       );
       this.container.addChild(debug.container);
     }
+
+    // 13. Perch debug overlay (editable in debug mode)
+    if (WalkableAreaDebug.isEnabled()) {
+      const perchOverlay = new PerchDebugOverlay(this.perchSystem, 'scrub_thicket', [1376, 768]);
+      this.container.addChild(perchOverlay.container);
+    }
   }
 
   enter(fromScene?: SceneId): void {
@@ -192,6 +212,7 @@ export class ScrubThicket extends Scene {
     if (!this.gameState.getFlag('tutorial_complete')) {
       const line = this.dialogueRunner.start('tutorial');
       if (line) {
+        this.scruff.setTalking(true);
         this.dialogueBubble.show(
           line.speaker,
           line.text,

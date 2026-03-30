@@ -25,13 +25,15 @@ export interface ActiveLine {
 export class DialogueRunner {
   private data: DialogueData;
   private checkFlag: (flag: string) => boolean;
+  private onSetFlag: ((flag: string) => void) | null;
   private currentNode: DialogueNode | null = null;
   private lineIndex = 0;
   private active = false;
 
-  constructor(data: DialogueData, checkFlag: (flag: string) => boolean) {
+  constructor(data: DialogueData, checkFlag: (flag: string) => boolean, onSetFlag?: (flag: string) => void) {
     this.data = data;
     this.checkFlag = checkFlag;
+    this.onSetFlag = onSetFlag ?? null;
   }
 
   start(nodeId: string): ActiveLine | null {
@@ -48,6 +50,10 @@ export class DialogueRunner {
     this.lineIndex++;
     const line = this.getCurrentLine();
     if (!line) {
+      // Dialogue node complete — process setFlag if present
+      if (this.currentNode.setFlag && this.onSetFlag) {
+        this.onSetFlag(this.currentNode.setFlag);
+      }
       this.active = false;
       this.currentNode = null;
     }

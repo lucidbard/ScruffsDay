@@ -24,6 +24,7 @@ export type SceneId =
 export type FlagId =
   | 'intro_seen'
   | 'tutorial_complete'
+  | 'knows_saw_palmetto'
   | 'shelly_helped'
   | 'pip_helped'
   | 'flicker_helped'

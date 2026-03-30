@@ -22,12 +22,18 @@ export function debugSavePlugin(): Plugin {
           try {
             const { path: relPath, content } = JSON.parse(body) as { path: string; content: string };
 
-            // Validate path stays within src/data/
+            // Validate path stays within allowed directories
             const absPath = path.resolve(projectRoot, relPath);
-            const dataDir = path.resolve(projectRoot, 'src/data');
-            if (!absPath.startsWith(dataDir + path.sep) && absPath !== dataDir) {
+            const allowedDirs = [
+              path.resolve(projectRoot, 'src/data'),
+              path.resolve(projectRoot, 'public/assets/perch-data'),
+            ];
+            const isAllowed = allowedDirs.some(
+              (dir) => absPath.startsWith(dir + path.sep) || absPath === dir,
+            );
+            if (!isAllowed) {
               res.writeHead(403, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ error: 'Path must be within src/data/' }));
+              res.end(JSON.stringify({ error: 'Path must be within src/data/ or public/assets/perch-data/' }));
               return;
             }
 

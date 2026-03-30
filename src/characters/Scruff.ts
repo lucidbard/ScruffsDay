@@ -1,34 +1,20 @@
-import { Container, Rectangle, Sprite, Assets, Texture } from 'pixi.js';
+import { Container, Sprite, Assets, Texture } from 'pixi.js';
 import type { TweenManager } from '../game/Tween';
 import { Easing } from '../game/Tween';
 import type { WalkableArea } from '../game/WalkableArea';
+import { ScruffAnimator, type Direction } from './ScruffAnimator';
 
-const IDLE_SHEET_FRAMES = 25;
-const IDLE_FRAME_W = 232;
-const IDLE_FRAME_H = 256;
-
-const FLY_SHEET_FRAMES = 25;
-const FLY_FRAME_W = 256;
-const FLY_FRAME_H = 228;
+const TARGET_HEIGHT = 140;
+const HOP_THRESHOLD = 150; // pixels — below this, hop instead of fly
 
 export class Scruff {
   readonly container = new Container();
   private sprite!: Sprite;
+  private animator!: ScruffAnimator;
   private tweens: TweenManager;
   private moving = false;
   private speed = 200; // pixels per second
-
-  // Sprite animation
-  private idleTextures: Texture[] = [];
-  private flyTextures: Texture[] = [];
-  private pickupTexture: Texture | null = null;
-  private talkingTexture: Texture | null = null;
-  private happyTexture: Texture | null = null;
-  private idleFrameIndex = 0;
-  private flyFrameIndex = 0;
-  private flyFrameDir = 1;               // +1 or -1 for ping-pong
-  private idleAnimInterval: number | null = null;
-  private flyAnimInterval: number | null = null;
+  private baseScale = 1;
 
   get x(): number { return this.container.x; }
   get y(): number { return this.container.y; }
@@ -38,103 +24,118 @@ export class Scruff {
   }
 
   async setup(): Promise<void> {
-    const [idleSheet, idleFront, flySheet, flying, pickup, talking, happy] = await Promise.all([
-      Assets.load('assets/characters/scruff-idle-sheet.png'),
-      Assets.load('assets/characters/scruff-idle-front.png'),
-      Assets.load('assets/characters/scruff-fly-sheet.png').catch(() => null),
-      Assets.load('assets/characters/scruff-flying.png'),
-      Assets.load('assets/characters/scruff-pickup.png'),
-      Assets.load('assets/characters/scruff-talking.png'),
-      Assets.load('assets/characters/scruff-happy.png'),
-    ]);
+    // Load a placeholder texture for initial sprite creation
+    const idleFront = await Assets.load('assets/characters/scruff-idle-front.png');
 
-    // Slice idle spritesheet into individual frame textures
-    if (idleSheet) {
-      for (let i = 0; i < IDLE_SHEET_FRAMES; i++) {
-        const frame = new Texture({
-          source: idleSheet.source,
-          frame: new Rectangle(i * IDLE_FRAME_W, 0, IDLE_FRAME_W, IDLE_FRAME_H),
-        });
-        this.idleTextures.push(frame);
-      }
-    } else {
-      this.idleTextures = [idleFront];
-    }
-
-    // Slice fly spritesheet, fall back to static flying image
-    if (flySheet) {
-      for (let i = 0; i < FLY_SHEET_FRAMES; i++) {
-        const frame = new Texture({
-          source: flySheet.source,
-          frame: new Rectangle(i * FLY_FRAME_W, 0, FLY_FRAME_W, FLY_FRAME_H),
-        });
-        this.flyTextures.push(frame);
-      }
-    } else {
-      this.flyTextures = [flying];
-    }
-    this.pickupTexture = pickup;
-    this.talkingTexture = talking;
-    this.happyTexture = happy;
-
-    this.sprite = new Sprite(this.idleTextures[0]);
-    this.sprite.anchor.set(0.5, 1); // anchor at bottom-center (feet)
-    // Scale proportionally to target height
-    const targetHeight = 140;
-    const scale = targetHeight / IDLE_FRAME_H;
-    this.sprite.scale.set(scale);
+    this.sprite = new Sprite(idleFront);
+    this.sprite.anchor.set(0.5, 1);
+    this.baseScale = TARGET_HEIGHT / idleFront.height;
+    this.sprite.scale.set(this.baseScale);
     this.container.addChild(this.sprite);
-    this.startIdle();
+
+    // Initialize animator and load all spritesheets
+    this.animator = new ScruffAnimator(this.sprite);
+    await this.animator.loadAll();
+    this.animator.playIdleFront();
   }
 
   setPosition(x: number, y: number): void {
-    this.stopIdle();
+    this.animator?.stop();
     this.container.position.set(x, y);
-    this.startIdle();
+    this.animator?.playIdleFront();
   }
 
   moveTo(targetX: number, targetY: number): Promise<void> {
+    return this.flyTo(targetX, targetY);
+  }
+
+  /** Fly or hop to target depending on distance. */
+  flyTo(targetX: number, targetY: number): Promise<void> {
+    const dx = targetX - this.container.x;
+    const dy = targetY - this.container.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance < 5) return Promise.resolve(); // too close, skip
+
+    const dir: Direction = dx < 0 ? 'left' : 'right';
+
+    if (distance < HOP_THRESHOLD) {
+      return this.doHop(targetX, targetY, distance, dir);
+    }
+    return this.doFly(targetX, targetY, distance, dir);
+  }
+
+  /** Sequenced hop: turn → hop animation + arc → land → idle */
+  private async doHop(targetX: number, targetY: number, distance: number, dir: Direction): Promise<void> {
+    this.moving = true;
+
+    // 1. Turn to face direction
+    await this.animator.turnToward(dir);
+
+    // 2. Play hop animation while moving
+    this.animator.playHopping(dir);
+    await this.animateArc(targetX, targetY, distance, Math.min(25, Math.max(10, distance * 0.12)));
+
+    // 3. Land (turn back to front)
+    await this.animator.land();
+    this.moving = false;
+  }
+
+  /** Sequenced fly: turn → fly animation + arc → land → idle */
+  private async doFly(targetX: number, targetY: number, distance: number, dir: Direction): Promise<void> {
+    this.moving = true;
+
+    // 1. Turn to face direction
+    await this.animator.turnToward(dir);
+
+    // 2. Play fly animation while moving
+    this.animator.playFlying(dir);
+    await this.animateArc(targetX, targetY, distance, Math.min(150, Math.max(40, distance * 0.3)));
+
+    // 3. Land (turn back to front)
+    await this.animator.land();
+    this.moving = false;
+  }
+
+  /** Animate position along an arc trajectory. */
+  private animateArc(targetX: number, targetY: number, distance: number, arcHeight: number): Promise<void> {
     return new Promise((resolve) => {
-      this.stopIdle();
-      this.stopFlyAnim();
-      this.moving = true;
+      const startX = this.container.x;
+      const startY = this.container.y;
+      const dx = targetX - startX;
+      const dy = targetY - startY;
+      const duration = Math.max((distance / this.speed) * 1000, 200);
 
-      // Flip sprite based on direction
-      this.sprite.scale.x = targetX < this.container.x
-        ? -Math.abs(this.sprite.scale.x)
-        : Math.abs(this.sprite.scale.x);
+      const startTime = performance.now();
+      const animate = () => {
+        const elapsed = performance.now() - startTime;
+        const t = Math.min(1, elapsed / duration);
+        const ease = t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
 
-      const dx = targetX - this.container.x;
-      const dy = targetY - this.container.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      const duration = (distance / this.speed) * 1000;
+        const linearX = startX + dx * ease;
+        const linearY = startY + dy * ease;
+        const arc = -4 * arcHeight * t * (t - 1);
 
-      // Start fly-frame cycling
-      this.startFlyAnim();
+        this.container.position.set(linearX, linearY - arc);
 
-      this.tweens.add({
-        target: this.container.position as unknown as Record<string, number>,
-        props: { x: targetX, y: targetY },
-        duration: Math.max(duration, 100),
-        easing: Easing.easeOut,
-        onComplete: () => {
-          this.stopFlyAnim();
-          this.sprite.texture = this.idleTextures[0];
-          this.moving = false;
-          this.startIdle();
+        if (t < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          this.container.position.set(targetX, targetY);
           resolve();
-        },
-      });
+        }
+      };
+      requestAnimationFrame(animate);
     });
   }
 
   /** Move to target, clamping to walkable area boundary if outside. */
   moveToConstrained(targetX: number, targetY: number, walkableArea: WalkableArea): Promise<void> {
     if (walkableArea.contains(targetX, targetY)) {
-      return this.moveTo(targetX, targetY);
+      return this.flyTo(targetX, targetY);
     }
     const clamped = walkableArea.clampToEdge(targetX, targetY);
-    return this.moveTo(clamped.x, clamped.y);
+    return this.flyTo(clamped.x, clamped.y);
   }
 
   isMoving(): boolean { return this.moving; }
@@ -143,44 +144,20 @@ export class Scruff {
     this.container.scale.set(factor);
   }
 
-  private startIdle(): void {
-    this.idleFrameIndex = 0;
-    this.sprite.texture = this.idleTextures[0];
-    // 25 frames at ~16fps = 62ms per frame
-    this.idleAnimInterval = window.setInterval(() => {
-      this.idleFrameIndex = (this.idleFrameIndex + 1) % this.idleTextures.length;
-      this.sprite.texture = this.idleTextures[this.idleFrameIndex];
-    }, 62);
-  }
-
-  private stopIdle(): void {
-    if (this.idleAnimInterval !== null) {
-      clearInterval(this.idleAnimInterval);
-      this.idleAnimInterval = null;
-    }
-  }
-
-  private startFlyAnim(): void {
-    this.flyFrameIndex = 0;
-    this.sprite.texture = this.flyTextures[0];
-    // 25 frames at ~16fps = 62ms per frame
-    this.flyAnimInterval = window.setInterval(() => {
-      this.flyFrameIndex = (this.flyFrameIndex + 1) % this.flyTextures.length;
-      this.sprite.texture = this.flyTextures[this.flyFrameIndex];
-    }, 62);
-  }
-
-  private stopFlyAnim(): void {
-    if (this.flyAnimInterval !== null) {
-      clearInterval(this.flyAnimInterval);
-      this.flyAnimInterval = null;
+  /** Start or stop talking animation (mouth movement). */
+  setTalking(talking: boolean): void {
+    if (this.moving) return;
+    if (talking) {
+      this.animator.playTalking();
+    } else {
+      this.animator.stopTalking();
     }
   }
 
   playPickup(): Promise<void> {
     return new Promise((resolve) => {
-      this.stopIdle();
-      if (this.pickupTexture) this.sprite.texture = this.pickupTexture;
+      this.animator.stop();
+      // Quick bounce animation
       this.tweens.add({
         target: this.container.position as unknown as Record<string, number>,
         props: { y: this.container.y - 30 },
@@ -193,7 +170,7 @@ export class Scruff {
             duration: 300,
             easing: Easing.bounce,
             onComplete: () => {
-              this.startIdle();
+              this.animator.playIdleFront();
               resolve();
             },
           });

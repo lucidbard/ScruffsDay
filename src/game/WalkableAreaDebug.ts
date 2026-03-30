@@ -52,9 +52,9 @@ export class WalkableAreaDebug {
   private sceneId: string;
   private walkableAreaPath: string;
 
-  /** Only create if ?debug=walk is in URL. */
+  /** Only create if ?debug=1 is in URL. */
   static isEnabled(): boolean {
-    return new URLSearchParams(window.location.search).get('debug') === 'walk';
+    return new URLSearchParams(window.location.search).has('debug');
   }
 
   constructor(

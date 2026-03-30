@@ -114,6 +114,7 @@ export class OwlsOverlook extends Scene {
     this.dialogueRunner = new DialogueRunner(
       dialogueData as Record<string, (typeof dialogueData)[keyof typeof dialogueData]>,
       (flag: string) => this.gameState.getFlag(flag as FlagId),
+      (flag: string) => this.gameState.setFlag(flag as FlagId),
     );
     this.dialogueBubble = new DialogueBubble();
     this.container.addChild(this.dialogueBubble.container);

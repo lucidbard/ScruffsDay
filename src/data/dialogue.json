@@ -17,7 +17,8 @@
       { "text": "If only I had some nice saw palmetto fronds to rebuild...", "condition": null },
       { "text": "Did you know? We gopher tortoises are a keystone species. Over 350 other animals use our burrows for shelter!", "condition": null }
     ],
-    "next": null
+    "next": null,
+    "setFlag": "knows_saw_palmetto"
   },
   "shelly_has_item": {
     "speaker": "Shelly",
