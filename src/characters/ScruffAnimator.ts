@@ -83,14 +83,14 @@ export class ScruffAnimator {
 
     this.clips['turning'] = {
       frames: turnSheet ? this.sliceSheet(turnSheet, TURN_W, TURN_H, 13) : [idleFront],
-      fps: 16,
+      fps: 32,
       loop: false,
     };
 
     // Landing = turn in reverse
     this.clips['landing'] = {
       frames: [...(this.clips['turning']?.frames ?? [idleFront])].reverse(),
-      fps: 16,
+      fps: 32,
       loop: false,
     };
 
@@ -248,10 +248,9 @@ export class ScruffAnimator {
         if (clip.loop) {
           this.frameIndex = 0;
         } else {
-          // Non-looping clip finished
-          this.stop();
+          // Non-looping clip finished — save callback before stop() clears it
           const cb = this.onAnimComplete;
-          this.onAnimComplete = null;
+          this.stop();
           cb?.();
           return;
         }

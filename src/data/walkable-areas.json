@@ -1,33 +1,138 @@
 {
   "scrub_thicket": {
     "entryPoints": {
-      "default": [640, 550],
-      "tortoise_burrow": [640, 380]
+      "default": [
+        640,
+        550
+      ],
+      "tortoise_burrow": [
+        640,
+        380
+      ]
     },
     "polygons": [
-      { "points": [[50,350], [1230,350], [1230,700], [50,700]] }
+      {
+        "points": [
+          [
+            50,
+            521
+          ],
+          [
+            478,
+            512
+          ],
+          [
+            545,
+            493
+          ],
+          [
+            588,
+            460
+          ],
+          [
+            621,
+            522
+          ],
+          [
+            757,
+            514
+          ],
+          [
+            791,
+            533
+          ],
+          [
+            1049,
+            528
+          ],
+          [
+            1196,
+            520
+          ],
+          [
+            1190,
+            631
+          ],
+          [
+            1007,
+            586
+          ],
+          [
+            873,
+            604
+          ],
+          [
+            634,
+            586
+          ],
+          [
+            363,
+            637
+          ],
+          [
+            254,
+            572
+          ]
+        ]
+      }
     ],
     "depthScale": {
-      "minY": 350, "maxY": 700,
-      "minScale": 0.7, "maxScale": 1.0
-    },
-    "obstacles": [],
-    "foregrounds": []
+      "minY": 350,
+      "maxY": 700,
+      "minScale": 0.7,
+      "maxScale": 1
+    }
   },
   "central_trail": {
     "entryPoints": {
-      "default": [640, 520],
-      "tortoise_burrow": [620, 650],
-      "pine_clearing": [100, 520],
-      "sandy_barrens": [1180, 520],
-      "owls_overlook": [620, 380]
+      "default": [
+        640,
+        520
+      ],
+      "tortoise_burrow": [
+        620,
+        650
+      ],
+      "pine_clearing": [
+        100,
+        520
+      ],
+      "sandy_barrens": [
+        1180,
+        520
+      ],
+      "owls_overlook": [
+        620,
+        380
+      ]
     },
     "polygons": [
-      { "points": [[50,350], [1230,350], [1230,680], [50,680]] }
+      {
+        "points": [
+          [
+            50,
+            350
+          ],
+          [
+            1230,
+            350
+          ],
+          [
+            1230,
+            680
+          ],
+          [
+            50,
+            680
+          ]
+        ]
+      }
     ],
     "depthScale": {
-      "minY": 350, "maxY": 680,
-      "minScale": 0.7, "maxScale": 1.0
+      "minY": 350,
+      "maxY": 680,
+      "minScale": 0.7,
+      "maxScale": 1
     },
     "obstacles": [],
     "foregrounds": []
@@ -35,30 +140,114 @@
   "tortoise_burrow": {
     "surface": {
       "entryPoints": {
-        "default": [640, 550],
-        "scrub_thicket": [620, 670],
-        "central_trail": [620, 380]
+        "default": [
+          640,
+          550
+        ],
+        "scrub_thicket": [
+          620,
+          670
+        ],
+        "central_trail": [
+          620,
+          380
+        ]
       },
       "polygons": [
-        { "points": [[50,350], [1230,350], [1230,700], [50,700]] }
+        {
+          "points": [
+            [
+              5,
+              494
+            ],
+            [
+              211,
+              578
+            ],
+            [
+              427,
+              583
+            ],
+            [
+              859,
+              584
+            ],
+            [
+              1072,
+              620
+            ],
+            [
+              1133,
+              604
+            ],
+            [
+              1275,
+              514
+            ],
+            [
+              1277,
+              590
+            ],
+            [
+              1280,
+              690
+            ],
+            [
+              1180,
+              712
+            ],
+            [
+              225,
+              712
+            ],
+            [
+              5,
+              583
+            ]
+          ]
+        }
       ],
       "depthScale": {
-        "minY": 350, "maxY": 700,
-        "minScale": 0.7, "maxScale": 1.0
-      },
-      "obstacles": [],
-      "foregrounds": []
+        "minY": 350,
+        "maxY": 700,
+        "minScale": 0.7,
+        "maxScale": 1
+      }
     },
     "underground": {
       "entryPoints": {
-        "default": [640, 550]
+        "default": [
+          640,
+          550
+        ]
       },
       "polygons": [
-        { "points": [[50,200], [1230,200], [1230,700], [50,700]] }
+        {
+          "points": [
+            [
+              50,
+              200
+            ],
+            [
+              1230,
+              200
+            ],
+            [
+              1230,
+              700
+            ],
+            [
+              50,
+              700
+            ]
+          ]
+        }
       ],
       "depthScale": {
-        "minY": 200, "maxY": 700,
-        "minScale": 0.7, "maxScale": 1.0
+        "minY": 200,
+        "maxY": 700,
+        "minScale": 0.7,
+        "maxScale": 1
       },
       "obstacles": [],
       "foregrounds": []
@@ -66,45 +255,124 @@
   },
   "pine_clearing": {
     "entryPoints": {
-      "default": [640, 550],
-      "central_trail": [1180, 550]
+      "default": [
+        640,
+        550
+      ],
+      "central_trail": [
+        1180,
+        550
+      ]
     },
     "polygons": [
-      { "points": [[50,350], [1230,350], [1230,700], [50,700]] }
+      {
+        "points": [
+          [
+            50,
+            350
+          ],
+          [
+            1230,
+            350
+          ],
+          [
+            1230,
+            700
+          ],
+          [
+            50,
+            700
+          ]
+        ]
+      }
     ],
     "depthScale": {
-      "minY": 350, "maxY": 700,
-      "minScale": 0.7, "maxScale": 1.0
+      "minY": 350,
+      "maxY": 700,
+      "minScale": 0.7,
+      "maxScale": 1
     },
     "obstacles": [],
     "foregrounds": []
   },
   "sandy_barrens": {
     "entryPoints": {
-      "default": [640, 550],
-      "central_trail": [100, 550]
+      "default": [
+        640,
+        550
+      ],
+      "central_trail": [
+        100,
+        550
+      ]
     },
     "polygons": [
-      { "points": [[50,350], [1230,350], [1230,700], [50,700]] }
+      {
+        "points": [
+          [
+            57,
+            150
+          ],
+          [
+            1225,
+            142
+          ],
+          [
+            1230,
+            700
+          ],
+          [
+            50,
+            700
+          ]
+        ]
+      }
     ],
     "depthScale": {
-      "minY": 350, "maxY": 700,
-      "minScale": 0.7, "maxScale": 1.0
-    },
-    "obstacles": [],
-    "foregrounds": []
+      "minY": 350,
+      "maxY": 700,
+      "minScale": 0.7,
+      "maxScale": 1
+    }
   },
   "owls_overlook": {
     "entryPoints": {
-      "default": [640, 620],
-      "central_trail": [620, 670]
+      "default": [
+        640,
+        620
+      ],
+      "central_trail": [
+        620,
+        670
+      ]
     },
     "polygons": [
-      { "points": [[50,500], [1230,500], [1230,700], [50,700]] }
+      {
+        "points": [
+          [
+            50,
+            500
+          ],
+          [
+            1230,
+            500
+          ],
+          [
+            1230,
+            700
+          ],
+          [
+            50,
+            700
+          ]
+        ]
+      }
     ],
     "depthScale": {
-      "minY": 500, "maxY": 700,
-      "minScale": 0.7, "maxScale": 1.0
+      "minY": 500,
+      "maxY": 700,
+      "minScale": 0.7,
+      "maxScale": 1
     },
     "obstacles": [],
     "foregrounds": []

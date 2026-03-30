@@ -6,6 +6,8 @@ import { DialogueBubble, DialogueRunner } from '../game/DialogueSystem';
 import { WalkableArea, resolveEntryPoint } from '../game/WalkableArea';
 import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
 import { ForegroundObject } from '../game/ForegroundObject';
+import { PerchSystem } from '../game/PerchSystem';
+import { PerchDebugOverlay } from '../game/PerchDebugOverlay';
 import { depthSort } from '../game/DepthSort';
 import type { DepthScaleConfig } from '../game/DepthSort';
 import { AnimatedBackground } from '../game/AnimatedBackground';
@@ -47,6 +49,7 @@ export class TortoiseBurrow extends Scene {
   private surfaceForegrounds: ForegroundObject[] = [];
   private undergroundForegrounds: ForegroundObject[] = [];
   private animBg: AnimatedBackground | null = null;
+  private perchSystem = new PerchSystem();
 
   /** Called by SceneManager wiring to navigate between scenes. */
   onSceneChange?: (sceneId: SceneId) => void;
@@ -88,7 +91,8 @@ export class TortoiseBurrow extends Scene {
     // 4. Surface depth scale config
     this.surfaceDepthScaleConfig = (surfaceData.depthScale as DepthScaleConfig | undefined) ?? null;
 
-    // 5. Scruff
+    // 5. Perch system + Scruff
+    await this.perchSystem.load('tortoise_burrow');
     this.scruff = new Scruff(this.tweens);
     await this.scruff.setup();
     const start = resolveEntryPoint(surfaceData.entryPoints as Record<string, number[]>);
@@ -173,10 +177,11 @@ export class TortoiseBurrow extends Scene {
     this.arrows.push(upArrow);
     this.surfaceContainer.addChild(upArrow.container);
 
-    // 11. Burrow entrance (dark oval, tappable when shelly_helped)
+    // 11. Burrow entrance (invisible clickable area, tappable when shelly_helped)
+    const burrowX = 750, burrowY = 500, burrowRX = 80, burrowRY = 50;
     this.burrowEntrance = new Graphics();
-    this.burrowEntrance.ellipse(750, 430, 60, 40);
-    this.burrowEntrance.fill({ color: 0x1a0f00 });
+    this.burrowEntrance.ellipse(burrowX, burrowY, burrowRX, burrowRY);
+    this.burrowEntrance.fill({ color: 0x000000, alpha: 0.001 });
     this.burrowEntrance.eventMode = 'none'; // disabled by default
     this.burrowEntrance.cursor = 'pointer';
     this.burrowEntrance.on('pointertap', () => {
@@ -185,6 +190,23 @@ export class TortoiseBurrow extends Scene {
       }
     });
     this.surfaceContainer.addChild(this.burrowEntrance);
+
+    // Debug: show burrow entrance area + make draggable
+    if (WalkableAreaDebug.isEnabled()) {
+      const burrowDebug = new Graphics();
+      burrowDebug.ellipse(burrowX, burrowY, burrowRX, burrowRY);
+      burrowDebug.stroke({ width: 2, color: 0xFF00FF, alpha: 0.8 });
+      burrowDebug.fill({ color: 0xFF00FF, alpha: 0.15 });
+      this.surfaceContainer.addChild(burrowDebug);
+
+      const { Text: T, TextStyle: TS } = await import('pixi.js');
+      const coordLabel = new T({
+        text: `Burrow (${burrowX}, ${burrowY})`,
+        style: new TS({ fontSize: 12, fill: '#FF00FF', fontWeight: 'bold' }),
+      });
+      coordLabel.position.set(burrowX - 50, burrowY - burrowRY - 18);
+      this.surfaceContainer.addChild(coordLabel);
+    }
 
     // 12. Underground sub-area
     await this.setupUnderground(undergroundData);
@@ -201,8 +223,14 @@ export class TortoiseBurrow extends Scene {
       }
 
       const pos = e.getLocalPosition(this.container);
-      // Constrain movement to walkable area
-      this.scruff.moveToConstrained(pos.x, pos.y, this.surfaceWalkable);
+      // Find nearest perch to tap point, or fall back to walkable area
+      const perch = this.perchSystem.nearestWithin(pos.x, pos.y, 120);
+      if (perch) {
+        const scaled = this.perchSystem.scaleToGame(perch);
+        this.scruff.flyTo(scaled.x, scaled.y);
+      } else {
+        this.scruff.moveToConstrained(pos.x, pos.y, this.surfaceWalkable);
+      }
     });
 
     // Debug overlay (surface)
@@ -218,6 +246,12 @@ export class TortoiseBurrow extends Scene {
         this.surfaceForegrounds,
       );
       this.surfaceContainer.addChild(debug.container);
+    }
+
+    // Perch debug overlay (editable in debug mode)
+    if (WalkableAreaDebug.isEnabled()) {
+      const perchOverlay = new PerchDebugOverlay(this.perchSystem, 'tortoise_burrow', [1376, 768]);
+      this.container.addChild(perchOverlay.container);
     }
   }
 

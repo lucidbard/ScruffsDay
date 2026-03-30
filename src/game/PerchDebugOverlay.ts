@@ -28,6 +28,7 @@ export class PerchDebugOverlay {
   private perchMarkers: { perch: Perch; graphics: Graphics; label: Text }[] = [];
   private dragging: { marker: { perch: Perch; graphics: Graphics; label: Text }; offsetX: number; offsetY: number } | null = null;
   private addTypeIndex = 0; // cycles through PERCH_TYPES on add
+  private deleteMode = false;
   private imageSize: [number, number];
 
   constructor(perchSystem: PerchSystem, sceneName: string, imageSize: [number, number] = [1280, 720]) {
@@ -115,9 +116,36 @@ export class PerchDebugOverlay {
       this.typeLabel.text = `Type: ${PERCH_TYPES[this.addTypeIndex]}`;
     });
     this.container.addChild(typeBtn);
+
+    // Delete mode toggle
+    const delBtn = new Container();
+    const delBg = new Graphics();
+    delBg.roundRect(0, 0, 80, 32, 6);
+    delBg.fill({ color: 0xC62828, alpha: 0.9 });
+    delBg.stroke({ width: 2, color: 0xFFFFFF });
+    this.deleteBtnBg = delBg;
+    const delText = new Text({
+      text: 'Delete',
+      style: new TextStyle({ fontSize: 13, fill: '#FFFFFF', fontWeight: 'bold' }),
+    });
+    delText.position.set(12, 7);
+    delBtn.addChild(delBg, delText);
+    delBtn.position.set(390, 50);
+    delBtn.eventMode = 'static';
+    delBtn.cursor = 'pointer';
+    delBtn.on('pointertap', (e) => {
+      e.stopPropagation();
+      this.deleteMode = !this.deleteMode;
+      this.deleteBtnBg.clear();
+      this.deleteBtnBg.roundRect(0, 0, 80, 32, 6);
+      this.deleteBtnBg.fill({ color: this.deleteMode ? 0xFF1744 : 0xC62828, alpha: 0.9 });
+      this.deleteBtnBg.stroke({ width: 2, color: this.deleteMode ? 0xFFFF00 : 0xFFFFFF });
+    });
+    this.container.addChild(delBtn);
   }
 
   private typeLabel!: Text;
+  private deleteBtnBg!: Graphics;
   private typeLabelBg!: Graphics;
 
   private renderPerches(): void {
@@ -154,9 +182,13 @@ export class PerchDebugOverlay {
     const marker = { perch, graphics: g, label };
     this.perchMarkers.push(marker);
 
-    // Drag
+    // Click: delete if in delete mode, otherwise drag
     g.on('pointerdown', (e) => {
       e.stopPropagation();
+      if (this.deleteMode) {
+        this.deletePerch(marker);
+        return;
+      }
       this.dragging = {
         marker,
         offsetX: e.getLocalPosition(g).x,

@@ -26,7 +26,7 @@ SOURCE_PNG = PROJECT_ROOT / "public" / "assets" / "characters" / "scruff-idle-fr
 OUTPUT_SHEET = PROJECT_ROOT / "public" / "assets" / "characters" / "scruff-idle-sheet.png"
 WORK_DIR = PROJECT_ROOT / "tools" / "_scruff_idle_work"
 FRAMES_PER_PASS = 25
-SEED = 123
+SEED = 789
 
 # Character dimensions - will be scaled up for Wan (needs min ~480px)
 CHAR_W = 232
@@ -38,8 +38,8 @@ WAN_H = 528  # ~2x height, multiple of 16 -> actually 512 is closer. Let's use 4
 WAN_W = 480
 WAN_H = 544
 
-PROMPT = "still cartoon bird on green screen, perfectly still, barely perceptible chest breathing, static pose, no wing movement, no head movement, no mouth movement, minimal motion"
-NEGATIVE = "wing movement, mouth opening, head turning, walking, flying, hopping, deformation, morphing, fast motion, large movement, extra limbs, text, watermark, blurry, new objects, arm raising"
+PROMPT = "cartoon bird preening feathers on green screen, bird turning head to groom chest feathers, gentle preening motion, closed beak tucked into feathers, natural bird grooming behavior"
+NEGATIVE = "open mouth, talking, beak opening, flying, walking, hopping, deformation, morphing, fast motion, large movement, extra limbs, text, watermark, blurry, new objects"
 
 
 def make_flf2v_workflow(start_image: str, end_image: str, prompt: str, negative: str,

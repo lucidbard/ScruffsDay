@@ -10,7 +10,7 @@ import { PerchSystem } from '../game/PerchSystem';
 import { PerchDebugOverlay } from '../game/PerchDebugOverlay';
 import type { DepthScaleConfig } from '../game/DepthSort';
 import { AnimatedBackground } from '../game/AnimatedBackground';
-import { Sprite, Assets, Container } from 'pixi.js';
+import { Sprite, Assets, Container, Texture } from 'pixi.js';
 import type { SceneId, FlagId } from '../game/GameState';
 import dialogueData from '../data/dialogue.json';
 import walkableAreasData from '../data/walkable-areas.json';

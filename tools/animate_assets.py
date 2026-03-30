@@ -52,8 +52,8 @@ ASSET_MANIFEST = [
     {
         "name": "central-trail",
         "source": "backgrounds/central-trail-bg.png",
-        "prompt": "empty landscape, no creatures, no animals, no people, very subtle ambient light shift, faint shadow movement, calm peaceful trail, barely perceptible motion",
-        "negative": "animals, creatures, characters, people, figures, birds, insects, moving objects, new objects appearing, text, watermark, blurry, distorted, sudden motion, camera movement, wind, large motion, dramatic, morphing, shape change",
+        "prompt": "perfectly still empty trail, no movement, static scene, barely perceptible light shift",
+        "negative": "animals, creatures, characters, people, figures, birds, insects, bicycles, bikers, cyclists, vehicles, moving objects, new objects appearing, text, watermark, blurry, distorted, sudden motion, camera movement, wind, large motion, dramatic, morphing, shape change, walking, running, riding",
         "type": "background",
         "width": 1280,
         "height": 720,
