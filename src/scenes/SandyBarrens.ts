@@ -9,6 +9,7 @@ import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
 import { ForegroundObject } from '../game/ForegroundObject';
 import { PerchSystem } from '../game/PerchSystem';
 import { PerchDebugOverlay } from '../game/PerchDebugOverlay';
+import { AmbientAudio } from '../game/AmbientAudio';
 import type { DepthScaleConfig } from '../game/DepthSort';
 import { AnimatedBackground } from '../game/AnimatedBackground';
 import { Sprite, Assets, Container } from 'pixi.js';
@@ -35,6 +36,7 @@ export class SandyBarrens extends Scene {
   private foregrounds: ForegroundObject[] = [];
   private animBg: AnimatedBackground | null = null;
   private perchSystem = new PerchSystem();
+  private ambientAudio = new AmbientAudio();
 
   /** Called by SceneManager wiring to navigate between scenes. */
   onSceneChange?: (sceneId: SceneId, dir?: SceneDirection) => void;
@@ -71,12 +73,37 @@ export class SandyBarrens extends Scene {
     this.scruff.setPosition(start.x, start.y);
     this.depthContainer.addChild(this.scruff.container);
 
+    // 5b. Ambient audio with call sync
+    await this.ambientAudio.load(
+      'assets/sounds/scrub-jay-ambient.mp3',
+      'assets/sounds/scrub-jay-calls.json',
+      () => this.scruff.setTalking(true),
+      () => this.scruff.setTalking(false),
+    );
+
     // 6. Sunny NPC (indigo snake)
     this.sunny = new NPC(npcConfigs.sunny as NPCConfig, this.tweens);
     await this.sunny.setup();
     this.depthContainer.addChild(this.sunny.container);
 
-    // 7. Collectible: Florida rosemary cuttings (only if not already collected)
+    // 7. Collectible: Saw palmetto (only after learning Shelly needs it)
+    if (!this.gameState.hasItem('saw_palmetto_fronds') && this.gameState.getFlag('knows_saw_palmetto')) {
+      const palmetto = new InteractiveItem(
+        {
+          itemId: 'saw_palmetto_fronds',
+          texturePath: 'assets/items/saw-palmetto-fronds.png',
+          x: 180,
+          y: 500,
+          height: 100,
+        },
+        this.tweens,
+      );
+      await palmetto.setup();
+      this.items.push(palmetto);
+      this.depthContainer.addChild(palmetto.container);
+    }
+
+    // 8. Collectible: Florida rosemary cuttings (only if not already collected)
     if (!this.gameState.hasItem('florida_rosemary_cuttings')) {
       const rosemary = new InteractiveItem(
         {
@@ -280,6 +307,7 @@ export class SandyBarrens extends Scene {
     }
 
     this.animBg?.resume();
+    this.ambientAudio.play();
   }
 
   update(deltaMs: number): void {
@@ -312,6 +340,7 @@ export class SandyBarrens extends Scene {
 
   exit(): void {
     this.animBg?.pause();
+    this.ambientAudio.pause();
     this.dialogueBubble.hide();
     if (this.activeMinigame) {
       this.activeMinigame.exit();

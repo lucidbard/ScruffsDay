@@ -9,6 +9,7 @@ import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
 import { ForegroundObject } from '../game/ForegroundObject';
 import { PerchSystem } from '../game/PerchSystem';
 import { PerchDebugOverlay } from '../game/PerchDebugOverlay';
+import { AmbientAudio } from '../game/AmbientAudio';
 import type { DepthScaleConfig } from '../game/DepthSort';
 import { Sprite, Assets, Graphics, Container, Text, TextStyle } from 'pixi.js';
 import { AnimatedBackground } from '../game/AnimatedBackground';
@@ -35,6 +36,7 @@ export class CentralTrail extends Scene {
   private foregrounds: ForegroundObject[] = [];
   private animBg: AnimatedBackground | null = null;
   private perchSystem = new PerchSystem();
+  private ambientAudio = new AmbientAudio();
 
   /** Called by SceneManager wiring to navigate between scenes. */
   onSceneChange?: (sceneId: SceneId, dir?: SceneDirection) => void;
@@ -71,6 +73,14 @@ export class CentralTrail extends Scene {
     this.scruff.setPosition(start.x, start.y);
     this.depthContainer.addChild(this.scruff.container);
 
+    // 5b. Ambient audio with call sync
+    await this.ambientAudio.load(
+      'assets/sounds/scrub-jay-ambient.mp3',
+      'assets/sounds/scrub-jay-calls.json',
+      () => this.scruff.setTalking(true),
+      () => this.scruff.setTalking(false),
+    );
+
     // 6. Sage the Owl NPC
     this.sage = new NPC(npcConfigs.sage as NPCConfig, this.tweens);
     await this.sage.setup();
@@ -97,6 +107,22 @@ export class CentralTrail extends Scene {
     });
 
     // 8. Collectible items (only if not already in inventory)
+    if (!this.gameState.hasItem('saw_palmetto_fronds') && this.gameState.getFlag('knows_saw_palmetto')) {
+      const palmetto = new InteractiveItem(
+        {
+          itemId: 'saw_palmetto_fronds',
+          texturePath: 'assets/items/saw-palmetto-fronds.png',
+          x: 900,
+          y: 470,
+          height: 100,
+        },
+        this.tweens,
+      );
+      await palmetto.setup();
+      this.items.push(palmetto);
+      this.depthContainer.addChild(palmetto.container);
+    }
+
     if (!this.gameState.hasItem('chapman_oak_acorns')) {
       const acorns = new InteractiveItem(
         {
@@ -357,6 +383,7 @@ export class CentralTrail extends Scene {
 
     // Resume animated background
     this.animBg?.resume();
+    this.ambientAudio.play();
   }
 
   update(_deltaMs: number): void {
@@ -384,5 +411,6 @@ export class CentralTrail extends Scene {
   exit(): void {
     this.dialogueBubble.hide();
     this.animBg?.pause();
+    this.ambientAudio.pause();
   }
 }

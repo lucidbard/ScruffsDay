@@ -45,9 +45,9 @@ export class SceneArrow {
   }
 
   private buildHorizontalSign(direction: 'left' | 'right', labelText: string): void {
-    const signW = 200;
-    const signH = 50;
-    const pointW = 28;
+    const signW = 160;
+    const signH = 40;
+    const pointW = 22;
     const isLeft = direction === 'left';
 
     const sign = new Graphics();
@@ -90,7 +90,7 @@ export class SceneArrow {
       text: labelText,
       style: new TextStyle({
         fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
-        fontSize: 24,
+        fontSize: 18,
         fill: '#FFF8DC',
         fontWeight: 'bold',
         align: 'center',
@@ -105,9 +105,9 @@ export class SceneArrow {
   }
 
   private buildVerticalSign(direction: 'up' | 'down', labelText: string): void {
-    const signW = 180;
-    const signH = 44;
-    const pointH = 22;
+    const signW = 150;
+    const signH = 38;
+    const pointH = 18;
     const isUp = direction === 'up';
 
     const sign = new Graphics();
@@ -143,7 +143,7 @@ export class SceneArrow {
       text: labelText,
       style: new TextStyle({
         fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
-        fontSize: 24,
+        fontSize: 18,
         fill: '#FFF8DC',
         fontWeight: 'bold',
         align: 'center',

@@ -8,6 +8,7 @@ import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
 import { ForegroundObject } from '../game/ForegroundObject';
 import { PerchSystem } from '../game/PerchSystem';
 import { PerchDebugOverlay } from '../game/PerchDebugOverlay';
+import { AmbientAudio } from '../game/AmbientAudio';
 import { depthSort } from '../game/DepthSort';
 import type { DepthScaleConfig } from '../game/DepthSort';
 import { AnimatedBackground } from '../game/AnimatedBackground';
@@ -50,6 +51,7 @@ export class TortoiseBurrow extends Scene {
   private undergroundForegrounds: ForegroundObject[] = [];
   private animBg: AnimatedBackground | null = null;
   private perchSystem = new PerchSystem();
+  private ambientAudio = new AmbientAudio();
 
   /** Called by SceneManager wiring to navigate between scenes. */
   onSceneChange?: (sceneId: SceneId, dir?: SceneDirection) => void;
@@ -98,6 +100,14 @@ export class TortoiseBurrow extends Scene {
     const start = resolveEntryPoint(surfaceData.entryPoints as Record<string, number[]>);
     this.scruff.setPosition(start.x, start.y);
     this.depthContainer.addChild(this.scruff.container);
+
+    // 5b. Ambient audio with call sync
+    await this.ambientAudio.load(
+      'assets/sounds/scrub-jay-ambient.mp3',
+      'assets/sounds/scrub-jay-calls.json',
+      () => this.scruff.setTalking(true),
+      () => this.scruff.setTalking(false),
+    );
 
     // 6. Shelly NPC
     this.shelly = new NPC(npcConfigs.shelly as NPCConfig, this.tweens);
@@ -517,6 +527,7 @@ export class TortoiseBurrow extends Scene {
     }
 
     this.animBg?.resume();
+    this.ambientAudio.play();
   }
 
   update(_deltaMs: number): void {
@@ -549,6 +560,7 @@ export class TortoiseBurrow extends Scene {
 
   exit(): void {
     this.animBg?.pause();
+    this.ambientAudio.pause();
     this.dialogueBubble.hide();
   }
 }
