@@ -271,6 +271,7 @@ export class ScrubThicket extends Scene {
   }
 
   exit(): void {
+    this.scruff.stop();
     this.animBg?.pause();
     this.ambientAudio.pause();
     this.dialogueBubble.hide();

@@ -15,6 +15,7 @@ export class Scruff {
   private moving = false;
   private speed = 200; // pixels per second
   private baseScale = 1;
+  private rafId: number | null = null;
 
   get x(): number { return this.container.x; }
   get y(): number { return this.container.y; }
@@ -123,14 +124,15 @@ export class Scruff {
         this.onDepthUpdate?.(linearY);
 
         if (t < 1) {
-          requestAnimationFrame(animate);
+          this.rafId = requestAnimationFrame(animate);
         } else {
+          this.rafId = null;
           this.container.position.set(targetX, targetY);
           this.onDepthUpdate?.(targetY);
           resolve();
         }
       };
-      requestAnimationFrame(animate);
+      this.rafId = requestAnimationFrame(animate);
     });
   }
 
@@ -144,6 +146,16 @@ export class Scruff {
   }
 
   isMoving(): boolean { return this.moving; }
+
+  /** Force-stop all movement and animation. Call on scene exit. */
+  stop(): void {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    this.moving = false;
+    this.animator?.stop();
+  }
 
   /** Apply depth-based scale. Lower Y (further back) = smaller. */
   applyDepthScale(factor: number): void {
@@ -177,10 +189,10 @@ export class Scruff {
         const s = startScale + (targetScale - startScale) * ease;
         this.container.scale.set(s);
 
-        if (t < 1) requestAnimationFrame(animate);
-        else { this.container.position.set(targetX, targetY); resolve(); }
+        if (t < 1) this.rafId = requestAnimationFrame(animate);
+        else { this.rafId = null; this.container.position.set(targetX, targetY); resolve(); }
       };
-      requestAnimationFrame(animate);
+      this.rafId = requestAnimationFrame(animate);
     });
 
     this.animator.stop();

@@ -52,9 +52,12 @@ export class AmbientAudio {
     this.audio.volume = 0.4;
   }
 
+  private playing = false;
+
   /** Start playing (call after user interaction to satisfy autoplay policy). */
   play(): void {
-    if (!this.audio) return;
+    if (!this.audio || this.playing) return;
+    this.playing = true;
     this.audio.play().catch(() => {
       // Autoplay blocked — will start on next user interaction
     });
@@ -63,6 +66,7 @@ export class AmbientAudio {
 
   /** Pause playback. */
   pause(): void {
+    this.playing = false;
     this.audio?.pause();
     this.stopCallDetection();
     if (this.inCall) {

@@ -409,6 +409,7 @@ export class CentralTrail extends Scene {
   }
 
   exit(): void {
+    this.scruff.stop();
     this.dialogueBubble.hide();
     this.animBg?.pause();
     this.ambientAudio.pause();
