@@ -17,6 +17,7 @@ export class DialogueVoice {
     this.stopInternal();
     this.lineStart = performance.now();
     this.audioEnded = false;
+    console.debug('[DialogueVoice] play', audioPath ?? '(no-audio)');
 
     if (!audioPath) {
       this.audioEnded = true;
@@ -28,16 +29,18 @@ export class DialogueVoice {
     const a = new Audio(audioPath);
     a.volume = 0.9;
     a.addEventListener('ended', () => {
+      console.debug('[DialogueVoice] ended naturally', audioPath);
       this.audioEnded = true;
       onCompleteNaturally?.();
       this.maybeFireReady();
     });
-    a.addEventListener('error', () => {
-      // Missing or broken wav: treat as ended so the min-display timer gates advance
+    a.addEventListener('error', (e) => {
+      console.warn('[DialogueVoice] audio error — treating as ended', audioPath, e);
       this.audioEnded = true;
       this.maybeFireReady();
     });
-    a.play().catch(() => {
+    a.play().catch((err) => {
+      console.warn('[DialogueVoice] play() rejected — treating as ended', audioPath, err);
       this.audioEnded = true;
       this.maybeFireReady();
     });

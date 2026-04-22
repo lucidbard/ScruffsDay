@@ -43,8 +43,11 @@ export class NPC {
   }
 
   async setup(): Promise<void> {
-    // Try spritesheet idle animation first
-    const sheetPath = `assets/characters/${this.config.id}-idle-sheet.png`;
+    // Try spritesheet idle animation first.
+    // ?v= cache-buster: bump when any NPC idle sheet is regenerated so iOS
+    // Safari (which caches images beyond the server max-age=600) picks up
+    // the new file instead of the stale one.
+    const sheetPath = `assets/characters/${this.config.id}-idle-sheet.png?v=4`;
     let baseTexture: Texture;
 
     try {
