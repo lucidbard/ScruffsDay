@@ -28,6 +28,27 @@ const GAME_HEIGHT = 720;
 const BASE_URL: string =
   (import.meta as unknown as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? '/';
 
+// Register service worker — network-first for index.html so iOS Safari
+// doesn't serve a stale entry page after a deploy.
+if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register(`${BASE_URL}sw.js`)
+      .then((reg) => {
+        void reg.update();
+      })
+      .catch(() => { /* SW registration failed — ignore */ });
+  });
+  // When a new SW takes control, the page was loaded under an older version —
+  // reload once so the user picks up the freshly-deployed bundle.
+  let refreshed = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshed) return;
+    refreshed = true;
+    window.location.reload();
+  });
+}
+
 async function init() {
   const app = new Application();
   await app.init({
