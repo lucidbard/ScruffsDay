@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <!-- Central Trail Background - Hub Area with Signpost -->
+
+  <!-- Sky - pale blue -->
+  <rect x="0" y="0" width="1280" height="720" fill="#B0D4F1"/>
+
+  <!-- Clouds -->
+  <g id="clouds">
+    <g id="cloud-1">
+      <ellipse cx="180" cy="90" rx="75" ry="32" fill="white" opacity="0.9"/>
+      <ellipse cx="240" cy="80" rx="55" ry="28" fill="white" opacity="0.9"/>
+      <ellipse cx="130" cy="85" rx="50" ry="24" fill="white" opacity="0.9"/>
+    </g>
+    <g id="cloud-2">
+      <ellipse cx="750" cy="110" rx="65" ry="28" fill="white" opacity="0.85"/>
+      <ellipse cx="800" cy="100" rx="50" ry="25" fill="white" opacity="0.85"/>
+    </g>
+    <g id="cloud-3">
+      <ellipse cx="1100" cy="70" rx="80" ry="35" fill="white" opacity="0.9"/>
+      <ellipse cx="1160" cy="60" rx="58" ry="28" fill="white" opacity="0.9"/>
+      <ellipse cx="1050" cy="65" rx="48" ry="22" fill="white" opacity="0.9"/>
+    </g>
+  </g>
+
+  <!-- Sun -->
+  <circle cx="1150" cy="80" r="55" fill="#FFE44D" opacity="0.8"/>
+  <circle cx="1150" cy="80" r="45" fill="#FFD700"/>
+
+  <!-- Ground - sandy trail surface -->
+  <path d="M0 380 Q320 360 640 370 Q960 380 1280 365 L1280 720 L0 720Z" fill="#D2B48C"/>
+
+  <!-- Trail path - lighter center path going through scene -->
+  <path d="M540 720 Q580 600 600 500 Q620 420 640 370 Q660 320 680 280 Q700 240 720 200 Q740 160 760 100 Q770 60 780 0"
+        fill="none" stroke="#E8D8B8" stroke-width="120" stroke-linecap="round" opacity="0.6"/>
+  <path d="M540 720 Q580 600 600 500 Q620 420 640 370 Q660 320 680 280 Q700 240 720 200 Q740 160 760 100 Q770 60 780 0"
+        fill="none" stroke="#EDE0C8" stroke-width="60" stroke-linecap="round" opacity="0.5"/>
+
+  <!-- Left-right trail (cross path) -->
+  <path d="M0 400 Q200 390 400 385 Q640 375 900 385 Q1100 395 1280 390"
+        fill="none" stroke="#E8D8B8" stroke-width="80" stroke-linecap="round" opacity="0.5"/>
+
+  <!-- Chapman oak trees - left side -->
+  <g id="oak-tree-left-1">
+    <!-- Trunk -->
+    <rect x="120" y="280" width="28" height="120" rx="5" fill="#8B6914" stroke="#5C4A1E" stroke-width="2"/>
+    <rect x="110" y="290" width="12" height="60" rx="4" fill="#8B6914" stroke="#5C4A1E" stroke-width="1.5" transform="rotate(-25 116 290)"/>
+    <!-- Canopy -->
+    <ellipse cx="135" cy="260" rx="90" ry="65" fill="#4A7C3F" stroke="#2E5A2E" stroke-width="2"/>
+    <ellipse cx="100" cy="250" rx="55" ry="45" fill="#5B8C4A" stroke="#2E5A2E" stroke-width="1.5"/>
+    <ellipse cx="170" cy="245" rx="60" ry="48" fill="#4D8040" stroke="#2E5A2E" stroke-width="1.5"/>
+    <ellipse cx="135" cy="230" rx="50" ry="38" fill="#6B9C5A" opacity="0.7"/>
+  </g>
+
+  <g id="oak-tree-left-2">
+    <rect x="310" y="290" width="24" height="100" rx="5" fill="#8B6914" stroke="#5C4A1E" stroke-width="2"/>
+    <ellipse cx="322" cy="275" rx="75" ry="55" fill="#4A7C3F" stroke="#2E5A2E" stroke-width="2"/>
+    <ellipse cx="295" cy="268" rx="48" ry="40" fill="#5B8C4A" stroke="#2E5A2E" stroke-width="1.5"/>
+    <ellipse cx="350" cy="262" rx="52" ry="42" fill="#4D8040" stroke="#2E5A2E" stroke-width="1.5"/>
+    <ellipse cx="322" cy="250" rx="42" ry="32" fill="#6B9C5A" opacity="0.7"/>
+  </g>
+
+  <!-- Chapman oak trees - right side -->
+  <g id="oak-tree-right-1">
+    <rect x="980" y="275" width="26" height="115" rx="5" fill="#8B6914" stroke="#5C4A1E" stroke-width="2"/>
+    <rect x="996" y="285" width="11" height="55" rx="4" fill="#8B6914" stroke="#5C4A1E" stroke-width="1.5" transform="rotate(20 1001 285)"/>
+    <ellipse cx="993" cy="255" rx="85" ry="60" fill="#4A7C3F" stroke="#2E5A2E" stroke-width="2"/>
+    <ellipse cx="960" cy="248" rx="52" ry="42" fill="#5B8C4A" stroke="#2E5A2E" stroke-width="1.5"/>
+    <ellipse cx="1025" cy="242" rx="55" ry="45" fill="#4D8040" stroke="#2E5A2E" stroke-width="1.5"/>
+    <ellipse cx="993" cy="230" rx="48" ry="35" fill="#6B9C5A" opacity="0.7"/>
+  </g>
+
+  <g id="oak-tree-right-2">
+    <rect x="1160" y="285" width="22" height="105" rx="5" fill="#8B6914" stroke="#5C4A1E" stroke-width="2"/>
+    <ellipse cx="1171" cy="270" rx="70" ry="50" fill="#4A7C3F" stroke="#2E5A2E" stroke-width="2"/>
+    <ellipse cx="1145" cy="265" rx="45" ry="38" fill="#5B8C4A" stroke="#2E5A2E" stroke-width="1.5"/>
+    <ellipse cx="1195" cy="258" rx="48" ry="40" fill="#4D8040" stroke="#2E5A2E" stroke-width="1.5"/>
+    <ellipse cx="1171" cy="248" rx="40" ry="30" fill="#6B9C5A" opacity="0.7"/>
+  </g>
+
+  <!-- Smaller background oak -->
+  <g id="oak-tree-bg-center" opacity="0.7">
+    <rect x="500" y="310" width="18" height="70" rx="4" fill="#8B6914" stroke="#5C4A1E" stroke-width="1.5"/>
+    <ellipse cx="509" cy="300" rx="50" ry="35" fill="#4A7C3F" stroke="#2E5A2E" stroke-width="1.5"/>
+    <ellipse cx="490" cy="295" rx="32" ry="28" fill="#5B8C4A" opacity="0.8"/>
+    <ellipse cx="525" cy="292" rx="34" ry="28" fill="#4D8040" opacity="0.8"/>
+  </g>
+
+  <g id="oak-tree-bg-right" opacity="0.7">
+    <rect x="820" y="315" width="16" height="65" rx="4" fill="#8B6914" stroke="#5C4A1E" stroke-width="1.5"/>
+    <ellipse cx="828" cy="305" rx="45" ry="32" fill="#4A7C3F" stroke="#2E5A2E" stroke-width="1.5"/>
+    <ellipse cx="812" cy="300" rx="30" ry="25" fill="#5B8C4A" opacity="0.8"/>
+    <ellipse cx="845" cy="298" rx="30" ry="26" fill="#4D8040" opacity="0.8"/>
+  </g>
+
+  <!-- Signpost at center -->
+  <g id="signpost">
+    <!-- Post -->
+    <rect x="632" y="310" width="16" height="100" rx="3" fill="#8B6914" stroke="#5C4A1E" stroke-width="2"/>
+
+    <!-- Cross-piece -->
+    <rect x="624" y="306" width="32" height="8" rx="2" fill="#A0781E" stroke="#5C4A1E" stroke-width="1.5"/>
+
+    <!-- Sign boards (4 directions) -->
+    <!-- Up arrow sign -->
+    <g>
+      <polygon points="640,280 680,290 680,306 640,310 600,306 600,290" fill="#C8A860" stroke="#5C4A1E" stroke-width="1.5"/>
+      <text x="640" y="301" font-family="Arial, sans-serif" font-size="11" fill="#3E2723" text-anchor="middle" font-weight="bold">Overlook</text>
+    </g>
+
+    <!-- Left sign -->
+    <g>
+      <polygon points="590,318 590,335 540,327" fill="#C8A860" stroke="#5C4A1E" stroke-width="1.5"/>
+      <text x="570" y="330" font-family="Arial, sans-serif" font-size="9" fill="#3E2723" text-anchor="middle">Pine</text>
+    </g>
+
+    <!-- Right sign -->
+    <g>
+      <polygon points="690,318 690,335 740,327" fill="#C8A860" stroke="#5C4A1E" stroke-width="1.5"/>
+      <text x="710" y="330" font-family="Arial, sans-serif" font-size="9" fill="#3E2723" text-anchor="middle">Sandy</text>
+    </g>
+
+    <!-- Down sign -->
+    <g>
+      <polygon points="620,345 660,345 640,370" fill="#C8A860" stroke="#5C4A1E" stroke-width="1.5"/>
+      <text x="640" y="360" font-family="Arial, sans-serif" font-size="9" fill="#3E2723" text-anchor="middle">Burrow</text>
+    </g>
+  </g>
+
+  <!-- Ground-level vegetation -->
+  <g id="ground-plants">
+    <!-- Small bushes along trail edges -->
+    <path d="M50 410 Q70 385 95 395 Q115 380 135 410Z" fill="#5B8C4A" stroke="#2E5A2E" stroke-width="2"/>
+    <path d="M220 405 Q240 385 260 395 Q280 378 295 405Z" fill="#4A7C3F" stroke="#2E5A2E" stroke-width="2"/>
+    <path d="M420 395 Q435 378 455 388 Q470 375 485 395Z" fill="#5B8C4A" stroke="#2E5A2E" stroke-width="2"/>
+    <path d="M780 395 Q800 378 820 388 Q840 374 855 395Z" fill="#4A7C3F" stroke="#2E5A2E" stroke-width="2"/>
+    <path d="M1080 400 Q1095 382 1115 392 Q1130 378 1145 400Z" fill="#5B8C4A" stroke="#2E5A2E" stroke-width="2"/>
+
+    <!-- Grass tufts -->
+    <g fill="#5B8C4A" stroke="#2E5A2E" stroke-width="1.5">
+      <path d="M170 440 Q175 425 180 440 Q185 422 190 440"/>
+      <path d="M380 450 Q385 435 390 450 Q395 432 400 450"/>
+      <path d="M560 440 Q565 428 570 440"/>
+      <path d="M740 445 Q745 430 750 445 Q755 427 760 445"/>
+      <path d="M920 435 Q925 420 930 435 Q935 418 940 435"/>
+      <path d="M1120 445 Q1125 430 1130 445"/>
+      <path d="M250 470 Q255 458 260 470 Q265 455 270 470"/>
+      <path d="M650 455 Q655 442 660 455"/>
+      <path d="M850 460 Q855 445 860 460 Q865 442 870 460"/>
+    </g>
+
+    <!-- Small rocks -->
+    <ellipse cx="350" cy="490" rx="11" ry="6" fill="#B8A080" stroke="#8B7D6B" stroke-width="1.5"/>
+    <ellipse cx="550" cy="510" rx="8" ry="5" fill="#B8A080" stroke="#8B7D6B" stroke-width="1.5"/>
+    <ellipse cx="780" cy="500" rx="10" ry="6" fill="#B8A080" stroke="#8B7D6B" stroke-width="1.5"/>
+    <ellipse cx="1000" cy="480" rx="9" ry="5" fill="#B8A080" stroke="#8B7D6B" stroke-width="1.5"/>
+  </g>
+
+  <!-- Darker sand patches on ground -->
+  <ellipse cx="200" cy="550" rx="100" ry="25" fill="#C4A67C" opacity="0.5"/>
+  <ellipse cx="500" cy="600" rx="130" ry="30" fill="#C4A67C" opacity="0.4"/>
+  <ellipse cx="900" cy="580" rx="110" ry="28" fill="#C4A67C" opacity="0.5"/>
+  <ellipse cx="640" cy="650" rx="160" ry="35" fill="#C4A67C" opacity="0.4"/>
+
+  <!-- Trail texture lines -->
+  <path d="M0 440 Q320 430 640 435 Q960 440 1280 432" fill="none" stroke="#C4A67C" stroke-width="1.5" opacity="0.4"/>
+  <path d="M0 680 Q320 672 640 676 Q960 680 1280 674" fill="none" stroke="#C4A67C" stroke-width="1.5" opacity="0.4"/>
+
+  <!-- Fallen acorns decorative (scenery, not interactive) -->
+  <g id="scenery-acorns" opacity="0.5">
+    <ellipse cx="400" cy="520" rx="4" ry="5" fill="#8B6914"/>
+    <rect x="398" y="514" width="4" height="3" rx="1" fill="#A0781E"/>
+    <ellipse cx="870" cy="530" rx="4" ry="5" fill="#8B6914"/>
+    <rect x="868" y="524" width="4" height="3" rx="1" fill="#A0781E"/>
+  </g>
+</svg>

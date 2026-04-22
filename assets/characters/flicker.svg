@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 250">
+  <!-- Flicker - Red-bellied Woodpecker - Homestar Runner Style -->
+
+  <!-- Legs - stick legs -->
+  <g id="legs">
+    <line x1="62" y1="210" x2="55" y2="235" stroke="#555" stroke-width="3.5" stroke-linecap="round"/>
+    <ellipse cx="52" cy="240" rx="10" ry="6" fill="#CD853F" stroke="#000" stroke-width="3"/>
+    <line x1="88" y1="210" x2="95" y2="235" stroke="#555" stroke-width="3.5" stroke-linecap="round"/>
+    <ellipse cx="98" cy="240" rx="10" ry="6" fill="#CD853F" stroke="#000" stroke-width="3"/>
+    <!-- Toe lines -->
+    <line x1="44" y1="240" x2="40" y2="243" stroke="#000" stroke-width="2"/>
+    <line x1="52" y1="242" x2="50" y2="246" stroke="#000" stroke-width="2"/>
+    <line x1="90" y1="240" x2="88" y2="243" stroke="#000" stroke-width="2"/>
+    <line x1="98" y1="242" x2="96" y2="246" stroke="#000" stroke-width="2"/>
+  </g>
+
+  <!-- Tail feathers -->
+  <g id="tail">
+    <path d="M65 212 Q58 228 52 245" fill="none" stroke="#555" stroke-width="4" stroke-linecap="round"/>
+    <path d="M75 215 Q75 232 75 248" fill="none" stroke="#555" stroke-width="4" stroke-linecap="round"/>
+    <path d="M85 212 Q92 228 98 245" fill="none" stroke="#555" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <!-- Body - tall lanky -->
+  <g id="body">
+    <!-- Back -->
+    <path d="M50 100 Q45 150 48 195 Q55 218 75 220 Q95 218 102 195 Q105 150 100 100Z" fill="#555555" stroke="#000" stroke-width="3"/>
+    <!-- White belly -->
+    <path d="M58 120 Q55 155 57 195 Q65 210 75 212 Q85 210 93 195 Q95 155 92 120Z" fill="white" stroke="none"/>
+    <!-- Belly spots/speckles -->
+    <circle cx="68" cy="145" r="2.5" fill="#CCC"/>
+    <circle cx="82" cy="150" r="2.5" fill="#CCC"/>
+    <circle cx="72" cy="165" r="2.5" fill="#CCC"/>
+    <circle cx="80" cy="175" r="2.5" fill="#CCC"/>
+    <circle cx="68" cy="185" r="2.5" fill="#CCC"/>
+    <circle cx="78" cy="195" r="2.5" fill="#CCC"/>
+
+    <!-- Left wing -->
+    <path d="M48 120 Q28 140 25 170 Q30 178 40 168 Q45 150 50 130Z" fill="#555555" stroke="#000" stroke-width="3"/>
+    <!-- Wing bars -->
+    <line x1="35" y1="145" x2="48" y2="128" stroke="#333" stroke-width="2"/>
+    <line x1="32" y1="155" x2="47" y2="138" stroke="#333" stroke-width="2"/>
+
+    <!-- Right wing -->
+    <path d="M102 120 Q122 140 125 170 Q120 178 110 168 Q105 150 100 130Z" fill="#555555" stroke="#000" stroke-width="3"/>
+    <!-- Wing bars -->
+    <line x1="115" y1="145" x2="102" y2="128" stroke="#333" stroke-width="2"/>
+    <line x1="118" y1="155" x2="103" y2="138" stroke="#333" stroke-width="2"/>
+  </g>
+
+  <!-- Neck - exaggerated long -->
+  <path d="M60 100 Q62 85 65 70 Q75 62 85 70 Q88 85 90 100" fill="#555555" stroke="#000" stroke-width="3"/>
+  <!-- White throat -->
+  <path d="M66 100 Q68 85 70 72 Q75 68 80 72 Q82 85 84 100" fill="white" stroke="none"/>
+
+  <!-- Head -->
+  <g id="head">
+    <!-- Head shape -->
+    <ellipse cx="75" cy="52" rx="28" ry="24" fill="#555555" stroke="#000" stroke-width="3"/>
+
+    <!-- White face -->
+    <path d="M52 55 Q55 42 70 38 Q75 36 80 38 Q95 42 98 55 Q95 62 85 65 Q75 67 65 65 Q55 62 52 55Z" fill="white" stroke="none"/>
+
+    <!-- Red cap/beret - oversized -->
+    <path d="M48 48 Q50 25 75 18 Q100 25 102 48 Q98 42 75 38 Q52 42 48 48Z" fill="#CC0000" stroke="#000" stroke-width="3"/>
+    <!-- Cap highlight -->
+    <path d="M60 30 Q75 22 90 30" fill="none" stroke="#DD2222" stroke-width="3" stroke-linecap="round"/>
+
+    <!-- Left eye -->
+    <g id="left-eye">
+      <ellipse cx="64" cy="50" rx="10" ry="11" fill="white" stroke="#000" stroke-width="3"/>
+      <ellipse cx="66" cy="51" rx="5" ry="5.5" fill="#000"/>
+      <circle cx="68" cy="48" r="2.5" fill="white"/>
+    </g>
+
+    <!-- Right eye -->
+    <g id="right-eye">
+      <ellipse cx="86" cy="50" rx="10" ry="11" fill="white" stroke="#000" stroke-width="3"/>
+      <ellipse cx="84" cy="51" rx="5" ry="5.5" fill="#000"/>
+      <circle cx="86" cy="48" r="2.5" fill="white"/>
+    </g>
+
+    <!-- Eyebrows - angular/focused -->
+    <path d="M52 42 Q58 36 72 40" fill="none" stroke="#000" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M98 42 Q92 36 78 40" fill="none" stroke="#000" stroke-width="3.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- Beak - long and pointy, ~30% body length -->
+  <g id="beak">
+    <path d="M98 50 L145 45 L98 55Z" fill="#CD853F" stroke="#000" stroke-width="3" stroke-linejoin="round"/>
+    <!-- Beak line -->
+    <line x1="100" y1="51" x2="140" y2="48" stroke="#000" stroke-width="2"/>
+    <!-- Nostril -->
+    <circle cx="110" cy="49" r="1.5" fill="#000"/>
+  </g>
+</svg>

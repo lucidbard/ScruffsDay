@@ -1,0 +1,21 @@
+{
+  "scene": "scrub_thicket",
+  "image_size": [
+    1376,
+    768
+  ],
+  "perches": [
+    {
+      "name": "rock_1",
+      "x": 56,
+      "y": 427,
+      "type": "rock"
+    },
+    {
+      "name": "rock_2",
+      "x": 57,
+      "y": 367,
+      "type": "rock"
+    }
+  ]
+}

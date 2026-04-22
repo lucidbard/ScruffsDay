@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Shelly - Gopher Tortoise - Homestar Runner Style -->
+
+  <!-- Legs (barely visible under shell) -->
+  <g id="legs">
+    <!-- Front left leg -->
+    <ellipse cx="55" cy="168" rx="14" ry="10" fill="#6B5B3F" stroke="#000" stroke-width="3"/>
+    <!-- Front right leg -->
+    <ellipse cx="145" cy="168" rx="14" ry="10" fill="#6B5B3F" stroke="#000" stroke-width="3"/>
+    <!-- Back left leg -->
+    <ellipse cx="48" cy="172" rx="10" ry="8" fill="#6B5B3F" stroke="#000" stroke-width="3"/>
+    <!-- Back right leg -->
+    <ellipse cx="155" cy="172" rx="10" ry="8" fill="#6B5B3F" stroke="#000" stroke-width="3"/>
+  </g>
+
+  <!-- Tail -->
+  <path d="M170 158 Q185 162 188 155 Q186 150 178 152" fill="#6B5B3F" stroke="#000" stroke-width="3"/>
+
+  <!-- Shell - huge dome -->
+  <g id="shell">
+    <!-- Main dome -->
+    <path d="M25 165 Q25 60 100 50 Q175 60 175 165Z" fill="#8B7355" stroke="#000" stroke-width="3.5"/>
+
+    <!-- Shell plates - hexagonal pattern -->
+    <!-- Top center plate -->
+    <path d="M80 65 L100 55 L120 65 L120 85 L100 95 L80 85Z" fill="#7D6849" stroke="#000" stroke-width="2.5"/>
+    <!-- Middle left plate -->
+    <path d="M45 105 L65 95 L80 105 L80 125 L65 135 L45 125Z" fill="#7D6849" stroke="#000" stroke-width="2.5"/>
+    <!-- Middle center plate -->
+    <path d="M80 105 L100 95 L120 105 L120 125 L100 135 L80 125Z" fill="#7D6849" stroke="#000" stroke-width="2.5"/>
+    <!-- Middle right plate -->
+    <path d="M120 105 L140 95 L158 105 L158 125 L140 135 L120 125Z" fill="#7D6849" stroke="#000" stroke-width="2.5"/>
+    <!-- Bottom left plate -->
+    <path d="M35 145 L55 135 L70 145 L70 162 L55 165 L35 160Z" fill="#7D6849" stroke="#000" stroke-width="2.5"/>
+    <!-- Bottom center plate -->
+    <path d="M70 145 L95 135 L115 145 L115 162 L95 165 L70 162Z" fill="#7D6849" stroke="#000" stroke-width="2.5"/>
+    <!-- Bottom right plate -->
+    <path d="M115 145 L140 135 L162 145 L162 162 L145 165 L115 162Z" fill="#7D6849" stroke="#000" stroke-width="2.5"/>
+
+    <!-- Shell edge / rim -->
+    <path d="M25 165 Q100 175 175 165" fill="none" stroke="#000" stroke-width="3.5"/>
+  </g>
+
+  <!-- Neck and Head -->
+  <g id="head">
+    <!-- Neck -->
+    <path d="M32 130 Q18 120 15 100 Q14 88 22 80 L35 82 Q30 95 32 110Z" fill="#6B5B3F" stroke="#000" stroke-width="3"/>
+
+    <!-- Head -->
+    <ellipse cx="18" cy="74" rx="20" ry="16" fill="#6B5B3F" stroke="#000" stroke-width="3"/>
+
+    <!-- Droopy left eye -->
+    <g id="left-eye">
+      <ellipse cx="10" cy="70" rx="8" ry="9" fill="white" stroke="#000" stroke-width="3"/>
+      <ellipse cx="10" cy="72" rx="4" ry="4.5" fill="#000"/>
+      <circle cx="12" cy="69" r="2" fill="white"/>
+      <!-- Droopy eyelid -->
+      <path d="M3 66 Q10 64 18 68" fill="#6B5B3F" stroke="#000" stroke-width="2.5"/>
+    </g>
+
+    <!-- Droopy right eye -->
+    <g id="right-eye">
+      <ellipse cx="25" cy="68" rx="7" ry="8" fill="white" stroke="#000" stroke-width="3"/>
+      <ellipse cx="25" cy="70" rx="3.5" ry="4" fill="#000"/>
+      <circle cx="27" cy="67" r="2" fill="white"/>
+      <!-- Droopy eyelid -->
+      <path d="M18 64 Q25 62 32 66" fill="#6B5B3F" stroke="#000" stroke-width="2.5"/>
+    </g>
+
+    <!-- Mouth - slight smile -->
+    <path d="M5 82 Q12 88 22 84" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+
+    <!-- Nostril -->
+    <circle cx="6" cy="74" r="1.5" fill="#000"/>
+  </g>
+</svg>

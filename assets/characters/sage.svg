@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 250">
+  <!-- Sage - Great Horned Owl - Homestar Runner Style -->
+
+  <!-- Feet -->
+  <g id="feet">
+    <!-- Left foot with talons -->
+    <ellipse cx="68" cy="240" rx="14" ry="8" fill="#CD853F" stroke="#000" stroke-width="3"/>
+    <line x1="58" y1="240" x2="54" y2="245" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="65" y1="242" x2="62" y2="248" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="72" y1="242" x2="72" y2="248" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Right foot -->
+    <ellipse cx="112" cy="240" rx="14" ry="8" fill="#CD853F" stroke="#000" stroke-width="3"/>
+    <line x1="108" y1="242" x2="108" y2="248" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="115" y1="242" x2="118" y2="248" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="122" y1="240" x2="126" y2="245" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- Body - small compact -->
+  <g id="body">
+    <!-- Main body -->
+    <ellipse cx="90" cy="200" rx="42" ry="45" fill="#8B6914" stroke="#000" stroke-width="3"/>
+
+    <!-- Chest feather pattern - horizontal stripes -->
+    <path d="M58 180 Q90 185 122 180" fill="none" stroke="#7A5A10" stroke-width="2.5"/>
+    <path d="M55 190 Q90 196 125 190" fill="none" stroke="#7A5A10" stroke-width="2.5"/>
+    <path d="M55 200 Q90 206 125 200" fill="none" stroke="#7A5A10" stroke-width="2.5"/>
+    <path d="M58 210 Q90 216 122 210" fill="none" stroke="#7A5A10" stroke-width="2.5"/>
+
+    <!-- Belly lighter patch -->
+    <ellipse cx="90" cy="200" rx="25" ry="32" fill="#C4A032" opacity="0.5" stroke="none"/>
+
+    <!-- Left wing folded -->
+    <path d="M48 175 Q30 195 32 225 Q38 232 45 222 Q48 205 52 190Z" fill="#7A5A10" stroke="#000" stroke-width="3"/>
+    <!-- Wing feather lines -->
+    <line x1="38" y1="205" x2="50" y2="188" stroke="#6B4E0E" stroke-width="2"/>
+    <line x1="36" y1="215" x2="49" y2="198" stroke="#6B4E0E" stroke-width="2"/>
+
+    <!-- Right wing folded -->
+    <path d="M132 175 Q150 195 148 225 Q142 232 135 222 Q132 205 128 190Z" fill="#7A5A10" stroke="#000" stroke-width="3"/>
+    <!-- Wing feather lines -->
+    <line x1="142" y1="205" x2="130" y2="188" stroke="#6B4E0E" stroke-width="2"/>
+    <line x1="144" y1="215" x2="131" y2="198" stroke="#6B4E0E" stroke-width="2"/>
+  </g>
+
+  <!-- Head - massive round, ~50% height -->
+  <g id="head">
+    <!-- Main head -->
+    <ellipse cx="90" cy="95" rx="55" ry="52" fill="#8B6914" stroke="#000" stroke-width="3"/>
+
+    <!-- Ear tufts - exaggerated tall -->
+    <g id="ear-tufts">
+      <!-- Left tuft -->
+      <path d="M48 55 Q40 20 35 5 Q42 15 50 8 Q52 25 55 48" fill="#8B6914" stroke="#000" stroke-width="3"/>
+      <!-- Right tuft -->
+      <path d="M132 55 Q140 20 145 5 Q138 15 130 8 Q128 25 125 48" fill="#8B6914" stroke="#000" stroke-width="3"/>
+    </g>
+
+    <!-- Facial disc - lighter ring -->
+    <ellipse cx="90" cy="98" rx="42" ry="40" fill="#C4A032" stroke="none"/>
+
+    <!-- Inner facial disc -->
+    <path d="M55 85 Q65 65 90 60 Q115 65 125 85 Q128 105 120 118 Q105 130 90 132 Q75 130 60 118 Q52 105 55 85Z" fill="#D4B042" stroke="#7A5A10" stroke-width="2"/>
+
+    <!-- Huge left eye -->
+    <g id="left-eye">
+      <circle cx="72" cy="92" r="20" fill="#FFD700" stroke="#000" stroke-width="3.5"/>
+      <!-- Inner iris ring -->
+      <circle cx="72" cy="92" r="14" fill="#FFC200" stroke="none"/>
+      <!-- Pupil -->
+      <circle cx="72" cy="92" r="8" fill="#000"/>
+      <!-- Eye highlight -->
+      <circle cx="78" cy="86" r="4" fill="white"/>
+      <circle cx="68" cy="96" r="2" fill="white"/>
+    </g>
+
+    <!-- Huge right eye -->
+    <g id="right-eye">
+      <circle cx="108" cy="92" r="20" fill="#FFD700" stroke="#000" stroke-width="3.5"/>
+      <!-- Inner iris ring -->
+      <circle cx="108" cy="92" r="14" fill="#FFC200" stroke="none"/>
+      <!-- Pupil -->
+      <circle cx="108" cy="92" r="8" fill="#000"/>
+      <!-- Eye highlight -->
+      <circle cx="114" cy="86" r="4" fill="white"/>
+      <circle cx="104" cy="96" r="2" fill="white"/>
+    </g>
+
+    <!-- Stern eyebrow lines -->
+    <path d="M50 74 Q62 66 82 72" fill="none" stroke="#000" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M130 74 Q118 66 98 72" fill="none" stroke="#000" stroke-width="3.5" stroke-linecap="round"/>
+
+    <!-- Beak - small hooked -->
+    <path d="M84 112 Q90 108 96 112 L92 122 Q90 126 88 122Z" fill="#CD853F" stroke="#000" stroke-width="3"/>
+    <!-- Beak hook tip -->
+    <path d="M88 122 Q90 128 92 122" fill="#B8742E" stroke="#000" stroke-width="2"/>
+
+    <!-- Forehead V pattern -->
+    <path d="M72 68 Q80 62 90 60 Q100 62 108 68" fill="none" stroke="#7A5A10" stroke-width="2.5"/>
+    <path d="M78 72 Q85 67 90 65 Q95 67 102 72" fill="none" stroke="#7A5A10" stroke-width="2"/>
+  </g>
+
+  <!-- Neck connection -->
+  <path d="M60 140 Q90 155 120 140" fill="#8B6914" stroke="none"/>
+</svg>

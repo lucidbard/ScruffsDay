@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Pip's Map - Small folded/rolled parchment map -->
+
+  <!-- Map shadow -->
+  <ellipse cx="32" cy="58" rx="24" ry="4" fill="#000" opacity="0.1"/>
+
+  <!-- Map body - slightly rolled/folded parchment -->
+  <g id="map-body">
+    <!-- Main parchment -->
+    <path d="M8 12 Q6 10 8 8 L52 6 Q56 6 56 10 L54 52 Q54 56 50 56 L12 56 Q8 56 8 52Z" fill="#F5DEB3" stroke="#000" stroke-width="3"/>
+
+    <!-- Curled top-right corner -->
+    <path d="M48 6 Q56 4 56 10 Q54 8 48 8Z" fill="#E8D0A0" stroke="#000" stroke-width="2"/>
+
+    <!-- Parchment aging/fold lines -->
+    <line x1="10" y1="22" x2="52" y2="20" stroke="#DCC090" stroke-width="1.5" opacity="0.6"/>
+    <line x1="10" y1="38" x2="52" y2="36" stroke="#DCC090" stroke-width="1.5" opacity="0.6"/>
+    <line x1="30" y1="8" x2="30" y2="54" stroke="#DCC090" stroke-width="1" opacity="0.4"/>
+  </g>
+
+  <!-- Map content -->
+  <g id="map-content">
+    <!-- Dotted trail path -->
+    <path d="M14 48 Q18 42 22 40 Q28 38 32 34 Q36 30 38 24 Q40 20 44 16" fill="none" stroke="#3E2723" stroke-width="2" stroke-dasharray="3,3" stroke-linecap="round"/>
+
+    <!-- X mark (destination) -->
+    <g stroke="#CC0000" stroke-width="3" stroke-linecap="round">
+      <line x1="40" y1="12" x2="48" y2="20"/>
+      <line x1="48" y1="12" x2="40" y2="20"/>
+    </g>
+
+    <!-- Start point (small circle) -->
+    <circle cx="14" cy="48" r="3" fill="#CC0000" stroke="#000" stroke-width="1.5"/>
+
+    <!-- Small landmarks on map -->
+    <!-- Tree symbol -->
+    <circle cx="22" cy="28" r="3" fill="#2E8B57" stroke="#3E2723" stroke-width="1"/>
+    <line x1="22" y1="31" x2="22" y2="34" stroke="#6B5B3F" stroke-width="1.5"/>
+
+    <!-- Another tree -->
+    <circle cx="36" cy="42" r="2.5" fill="#2E8B57" stroke="#3E2723" stroke-width="1"/>
+    <line x1="36" y1="44" x2="36" y2="47" stroke="#6B5B3F" stroke-width="1.5"/>
+
+    <!-- Water squiggle -->
+    <path d="M16 16 Q20 14 24 16 Q28 18 32 16" fill="none" stroke="#4169E1" stroke-width="1.5"/>
+
+    <!-- Compass arrow (tiny) -->
+    <g transform="translate(48, 46)">
+      <line x1="0" y1="4" x2="0" y2="-4" stroke="#3E2723" stroke-width="1.5"/>
+      <path d="M0 -4 L-2 0 L2 0Z" fill="#CC0000" stroke="none"/>
+      <text x="1" y="-5" font-size="4" fill="#3E2723" font-family="serif">N</text>
+    </g>
+  </g>
+</svg>

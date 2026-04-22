@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 160">
+  <!-- Pip - Florida Mouse - Homestar Runner Style -->
+
+  <!-- Tail - fluffy curled -->
+  <g id="tail">
+    <path d="M72 125 Q95 120 105 105 Q112 90 105 80 Q98 75 95 82 Q92 95 82 105" fill="none" stroke="#C4A882" stroke-width="4" stroke-linecap="round"/>
+    <path d="M72 125 Q95 120 105 105 Q112 90 105 80 Q98 75 95 82 Q92 95 82 105" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-dasharray="none" opacity="0.3"/>
+  </g>
+
+  <!-- Feet -->
+  <g id="feet">
+    <ellipse cx="42" cy="148" rx="10" ry="6" fill="#E8C8A8" stroke="#000" stroke-width="3"/>
+    <ellipse cx="68" cy="148" rx="10" ry="6" fill="#E8C8A8" stroke="#000" stroke-width="3"/>
+  </g>
+
+  <!-- Body - tiny round -->
+  <g id="body">
+    <ellipse cx="55" cy="120" rx="28" ry="30" fill="#D2B48C" stroke="#000" stroke-width="3"/>
+    <!-- Belly -->
+    <ellipse cx="55" cy="126" rx="18" ry="20" fill="#F5DEB3" stroke="none"/>
+    <!-- Arms -->
+    <path d="M28 112 Q18 118 20 128 Q22 130 26 126 Q28 120 32 116" fill="#D2B48C" stroke="#000" stroke-width="3"/>
+    <path d="M82 112 Q92 118 90 128 Q88 130 84 126 Q82 120 78 116" fill="#D2B48C" stroke="#000" stroke-width="3"/>
+  </g>
+
+  <!-- ENORMOUS Ears -->
+  <g id="ears">
+    <!-- Left ear -->
+    <ellipse cx="18" cy="52" rx="22" ry="28" fill="#D2B48C" stroke="#000" stroke-width="3"/>
+    <!-- Left ear inner -->
+    <ellipse cx="18" cy="52" rx="14" ry="20" fill="#FFB6C1" stroke="none"/>
+
+    <!-- Right ear -->
+    <ellipse cx="92" cy="52" rx="22" ry="28" fill="#D2B48C" stroke="#000" stroke-width="3"/>
+    <!-- Right ear inner -->
+    <ellipse cx="92" cy="52" rx="14" ry="20" fill="#FFB6C1" stroke="none"/>
+  </g>
+
+  <!-- Head -->
+  <g id="head">
+    <!-- Main head -->
+    <ellipse cx="55" cy="78" rx="30" ry="28" fill="#D2B48C" stroke="#000" stroke-width="3"/>
+
+    <!-- Cheeks -->
+    <ellipse cx="36" cy="85" rx="8" ry="5" fill="#FFB6C1" opacity="0.5"/>
+    <ellipse cx="74" cy="85" rx="8" ry="5" fill="#FFB6C1" opacity="0.5"/>
+
+    <!-- Left eye - big sparkly -->
+    <g id="left-eye">
+      <ellipse cx="42" cy="74" rx="12" ry="13" fill="white" stroke="#000" stroke-width="3"/>
+      <ellipse cx="44" cy="76" rx="6" ry="7" fill="#000"/>
+      <!-- Big highlight -->
+      <circle cx="47" cy="72" r="3.5" fill="white"/>
+      <!-- Small highlight -->
+      <circle cx="41" cy="78" r="1.5" fill="white"/>
+    </g>
+
+    <!-- Right eye - big sparkly -->
+    <g id="right-eye">
+      <ellipse cx="68" cy="74" rx="12" ry="13" fill="white" stroke="#000" stroke-width="3"/>
+      <ellipse cx="66" cy="76" rx="6" ry="7" fill="#000"/>
+      <!-- Big highlight -->
+      <circle cx="69" cy="72" r="3.5" fill="white"/>
+      <!-- Small highlight -->
+      <circle cx="63" cy="78" r="1.5" fill="white"/>
+    </g>
+
+    <!-- Nose -->
+    <ellipse cx="55" cy="86" rx="5" ry="3.5" fill="#FFB6C1" stroke="#000" stroke-width="2.5"/>
+
+    <!-- Whiskers -->
+    <g id="whiskers" stroke="#000" stroke-width="1.5" stroke-linecap="round">
+      <!-- Left whiskers -->
+      <line x1="35" y1="83" x2="2" y2="78"/>
+      <line x1="35" y1="86" x2="2" y2="88"/>
+      <line x1="35" y1="89" x2="5" y2="96"/>
+      <!-- Right whiskers -->
+      <line x1="75" y1="83" x2="118" y2="78"/>
+      <line x1="75" y1="86" x2="118" y2="88"/>
+      <line x1="75" y1="89" x2="115" y2="96"/>
+    </g>
+
+    <!-- Mouth - tiny smile -->
+    <path d="M50 92 Q55 96 60 92" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- Buck teeth -->
+    <rect x="51" y="92" width="4" height="5" rx="1" fill="white" stroke="#000" stroke-width="1.5"/>
+    <rect x="56" y="92" width="4" height="5" rx="1" fill="white" stroke="#000" stroke-width="1.5"/>
+  </g>
+</svg>

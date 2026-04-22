@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Scrub Hickory Nuts - 3 grouped nuts -->
+
+  <!-- Nut 1 (left, slightly behind) -->
+  <g id="nut-1">
+    <!-- Nut body -->
+    <ellipse cx="18" cy="40" rx="12" ry="14" fill="#8B6914" stroke="#000" stroke-width="3"/>
+    <!-- Nut texture line -->
+    <line x1="18" y1="28" x2="18" y2="52" stroke="#7A5A10" stroke-width="1.5" opacity="0.6"/>
+    <!-- Leafy cap -->
+    <path d="M8 30 Q10 24 18 22 Q26 24 28 30 Q24 28 18 27 Q12 28 8 30Z" fill="#8FBC8F" stroke="#000" stroke-width="2.5"/>
+    <!-- Cap details -->
+    <path d="M12 28 Q18 25 24 28" fill="none" stroke="#2E8B57" stroke-width="1.5"/>
+    <!-- Small stem -->
+    <line x1="18" y1="22" x2="18" y2="18" stroke="#6B5B3F" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- Nut 2 (center, front) -->
+  <g id="nut-2">
+    <!-- Nut body -->
+    <ellipse cx="34" cy="38" rx="13" ry="16" fill="#8B6914" stroke="#000" stroke-width="3"/>
+    <!-- Nut texture line -->
+    <line x1="34" y1="24" x2="34" y2="52" stroke="#7A5A10" stroke-width="1.5" opacity="0.6"/>
+    <!-- Highlight -->
+    <ellipse cx="30" cy="34" rx="4" ry="6" fill="#A07B1A" opacity="0.5"/>
+    <!-- Leafy cap -->
+    <path d="M23 26 Q26 18 34 16 Q42 18 45 26 Q40 24 34 23 Q28 24 23 26Z" fill="#8FBC8F" stroke="#000" stroke-width="2.5"/>
+    <!-- Cap details -->
+    <path d="M27 24 Q34 20 41 24" fill="none" stroke="#2E8B57" stroke-width="1.5"/>
+    <!-- Small stem -->
+    <line x1="34" y1="16" x2="34" y2="11" stroke="#6B5B3F" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Tiny leaf on stem -->
+    <path d="M34 12 Q38 8 40 12 Q38 13 34 12Z" fill="#8FBC8F" stroke="#2E8B57" stroke-width="1"/>
+  </g>
+
+  <!-- Nut 3 (right, slightly behind) -->
+  <g id="nut-3">
+    <!-- Nut body -->
+    <ellipse cx="50" cy="42" rx="11" ry="13" fill="#8B6914" stroke="#000" stroke-width="3"/>
+    <!-- Nut texture line -->
+    <line x1="50" y1="30" x2="50" y2="54" stroke="#7A5A10" stroke-width="1.5" opacity="0.6"/>
+    <!-- Leafy cap -->
+    <path d="M41 33 Q43 27 50 25 Q57 27 59 33 Q55 31 50 30 Q45 31 41 33Z" fill="#8FBC8F" stroke="#000" stroke-width="2.5"/>
+    <!-- Cap details -->
+    <path d="M44 31 Q50 28 56 31" fill="none" stroke="#2E8B57" stroke-width="1.5"/>
+    <!-- Small stem -->
+    <line x1="50" y1="25" x2="50" y2="21" stroke="#6B5B3F" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+</svg>

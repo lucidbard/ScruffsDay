@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <!-- Tortoise Burrow Background - Sandy area with burrow mound -->
+
+  <!-- Sky -->
+  <rect x="0" y="0" width="1280" height="720" fill="#87CEEB"/>
+
+  <!-- Clouds -->
+  <g id="clouds">
+    <g id="cloud-1">
+      <ellipse cx="180" cy="90" rx="75" ry="32" fill="white"/>
+      <ellipse cx="240" cy="82" rx="55" ry="28" fill="white"/>
+      <ellipse cx="130" cy="88" rx="50" ry="23" fill="white"/>
+    </g>
+    <g id="cloud-2">
+      <ellipse cx="800" cy="110" rx="65" ry="28" fill="white"/>
+      <ellipse cx="850" cy="100" rx="50" ry="25" fill="white"/>
+      <ellipse cx="760" cy="105" rx="40" ry="20" fill="white"/>
+    </g>
+    <g id="cloud-3">
+      <ellipse cx="1100" cy="70" rx="80" ry="34" fill="white"/>
+      <ellipse cx="1160" cy="62" rx="58" ry="28" fill="white"/>
+      <ellipse cx="1050" cy="68" rx="48" ry="24" fill="white"/>
+    </g>
+  </g>
+
+  <!-- Sun -->
+  <circle cx="1180" cy="55" r="55" fill="#FFE44D" opacity="0.9"/>
+  <circle cx="1180" cy="55" r="45" fill="#FFD700"/>
+
+  <!-- Ground - sandy terrain with gentle undulation -->
+  <path d="M0 380 Q200 370 400 385 Q600 395 800 375 Q1000 360 1280 380 L1280 720 L0 720Z" fill="#D2B48C"/>
+
+  <!-- Deeper sand layer -->
+  <path d="M0 440 Q320 430 640 445 Q960 455 1280 435 L1280 720 L0 720Z" fill="#C8AD7F"/>
+
+  <!-- Sandy patches -->
+  <ellipse cx="200" cy="550" rx="130" ry="32" fill="#DCC8A0" opacity="0.5"/>
+  <ellipse cx="700" cy="600" rx="160" ry="38" fill="#DCC8A0" opacity="0.4"/>
+  <ellipse cx="1050" cy="570" rx="120" ry="28" fill="#DCC8A0" opacity="0.5"/>
+  <ellipse cx="400" cy="640" rx="140" ry="30" fill="#DCC8A0" opacity="0.4"/>
+  <ellipse cx="900" cy="660" rx="170" ry="35" fill="#DCC8A0" opacity="0.45"/>
+
+  <!-- Background distant scrub (lighter, smaller) -->
+  <g id="distant-scrub" opacity="0.6">
+    <path d="M50 385 Q70 350 95 360 Q115 345 135 365 Q155 350 170 385Z" fill="#8FBC8F" stroke="#000" stroke-width="2"/>
+    <path d="M250 380 Q270 348 295 358 Q315 342 335 362 Q345 350 360 380Z" fill="#8FBC8F" stroke="#000" stroke-width="2"/>
+    <path d="M950 370 Q970 340 995 350 Q1015 335 1035 355 Q1050 342 1060 370Z" fill="#8FBC8F" stroke="#000" stroke-width="2"/>
+    <path d="M1150 378 Q1170 345 1195 358 Q1215 342 1235 365 Q1250 350 1265 378Z" fill="#8FBC8F" stroke="#000" stroke-width="2"/>
+  </g>
+
+  <!-- Brazilian pepper bushes (invasive - reddish-green) -->
+  <g id="brazilian-pepper">
+    <!-- Left pepper bush -->
+    <g id="pepper-left">
+      <path d="M60 460 Q85 400 115 415 Q140 395 165 420 Q185 405 205 440 Q220 420 240 460Z" fill="#5B8C3E" stroke="#000" stroke-width="3"/>
+      <!-- Red pepper berry clusters -->
+      <circle cx="95" cy="420" r="5" fill="#CC3333" stroke="#000" stroke-width="1.5"/>
+      <circle cx="105" cy="415" r="4" fill="#CC3333" stroke="#000" stroke-width="1.5"/>
+      <circle cx="100" cy="425" r="3.5" fill="#CC3333" stroke="#000" stroke-width="1.5"/>
+      <circle cx="140" cy="410" r="5" fill="#CC3333" stroke="#000" stroke-width="1.5"/>
+      <circle cx="150" cy="405" r="4" fill="#CC3333" stroke="#000" stroke-width="1.5"/>
+      <circle cx="145" cy="415" r="3.5" fill="#CC3333" stroke="#000" stroke-width="1.5"/>
+      <circle cx="185" cy="418" r="4.5" fill="#CC3333" stroke="#000" stroke-width="1.5"/>
+      <circle cx="195" cy="413" r="3.5" fill="#CC3333" stroke="#000" stroke-width="1.5"/>
+      <!-- Leaf detail -->
+      <path d="M100 445 Q120 430 140 445" fill="none" stroke="#4A7A32" stroke-width="2"/>
+      <path d="M155 438 Q175 422 195 440" fill="none" stroke="#4A7A32" stroke-width="2"/>
+    </g>
+
+    <!-- Right pepper bush -->
+    <g id="pepper-right">
+      <path d="M1040 440 Q1065 380 1095 395 Q1120 375 1145 400 Q1170 385 1190 415 Q1210 395 1240 440Z" fill="#5B8C3E" stroke="#000" stroke-width="3"/>
+      <!-- Red pepper berry clusters -->
+      <circle cx="1080" cy="395" r="5" fill="#CC3333" stroke="#000" stroke-width="1.5"/>
+      <circle cx="1090" cy="390" r="4" fill="#CC3333" stroke="#000" stroke-width="1.5"/>
+      <circle cx="1085" cy="400" r="3.5" fill="#CC3333" stroke="#000" stroke-width="1.5"/>
+      <circle cx="1130" cy="388" r="5" fill="#CC3333" stroke="#000" stroke-width="1.5"/>
+      <circle cx="1140" cy="383" r="4" fill="#CC3333" stroke="#000" stroke-width="1.5"/>
+      <circle cx="1135" cy="393" r="3.5" fill="#CC3333" stroke="#000" stroke-width="1.5"/>
+      <circle cx="1175" cy="398" r="4.5" fill="#CC3333" stroke="#000" stroke-width="1.5"/>
+      <circle cx="1185" cy="393" r="3.5" fill="#CC3333" stroke="#000" stroke-width="1.5"/>
+      <!-- Leaf detail -->
+      <path d="M1080 425 Q1100 410 1120 425" fill="none" stroke="#4A7A32" stroke-width="2"/>
+      <path d="M1140 418 Q1160 402 1180 420" fill="none" stroke="#4A7A32" stroke-width="2"/>
+    </g>
+
+    <!-- Small pepper near burrow -->
+    <g id="pepper-near-burrow">
+      <path d="M680 465 Q700 430 720 440 Q740 425 755 450 Q765 438 775 465Z" fill="#5B8C3E" stroke="#000" stroke-width="2.5"/>
+      <circle cx="710" cy="440" r="4" fill="#CC3333" stroke="#000" stroke-width="1.5"/>
+      <circle cx="720" cy="436" r="3" fill="#CC3333" stroke="#000" stroke-width="1.5"/>
+      <circle cx="745" cy="442" r="3.5" fill="#CC3333" stroke="#000" stroke-width="1.5"/>
+    </g>
+  </g>
+
+  <!-- Burrow mound - the main feature, center-right -->
+  <g id="burrow-mound">
+    <!-- Mound shape (raised sandy hill) -->
+    <path d="M380 520 Q420 440 500 420 Q580 400 650 420 Q720 440 760 520Z" fill="#BFA876" stroke="#000" stroke-width="3"/>
+
+    <!-- Mound texture lines -->
+    <path d="M420 490 Q480 460 540 470" fill="none" stroke="#A8945E" stroke-width="2" opacity="0.6"/>
+    <path d="M460 500 Q520 475 580 485" fill="none" stroke="#A8945E" stroke-width="2" opacity="0.5"/>
+    <path d="M500 510 Q560 490 620 500" fill="none" stroke="#A8945E" stroke-width="2" opacity="0.4"/>
+
+    <!-- Burrow entrance (dark oval opening) -->
+    <ellipse cx="560" cy="500" rx="55" ry="30" fill="#2C1810" stroke="#000" stroke-width="3"/>
+    <!-- Inner shadow of burrow -->
+    <ellipse cx="560" cy="502" rx="40" ry="20" fill="#1A0E08"/>
+
+    <!-- Small dirt piles around entrance -->
+    <ellipse cx="500" cy="515" rx="25" ry="8" fill="#B39B6A" stroke="#000" stroke-width="1.5"/>
+    <ellipse cx="625" cy="512" rx="22" ry="7" fill="#B39B6A" stroke="#000" stroke-width="1.5"/>
+    <ellipse cx="555" cy="525" rx="30" ry="6" fill="#B39B6A" opacity="0.7"/>
+  </g>
+
+  <!-- Native scrub bushes (green, healthy) -->
+  <g id="native-scrub">
+    <!-- Left native bush -->
+    <g id="native-left">
+      <path d="M280 475 Q305 430 330 440 Q350 425 370 445 Q385 432 400 475Z" fill="#8FBC8F" stroke="#000" stroke-width="3"/>
+      <path d="M310 460 Q330 445 350 460" fill="none" stroke="#7AAC7A" stroke-width="2"/>
+    </g>
+
+    <!-- Right native bush -->
+    <g id="native-right">
+      <path d="M830 470 Q855 420 880 432 Q905 415 925 438 Q945 425 960 470Z" fill="#8FBC8F" stroke="#000" stroke-width="3"/>
+      <path d="M860 452 Q880 435 900 452" fill="none" stroke="#7AAC7A" stroke-width="2"/>
+      <path d="M895 445 Q915 430 935 450" fill="none" stroke="#7AAC7A" stroke-width="2"/>
+    </g>
+  </g>
+
+  <!-- Ground plants and grass tufts -->
+  <g id="ground-plants">
+    <g fill="#8FBC8F" stroke="#2E8B57" stroke-width="2">
+      <path d="M150 510 Q155 495 160 510 Q165 492 170 510"/>
+      <path d="M350 530 Q355 515 360 530 Q365 512 370 530"/>
+      <path d="M780 515 Q785 502 790 515 Q795 498 800 515"/>
+      <path d="M450 545 Q455 533 460 545"/>
+      <path d="M650 540 Q655 525 660 540 Q665 522 670 540"/>
+      <path d="M1000 520 Q1005 508 1010 520 Q1015 505 1020 520"/>
+      <path d="M180 570 Q185 558 190 570"/>
+      <path d="M580 565 Q585 552 590 565 Q595 548 600 565"/>
+      <path d="M870 555 Q875 540 880 555 Q885 538 890 555"/>
+      <path d="M1150 530 Q1155 518 1160 530"/>
+    </g>
+
+    <!-- Small rocks -->
+    <ellipse cx="250" cy="560" rx="11" ry="6" fill="#B8A080" stroke="#000" stroke-width="2"/>
+    <ellipse cx="690" cy="555" rx="8" ry="5" fill="#B8A080" stroke="#000" stroke-width="2"/>
+    <ellipse cx="950" cy="540" rx="10" ry="6" fill="#B8A080" stroke="#000" stroke-width="2"/>
+    <ellipse cx="420" cy="590" rx="13" ry="7" fill="#B8A080" stroke="#000" stroke-width="2"/>
+    <ellipse cx="1100" cy="555" rx="9" ry="5" fill="#B8A080" stroke="#000" stroke-width="2"/>
+  </g>
+
+  <!-- Foreground sand line -->
+  <path d="M0 680 Q320 670 640 678 Q960 685 1280 672" fill="none" stroke="#C4A67C" stroke-width="2" opacity="0.5"/>
+
+  <!-- Subtle sandy footpath leading to burrow -->
+  <path d="M640 700 Q600 620 570 540" fill="none" stroke="#C8B28A" stroke-width="8" opacity="0.3" stroke-linecap="round"/>
+</svg>

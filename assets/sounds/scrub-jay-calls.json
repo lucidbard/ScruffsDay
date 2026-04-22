@@ -1,0 +1,14 @@
+{
+  "source": "XC145790",
+  "attribution": "Florida Scrub Jay (Aphelocoma coerulescens) recorded by Bruce Lagerquist, 2017-03-11, Wabasso Scrub Conservation Area, Indian River County, Florida. Via xeno-canto.org (CC license).",
+  "duration": 30,
+  "calls": [
+    { "start": 2.84, "end": 3.36 },
+    { "start": 5.28, "end": 5.84 },
+    { "start": 9.68, "end": 10.20 },
+    { "start": 13.56, "end": 13.68 },
+    { "start": 19.44, "end": 19.56 },
+    { "start": 23.52, "end": 23.68 },
+    { "start": 28.64, "end": 28.88 }
+  ]
+}
