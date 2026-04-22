@@ -37,6 +37,9 @@ export class InteractiveItem {
     const targetHeight = this.config.height ?? 80;
     const scale = targetHeight / texture.height;
     this.sprite.scale.set(scale);
+    console.info(
+      `[InteractiveItem ${this.config.itemId}] texture ${texture.width}x${texture.height}, targetHeight=${targetHeight}, scale=${scale.toFixed(4)}, displayed ≈ ${Math.round(texture.width * scale)}x${Math.round(texture.height * scale)}`,
+    );
 
     // Halo scaled tight to the item — previously had a hard 80px floor that
     // made small items (acorns, nuts) look huge.
