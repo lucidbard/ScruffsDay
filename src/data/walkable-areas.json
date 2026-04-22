@@ -97,14 +97,6 @@
     ],
     "items": [
       {
-        "itemId": "saw_palmetto_fronds",
-        "texturePath": "assets/items/saw-palmetto-fronds.png",
-        "x": 329,
-        "y": 545,
-        "height": 140,
-        "requiresFlag": "knows_saw_palmetto"
-      },
-      {
         "itemId": "rusty_lyonia_flowers",
         "texturePath": "assets/items/rusty-lyonia-flowers.png",
         "x": 510,
