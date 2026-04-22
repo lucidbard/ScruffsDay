@@ -1,4 +1,5 @@
 import { Scene } from '../game/Scene';
+import { Easing } from '../game/Tween';
 import { pickThoughtId } from '../game/ThoughtPicker';
 import { Scruff } from '../characters/Scruff';
 import { InteractiveItem } from '../game/InteractiveItem';
@@ -268,6 +269,7 @@ export class ScrubThicket extends Scene {
 
     this.animBg?.resume();
     this.ambientAudio.play();
+    this.startIdleHint();
   }
 
   private tryShowThought(): void {
@@ -279,6 +281,40 @@ export class ScrubThicket extends Scene {
       this.scruff.setTalking(true);
       this.showDialogueLine(line, this.scruff.x, this.scruff.y - 130);
       this.gameState.markThoughtShown(id);
+    }
+  }
+
+  private idleHintTimer: number | null = null;
+
+  /**
+   * First-scene engagement: after ~6 s of no interaction before Shelly has
+   * been helped, pulse the up-arrow to the Tortoise Burrow so the player
+   * has a clear destination.
+   */
+  private startIdleHint(): void {
+    this.clearIdleHint();
+    if (this.gameState.getFlag('shelly_helped')) return;
+    const arrow = this.arrows[0];
+    if (!arrow) return;
+    this.idleHintTimer = window.setTimeout(() => {
+      this.idleHintTimer = null;
+      // Breathing scale pulse on the arrow container.
+      const start = arrow.container.scale.x;
+      this.tweens.add({
+        target: arrow.container.scale as unknown as Record<string, number>,
+        props: { x: start * 1.25, y: start * 1.25 },
+        duration: 700,
+        yoyo: true,
+        loop: true,
+        easing: Easing.easeInOut,
+      });
+    }, 6000);
+  }
+
+  private clearIdleHint(): void {
+    if (this.idleHintTimer !== null) {
+      clearTimeout(this.idleHintTimer);
+      this.idleHintTimer = null;
     }
   }
 
@@ -300,6 +336,7 @@ export class ScrubThicket extends Scene {
   }
 
   exit(): void {
+    this.clearIdleHint();
     this.scruff.stop();
     this.animBg?.pause();
     this.ambientAudio.pause();

@@ -4,17 +4,22 @@ import itemsData from '../data/items.json';
 
 interface ItemMeta {
   displayName: string;
+  caption?: string;
   description: string;
 }
 
-const CARD_W = 640;
-const CARD_H = 360;
+const CARD_W = 720;
+const CARD_H = 420;
 const CARD_X = (1280 - CARD_W) / 2;
 const CARD_Y = (720 - CARD_H) / 2;
+const IMG_BOX = 320;
+const IMG_CX = CARD_X + IMG_BOX / 2 + 20;
+const IMG_CY = CARD_Y + CARD_H / 2 - 20;
 
 /**
- * Modal card shown when a player taps an item. Plays a voiced description,
- * offers Pick Up / Leave buttons. onPickUp fires when the player commits.
+ * Modal card shown when a player taps an item. Large hero image on the
+ * left, title + short caption on the right. Scruff narrates the longer
+ * description via audio; the card itself stays visually light.
  */
 export class ItemInspectCard {
   readonly container = new Container();
@@ -22,7 +27,7 @@ export class ItemInspectCard {
   private dimmer = new Graphics();
   private preview: Sprite | null = null;
   private titleText: Text;
-  private descText: Text;
+  private captionText: Text;
   private pickUpBtn: Container;
   private leaveBtn: Container;
   private audio: HTMLAudioElement | null = null;
@@ -33,54 +38,57 @@ export class ItemInspectCard {
   constructor() {
     // Screen-dimming backdrop, captures background taps
     this.dimmer.rect(0, 0, 1280, 720);
-    this.dimmer.fill({ color: 0x000000, alpha: 0.55 });
+    this.dimmer.fill({ color: 0x000000, alpha: 0.6 });
     this.dimmer.eventMode = 'static';
     this.dimmer.on('pointertap', (e) => e.stopPropagation());
     this.container.addChild(this.dimmer);
 
     // Card body
-    this.bg.roundRect(CARD_X, CARD_Y, CARD_W, CARD_H, 24);
+    this.bg.roundRect(CARD_X, CARD_Y, CARD_W, CARD_H, 28);
     this.bg.fill({ color: 0xFFF8DC });
-    this.bg.stroke({ width: 4, color: 0x3E2723 });
+    this.bg.stroke({ width: 5, color: 0x3E2723 });
     this.bg.eventMode = 'static';
     this.bg.on('pointertap', (e) => e.stopPropagation());
     this.container.addChild(this.bg);
 
-    // Title
+    // Title — right side, top
     this.titleText = new Text({
       text: '',
       style: new TextStyle({
         fontFamily: "'Fredoka', 'Comic Sans MS', sans-serif",
-        fontSize: 30,
+        fontSize: 40,
         fontWeight: 'bold',
         fill: '#1a5276',
+        wordWrap: true,
+        wordWrapWidth: CARD_W - IMG_BOX - 80,
+        lineHeight: 46,
       }),
     });
-    this.titleText.anchor.set(0.5, 0);
-    this.titleText.position.set(1280 / 2, CARD_Y + 20);
+    this.titleText.position.set(CARD_X + IMG_BOX + 40, CARD_Y + 60);
     this.container.addChild(this.titleText);
 
-    // Description
-    this.descText = new Text({
+    // Caption — right side, short tagline under title
+    this.captionText = new Text({
       text: '',
       style: new TextStyle({
         fontFamily: "'Fredoka', 'Comic Sans MS', sans-serif",
         fontSize: 22,
-        fill: '#2B1B17',
+        fill: '#5D4037',
+        fontStyle: 'italic',
         wordWrap: true,
-        wordWrapWidth: CARD_W - 220,
+        wordWrapWidth: CARD_W - IMG_BOX - 80,
         lineHeight: 28,
       }),
     });
-    this.descText.position.set(CARD_X + 200, CARD_Y + 70);
-    this.container.addChild(this.descText);
+    this.captionText.position.set(CARD_X + IMG_BOX + 40, CARD_Y + 180);
+    this.container.addChild(this.captionText);
 
     this.pickUpBtn = this.makeButton('Pick Up', 0x2E8B57, () => {
       this.stopAudio();
       this.container.visible = false;
       this.onPickUpCb?.();
     });
-    this.pickUpBtn.position.set(CARD_X + CARD_W - 200, CARD_Y + CARD_H - 70);
+    this.pickUpBtn.position.set(CARD_X + CARD_W - 220, CARD_Y + CARD_H - 80);
     this.container.addChild(this.pickUpBtn);
 
     this.leaveBtn = this.makeButton('Leave', 0x8B6914, () => {
@@ -88,7 +96,7 @@ export class ItemInspectCard {
       this.container.visible = false;
       this.onLeaveCb?.();
     });
-    this.leaveBtn.position.set(CARD_X + 40, CARD_Y + CARD_H - 70);
+    this.leaveBtn.position.set(CARD_X + IMG_BOX + 40, CARD_Y + CARD_H - 80);
     this.container.addChild(this.leaveBtn);
 
     this.container.visible = false;
@@ -97,7 +105,7 @@ export class ItemInspectCard {
   private makeButton(label: string, color: number, onTap: () => void): Container {
     const c = new Container();
     const bg = new Graphics();
-    bg.roundRect(0, 0, 160, 50, 14);
+    bg.roundRect(0, 0, 180, 56, 16);
     bg.fill({ color });
     bg.stroke({ width: 3, color: 0x3E2723 });
     c.addChild(bg);
@@ -105,13 +113,13 @@ export class ItemInspectCard {
       text: label,
       style: new TextStyle({
         fontFamily: "'Fredoka', 'Comic Sans MS', sans-serif",
-        fontSize: 24,
+        fontSize: 26,
         fontWeight: 'bold',
         fill: '#FFFFFF',
       }),
     });
     t.anchor.set(0.5);
-    t.position.set(80, 25);
+    t.position.set(90, 28);
     c.addChild(t);
     c.eventMode = 'static';
     c.cursor = 'pointer';
@@ -127,9 +135,9 @@ export class ItemInspectCard {
     this.onPickUpCb = onPickUp;
     this.onLeaveCb = onLeave;
     this.titleText.text = meta.displayName;
-    this.descText.text = meta.description;
+    this.captionText.text = meta.caption ?? '';
 
-    // Swap preview sprite
+    // Swap hero preview
     if (this.preview) {
       this.container.removeChild(this.preview);
       this.preview.destroy();
@@ -139,10 +147,9 @@ export class ItemInspectCard {
       const tex = await Assets.load(texturePath) as Texture;
       const s = new Sprite(tex);
       s.anchor.set(0.5, 0.5);
-      const boxW = 150, boxH = 150;
-      const scale = Math.min(boxW / tex.width, boxH / tex.height);
+      const scale = Math.min(IMG_BOX / tex.width, IMG_BOX / tex.height);
       s.scale.set(scale);
-      s.position.set(CARD_X + 110, CARD_Y + CARD_H / 2);
+      s.position.set(IMG_CX, IMG_CY);
       this.container.addChild(s);
       this.preview = s;
     } catch {

@@ -1,34 +1,42 @@
 {
   "saw_palmetto_fronds": {
     "displayName": "Saw Palmetto Fronds",
-    "description": "Saw palmetto! Its tough fan leaves survive wildfires, and its berries feed birds and bears."
+    "caption": "Tough fans that survive fire.",
+    "description": "Saw palmetto! These tough fan leaves can survive wildfires. The berries feed our bears and our birds."
   },
   "scrub_hickory_nuts": {
     "displayName": "Scrub Hickory Nuts",
-    "description": "Scrub hickory nuts! They only grow in Florida's sandy scrub. Mice bury them and forget, planting new trees."
+    "caption": "Only grow in Florida scrub.",
+    "description": "Scrub hickory nuts! They only grow in our sandy scrub. When Pip buries and forgets these, baby trees grow!"
   },
   "sand_pine_cones": {
     "displayName": "Sand Pine Cones",
-    "description": "Sand pine cones! They need wildfire to pop open and release their seeds. Fire keeps the scrub alive."
+    "caption": "Need fire to open.",
+    "description": "Sand pine cones! They need a wildfire to pop open and drop their seeds. Fire keeps our scrub alive."
   },
   "florida_rosemary_cuttings": {
     "displayName": "Florida Rosemary",
-    "description": "Florida rosemary! A pioneer plant. It's one of the first to return after a scrub fire."
+    "caption": "First to grow back after fire.",
+    "description": "Florida rosemary! It's one of the very first plants to grow back after a scrub fire."
   },
   "rusty_lyonia_flowers": {
-    "displayName": "Rusty Lyonia Flowers",
-    "description": "Rusty lyonia, also called staggerbush. Its spring blooms feed pollinators across the scrub."
+    "displayName": "Rusty Lyonia",
+    "caption": "Spring blooms for pollinators.",
+    "description": "Rusty lyonia! Also called staggerbush. Its spring flowers feed bees and butterflies across the scrub."
   },
   "chapman_oak_acorns": {
     "displayName": "Chapman Oak Acorns",
-    "description": "Chapman oak acorns! These stubby scrub oaks make a feast for scrub jays, who cache hundreds every fall."
+    "caption": "A scrub jay's favorite snack.",
+    "description": "Chapman oak acorns! My favorite. I hide hundreds of these every fall and dig them up all winter."
   },
   "flicker_feather": {
     "displayName": "Flicker Feather",
-    "description": "A flicker feather! Northern flickers flash bright yellow under their wings when they fly."
+    "caption": "Bright yellow shaft.",
+    "description": "A flicker feather! Look at the bright yellow underside. Flickers flash it when they fly."
   },
   "pip_map": {
     "displayName": "Pip's Map",
-    "description": "Pip's map! A hand-drawn trail to the rarest scrub plants. The little mouse's gift."
+    "caption": "Where the rare plants grow.",
+    "description": "Pip drew me a map! It shows where the rarest plants of the scrub live."
   }
 }

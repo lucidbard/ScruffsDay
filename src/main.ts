@@ -208,6 +208,14 @@ async function init() {
     inventoryUI.refresh();
 
     const activeSceneId = sceneManager.getActiveSceneId();
+    // Inventory bar stays hidden in splash/intro AND until the player has
+    // learned from Shelly that collecting plants matters.
+    const inventoryVisible =
+      activeSceneId !== 'splash' &&
+      activeSceneId !== 'intro' &&
+      gameState.getFlag('knows_saw_palmetto');
+    inventoryUI.container.visible = inventoryVisible;
+
     const mapAvailable =
       activeSceneId !== 'splash' &&
       activeSceneId !== 'intro' &&
@@ -228,7 +236,7 @@ async function init() {
   sceneManager.register('intro', (app, gs, tw) => {
     const scene = new IntroSequence(app, gs, tw);
     scene.onSceneChange = (id, dir) => {
-      inventoryUI.container.visible = true;
+      // Inventory visibility now managed by ticker based on knows_saw_palmetto flag.
       menuBtn.visible = true;
       sceneManager.switchTo(id, dir);
     };
@@ -298,16 +306,15 @@ async function init() {
     debugPanel = new DebugPanel(sceneManager, gameState);
   }
 
-  // Hide inventory/menu during intro, show for all other scenes
+  // Hide menu during intro, show for all other scenes.
+  // Inventory visibility is fully driven by the ticker (flag-based).
   const origOnSwitch = sceneManager.onSceneSwitch;
   sceneManager.onSceneSwitch = (id) => {
     fastTravelMap.hide();
     if (id === 'splash' || id === 'intro') {
-      inventoryUI.container.visible = false;
       menuBtn.visible = false;
       mapBtn.visible = false;
     } else {
-      inventoryUI.container.visible = true;
       menuBtn.visible = true;
     }
     origOnSwitch?.(id);
@@ -319,7 +326,6 @@ async function init() {
 
   if (debugScene && sceneManager.has(debugScene)) {
     gameState.setFlag('intro_seen');
-    inventoryUI.container.visible = true;
     menuBtn.visible = true;
     await sceneManager.switchTo(debugScene as import('./game/GameState').SceneId);
   } else if (!gameState.getFlag('intro_seen')) {

@@ -1,6 +1,7 @@
 import { Scene } from '../game/Scene';
 import { Assets, Container, Graphics, Sprite, Text, TextStyle } from 'pixi.js';
 import { Easing } from '../game/Tween';
+import { unlockAudio } from '../game/AudioUnlock';
 import type { SceneId, SceneDirection } from '../game/GameState';
 
 export class SplashScreen extends Scene {
@@ -69,11 +70,12 @@ export class SplashScreen extends Scene {
 
     // Tap prompt
     const prompt = new Text({
-      text: 'tap to continue',
+      text: 'Tap to Start',
       style: new TextStyle({
-        fontSize: 16,
-        fill: '#999999',
-        fontStyle: 'italic',
+        fontFamily: "'Fredoka', sans-serif",
+        fontSize: 24,
+        fontWeight: 'bold',
+        fill: '#1a5276',
       }),
     });
     prompt.anchor.set(0.5, 0);
@@ -100,6 +102,9 @@ export class SplashScreen extends Scene {
   private advance(): void {
     if (!this.ready) return;
     this.ready = false;
+    // Prime the audio subsystem inside this real user-gesture tick so iOS
+    // Safari will allow subsequent voice/ambient/video audio to play.
+    unlockAudio();
 
     // Fade out then transition
     this.tweens.add({
