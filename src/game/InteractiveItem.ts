@@ -50,6 +50,16 @@ export class InteractiveItem {
     this.container.position.set(this.config.x, this.config.y);
     this.container.eventMode = "static";
     this.container.cursor = "pointer";
+    // Ensure a generous finger-tappable hit area even when the sprite is tiny
+    // (acorns, nuts). 70 px radius around the item's visual center.
+    const hitR = Math.max(70, targetHeight * 0.9);
+    this.container.hitArea = {
+      contains: (lx: number, ly: number) => {
+        const dx = lx;
+        const dy = ly + targetHeight / 2;
+        return dx * dx + dy * dy <= hitR * hitR;
+      },
+    };
     this.startGlowPulse();
   }
 
