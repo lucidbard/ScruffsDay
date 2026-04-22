@@ -10,20 +10,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src'),
     },
   },
-  server: {
-    // Debug-mode writes to these files (LayoutEditor drag autosave, DebugPanel
-    // dialogue/NPC edits, PerchDebugOverlay save). Excluding them from HMR keeps
-    // the running session from reloading every drag-drop. Manual refresh picks
-    // up the new values.
-    watch: {
-      ignored: [
-        '**/src/data/walkable-areas.json',
-        '**/src/data/npc-configs.json',
-        '**/src/data/dialogue.json',
-        '**/public/assets/perch-data/**',
-      ],
-    },
-  },
+  // Note: previously ignored drag-save output files here, but that prevented
+  // editor-driven JSON/data changes from propagating. Accept the reload on
+  // drag-save; it's brief and ensures edits always take effect.
   build: {
     outDir: 'dist',
     assetsInlineLimit: 0,
