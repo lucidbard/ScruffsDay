@@ -47,7 +47,7 @@ export class NPC {
     // ?v= cache-buster: bump when any NPC idle sheet is regenerated so iOS
     // Safari (which caches images beyond the server max-age=600) picks up
     // the new file instead of the stale one.
-    const sheetPath = `assets/characters/${this.config.id}-idle-sheet.png?v=4`;
+    const sheetPath = `assets/characters/${this.config.id}-idle-sheet.png?v=5`;
     let baseTexture: Texture;
 
     try {

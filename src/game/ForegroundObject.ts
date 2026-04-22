@@ -6,6 +6,8 @@ export interface ForegroundConfig {
   x: number;
   y: number;
   depthY: number;
+  /** Optional display height in game px; sprite is scaled to fit. */
+  height?: number;
 }
 
 export class ForegroundObject {
@@ -25,6 +27,10 @@ export class ForegroundObject {
       const texture = await Assets.load(this.config.texturePath);
       this.sprite = new Sprite(texture);
       this.sprite.anchor.set(0.5, 1);
+      if (this.config.height && texture.height > 0) {
+        const s = this.config.height / texture.height;
+        this.sprite.scale.set(s);
+      }
       // Offset the sprite so its bottom aligns with the container origin (depthY)
       this.sprite.position.set(0, 0);
       this.container.addChild(this.sprite);

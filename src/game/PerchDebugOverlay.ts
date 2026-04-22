@@ -222,18 +222,15 @@ export class PerchDebugOverlay {
         this.dragging.marker.perch.x = Math.round((newX / 1280) * this.imageSize[0]);
         this.dragging.marker.perch.y = Math.round((newY / 720) * this.imageSize[1]);
       });
-      this.container.on('pointerup', () => {
+      const finishDrag = () => {
         if (this.dragging) {
           this.dragging.marker.graphics.cursor = 'grab';
           this.dragging = null;
+          void this.save();
         }
-      });
-      this.container.on('pointerupoutside', () => {
-        if (this.dragging) {
-          this.dragging.marker.graphics.cursor = 'grab';
-          this.dragging = null;
-        }
-      });
+      };
+      this.container.on('pointerup', finishDrag);
+      this.container.on('pointerupoutside', finishDrag);
     }
   }
 
@@ -252,6 +249,7 @@ export class PerchDebugOverlay {
     perches.push(newPerch);
     const scaled = this.perchSystem.scaleToGame(newPerch);
     this.createMarker(newPerch, scaled.x, scaled.y);
+    void this.save();
   }
 
   private deletePerch(marker: typeof this.perchMarkers[0]): void {
@@ -261,6 +259,7 @@ export class PerchDebugOverlay {
     this.container.removeChild(marker.graphics);
     this.container.removeChild(marker.label);
     this.perchMarkers = this.perchMarkers.filter((m) => m !== marker);
+    void this.save();
   }
 
   private async save(): Promise<void> {

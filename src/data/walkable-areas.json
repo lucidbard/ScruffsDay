@@ -325,7 +325,8 @@
           "texturePath": "assets/items/brazilian-pepper-invasive.png",
           "x": 638,
           "y": 540,
-          "depthY": 540
+          "depthY": 540,
+          "height": 170
         }
       ],
       "observations": [

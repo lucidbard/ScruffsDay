@@ -205,16 +205,11 @@ async function init() {
       window.innerHeight / GAME_HEIGHT
     );
     gameContainer.scale.set(scale);
-    // Debug mode docks a panel at the bottom — keep game top-aligned so it
-    // doesn't overlap. Normal play centers vertically so letterboxing on
-    // iPad (4:3) is balanced top/bottom.
-    const debugActive = new URLSearchParams(window.location.search).get('debug');
-    const yOffset = debugActive
-      ? 0
-      : Math.max(0, (window.innerHeight - GAME_HEIGHT * scale) / 2);
+    // Always vertically center. Debug panel uses position:fixed so it
+    // overlays without pushing the canvas.
     gameContainer.position.set(
       (window.innerWidth - GAME_WIDTH * scale) / 2,
-      yOffset,
+      Math.max(0, (window.innerHeight - GAME_HEIGHT * scale) / 2),
     );
   }
   window.addEventListener('resize', resize);
