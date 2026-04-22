@@ -89,7 +89,7 @@ export class SceneArrow {
     const label = new Text({
       text: labelText,
       style: new TextStyle({
-        fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+        fontFamily: "'Fredoka', 'Comic Sans MS', sans-serif",
         fontSize: 18,
         fill: '#FFF8DC',
         fontWeight: 'bold',
@@ -142,7 +142,7 @@ export class SceneArrow {
     const label = new Text({
       text: labelText,
       style: new TextStyle({
-        fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+        fontFamily: "'Fredoka', 'Comic Sans MS', sans-serif",
         fontSize: 18,
         fill: '#FFF8DC',
         fontWeight: 'bold',

@@ -85,7 +85,32 @@
       "maxY": 700,
       "minScale": 0.7,
       "maxScale": 1
-    }
+    },
+    "arrows": [
+      {
+        "direction": "up",
+        "target": "tortoise_burrow",
+        "label": "Tortoise Burrow",
+        "x": 620,
+        "y": 30
+      }
+    ],
+    "items": [
+      {
+        "itemId": "saw_palmetto_fronds",
+        "texturePath": "assets/items/saw-palmetto-fronds.png",
+        "x": 329,
+        "y": 545,
+        "height": 140,
+        "requiresFlag": "knows_saw_palmetto"
+      },
+      {
+        "itemId": "rusty_lyonia_flowers",
+        "texturePath": "assets/items/rusty-lyonia-flowers.png",
+        "x": 510,
+        "y": 520
+      }
+    ]
   },
   "central_trail": {
     "entryPoints": {
@@ -95,7 +120,7 @@
       ],
       "tortoise_burrow": [
         620,
-        650
+        580
       ],
       "pine_clearing": [
         100,
@@ -139,10 +164,69 @@
       "maxScale": 1
     },
     "obstacles": [],
-    "foregrounds": []
+    "foregrounds": [],
+    "arrows": [
+      {
+        "direction": "down",
+        "target": "tortoise_burrow",
+        "label": "Tortoise Burrow",
+        "x": 620,
+        "y": 660
+      },
+      {
+        "direction": "left",
+        "target": "pine_clearing",
+        "label": "Pine Clearing",
+        "x": 30,
+        "y": 360
+      },
+      {
+        "direction": "right",
+        "target": "sandy_barrens",
+        "label": "Sandy Barrens",
+        "x": 1201,
+        "y": 400
+      },
+      {
+        "direction": "up",
+        "target": "owls_overlook",
+        "label": "Owl's Overlook",
+        "x": 620,
+        "y": 30,
+        "initiallyHidden": true
+      }
+    ],
+    "items": [
+      {
+        "itemId": "saw_palmetto_fronds",
+        "texturePath": "assets/items/saw-palmetto-fronds.png",
+        "x": 900,
+        "y": 470,
+        "height": 100,
+        "requiresFlag": "knows_saw_palmetto"
+      },
+      {
+        "itemId": "chapman_oak_acorns",
+        "texturePath": "assets/items/chapman-oak-acorns.png",
+        "x": 200,
+        "y": 480
+      },
+      {
+        "itemId": "scrub_hickory_nuts",
+        "texturePath": "assets/items/scrub-hickory-nuts.png",
+        "x": 700,
+        "y": 500
+      }
+    ]
   },
   "tortoise_burrow": {
     "surface": {
+      "burrow": {
+        "x": 658,
+        "y": 482,
+        "rx": 90,
+        "ry": 55
+      },
       "entryPoints": {
         "default": [
           640,
@@ -150,7 +234,7 @@
         ],
         "scrub_thicket": [
           620,
-          670
+          580
         ],
         "central_trail": [
           620,
@@ -216,7 +300,23 @@
         "maxY": 700,
         "minScale": 0.7,
         "maxScale": 1
-      }
+      },
+      "arrows": [
+        {
+          "direction": "down",
+          "target": "scrub_thicket",
+          "label": "Scrub Thicket",
+          "x": 620,
+          "y": 660
+        },
+        {
+          "direction": "up",
+          "target": "central_trail",
+          "label": "Central Trail",
+          "x": 620,
+          "y": 30
+        }
+      ]
     },
     "underground": {
       "entryPoints": {
@@ -254,7 +354,16 @@
         "maxScale": 1
       },
       "obstacles": [],
-      "foregrounds": []
+      "foregrounds": [],
+      "arrows": [
+        {
+          "direction": "up",
+          "target": "tortoise_burrow",
+          "label": "Go Up",
+          "x": 620,
+          "y": 30
+        }
+      ]
     }
   },
   "pine_clearing": {
@@ -297,7 +406,16 @@
       "maxScale": 1
     },
     "obstacles": [],
-    "foregrounds": []
+    "foregrounds": [],
+    "arrows": [
+      {
+        "direction": "right",
+        "target": "central_trail",
+        "label": "Central Trail",
+        "x": 1210,
+        "y": 360
+      }
+    ]
   },
   "sandy_barrens": {
     "entryPoints": {
@@ -337,17 +455,42 @@
       "maxY": 700,
       "minScale": 0.7,
       "maxScale": 1
-    }
+    },
+    "arrows": [
+      {
+        "direction": "left",
+        "target": "central_trail",
+        "label": "Central Trail",
+        "x": 30,
+        "y": 360
+      }
+    ],
+    "items": [
+      {
+        "itemId": "saw_palmetto_fronds",
+        "texturePath": "assets/items/saw-palmetto-fronds.png",
+        "x": 180,
+        "y": 500,
+        "height": 100,
+        "requiresFlag": "knows_saw_palmetto"
+      },
+      {
+        "itemId": "florida_rosemary_cuttings",
+        "texturePath": "assets/items/florida-rosemary-cuttings.png",
+        "x": 300,
+        "y": 430
+      }
+    ]
   },
   "owls_overlook": {
     "entryPoints": {
       "default": [
         640,
-        620
+        580
       ],
       "central_trail": [
         620,
-        670
+        580
       ]
     },
     "polygons": [
@@ -379,6 +522,15 @@
       "maxScale": 1
     },
     "obstacles": [],
-    "foregrounds": []
+    "foregrounds": [],
+    "arrows": [
+      {
+        "direction": "down",
+        "target": "central_trail",
+        "label": "Central Trail",
+        "x": 620,
+        "y": 660
+      }
+    ]
   }
 }

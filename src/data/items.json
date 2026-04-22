@@ -1,0 +1,34 @@
+{
+  "saw_palmetto_fronds": {
+    "displayName": "Saw Palmetto Fronds",
+    "description": "Saw palmetto! Its tough fan leaves survive wildfires, and its berries feed birds and bears."
+  },
+  "scrub_hickory_nuts": {
+    "displayName": "Scrub Hickory Nuts",
+    "description": "Scrub hickory nuts! They only grow in Florida's sandy scrub. Mice bury them and forget, planting new trees."
+  },
+  "sand_pine_cones": {
+    "displayName": "Sand Pine Cones",
+    "description": "Sand pine cones! They need wildfire to pop open and release their seeds. Fire keeps the scrub alive."
+  },
+  "florida_rosemary_cuttings": {
+    "displayName": "Florida Rosemary",
+    "description": "Florida rosemary! A pioneer plant. It's one of the first to return after a scrub fire."
+  },
+  "rusty_lyonia_flowers": {
+    "displayName": "Rusty Lyonia Flowers",
+    "description": "Rusty lyonia, also called staggerbush. Its spring blooms feed pollinators across the scrub."
+  },
+  "chapman_oak_acorns": {
+    "displayName": "Chapman Oak Acorns",
+    "description": "Chapman oak acorns! These stubby scrub oaks make a feast for scrub jays, who cache hundreds every fall."
+  },
+  "flicker_feather": {
+    "displayName": "Flicker Feather",
+    "description": "A flicker feather! Northern flickers flash bright yellow under their wings when they fly."
+  },
+  "pip_map": {
+    "displayName": "Pip's Map",
+    "description": "Pip's map! A hand-drawn trail to the rarest scrub plants. The little mouse's gift."
+  }
+}

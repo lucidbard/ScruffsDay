@@ -1,10 +1,12 @@
 import { Scene } from '../game/Scene';
+import { pickThoughtId } from '../game/ThoughtPicker';
 import { Scruff } from '../characters/Scruff';
 import { NPC } from '../characters/NPC';
 import { SceneArrow } from '../game/SceneArrow';
 import { DialogueBubble, DialogueRunner } from '../game/DialogueSystem';
 import { WalkableArea, resolveEntryPoint } from '../game/WalkableArea';
 import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
+import { LayoutEditor, saveWalkableAreas } from '../game/LayoutEditor';
 import { ForegroundObject } from '../game/ForegroundObject';
 import { PerchSystem } from '../game/PerchSystem';
 import { PerchDebugOverlay } from '../game/PerchDebugOverlay';
@@ -28,6 +30,7 @@ export class OwlsOverlook extends Scene {
   private arrows: SceneArrow[] = [];
   private dialogueBubble!: DialogueBubble;
   private dialogueRunner!: DialogueRunner;
+  private dialogueAnchor = { x: 0, y: 0 };
   private lastDialogueId: string | null = null;
   private walkableArea!: WalkableArea;
   private activeMinigame: NightWatch | null = null;
@@ -105,12 +108,7 @@ export class OwlsOverlook extends Scene {
           this.lastDialogueId = dialogueId;
           const line = this.dialogueRunner.start(dialogueId);
           if (line) {
-            this.dialogueBubble.show(
-              line.speaker,
-              line.text,
-              this.sage.container.x,
-              this.sage.container.y - 160,
-            );
+            this.showDialogueLine(line, this.sage.container.x, this.sage.container.y - 160);
           }
         });
     });
@@ -130,45 +128,34 @@ export class OwlsOverlook extends Scene {
       (flag: string) => this.gameState.getFlag(flag as FlagId),
       (flag: string) => this.gameState.setFlag(flag as FlagId),
     );
-    this.dialogueBubble = new DialogueBubble();
+    this.dialogueBubble = new DialogueBubble(this.gameState);
     this.container.addChild(this.dialogueBubble.container);
 
-    // 10. Navigation arrow - down to Central Trail (above depthContainer)
-    const downArrow = new SceneArrow(
-      'down',
-      'central_trail',
-      'Central Trail',
-      620,
-      660,
-      this.tweens,
-    );
-    downArrow.container.on('pointertap', () => {
-      if (!this.scruff.isMoving() && !this.dialogueRunner.isActive() && !this.activeMinigame) {
-        this.onSceneChange?.('central_trail');
-      }
-    });
-    this.arrows.push(downArrow);
-    this.container.addChild(downArrow.container);
+    // 10. Navigation arrows (read from walkable-areas.json)
+    const arrowConfigs = ((sceneData.arrows as { direction: 'left'|'right'|'up'|'down'; target: SceneId; label: string; x: number; y: number; requiresFlag?: FlagId }[] | undefined) ?? []);
+    const arrowIndexMap = new Map<SceneArrow, number>();
+    for (let i = 0; i < arrowConfigs.length; i++) {
+      const cfg = arrowConfigs[i];
+      if (cfg.requiresFlag && !this.gameState.getFlag(cfg.requiresFlag)) continue;
+      const arrow = new SceneArrow(cfg.direction, cfg.target, cfg.label, cfg.x, cfg.y, this.tweens);
+      arrow.container.on('pointertap', () => {
+        if (!this.scruff.isMoving() && !this.dialogueRunner.isActive() && !this.activeMinigame) {
+          this.onSceneChange?.(cfg.target);
+        }
+      });
+      this.arrows.push(arrow);
+      arrowIndexMap.set(arrow, i);
+      this.container.addChild(arrow.container);
+    }
 
     // 11. Ground tap handler
     bg.eventMode = 'static';
     bg.on('pointertap', (e) => {
       if (this.scruff.isMoving() || this.activeMinigame) return;
 
-      // While dialogue is active, advance it on tap
+      // While dialogue is active, advance it on tap (blocked until voice ends)
       if (this.dialogueRunner.isActive()) {
-        const nextLine = this.dialogueRunner.next();
-        if (nextLine) {
-          this.dialogueBubble.show(
-            nextLine.speaker,
-            nextLine.text,
-            this.sage.container.x,
-            this.sage.container.y - 160,
-          );
-        } else {
-          this.dialogueBubble.hide();
-          this.handleDialogueEnd();
-        }
+        if (this.dialogueBubble.canAdvance()) this.advanceDialogue();
         return;
       }
 
@@ -196,6 +183,15 @@ export class OwlsOverlook extends Scene {
         this.foregrounds,
       );
       this.container.addChild(debug.container);
+
+      const editor = new LayoutEditor(this.app, this.container, this.container);
+      for (const [arrow, idx] of arrowIndexMap) {
+        editor.attach({
+          id: `arrow[${idx}]`,
+          target: arrow.container,
+          onDrop: async (x, y) => { arrowConfigs[idx].x = x; arrowConfigs[idx].y = y; await saveWalkableAreas(); },
+        });
+      }
     }
 
     // 13. Perch debug overlay (editable in debug mode)
@@ -215,6 +211,23 @@ export class OwlsOverlook extends Scene {
     );
   }
 
+  private showDialogueLine(line: { speaker: string; text: string; audioPath: string }, x: number, y: number): void {
+    this.dialogueAnchor = { x, y };
+    this.dialogueBubble.show(line, x, y);
+    this.dialogueBubble.onSkip = () => this.advanceDialogue();
+  }
+
+  private advanceDialogue(): void {
+    const next = this.dialogueRunner.next();
+    if (next) {
+      this.showDialogueLine(next, this.dialogueAnchor.x, this.dialogueAnchor.y);
+    } else {
+      this.dialogueBubble.hide();
+      this.dialogueBubble.onSkip = null;
+      void this.handleDialogueEnd();
+    }
+  }
+
   private async handleDialogueEnd(): Promise<void> {
     if (
       this.lastDialogueId === 'sage_finale_ready' &&
@@ -232,10 +245,12 @@ export class OwlsOverlook extends Scene {
   private async startMinigame(): Promise<void> {
     const minigame = new NightWatch(this.app, this.gameState, this.tweens);
     await minigame.setup();
+    this.ambientAudio.pause();
     minigame.onComplete = async () => {
       // Remove minigame overlay
       this.container.removeChild(minigame.container);
       this.activeMinigame = null;
+      this.ambientAudio.resume();
 
       // Set game_complete flag
       this.gameState.setFlag('game_complete');
@@ -247,12 +262,7 @@ export class OwlsOverlook extends Scene {
       this.lastDialogueId = 'sage_finale_celebration';
       const line = this.dialogueRunner.start('sage_finale_celebration');
       if (line) {
-        this.dialogueBubble.show(
-          line.speaker,
-          line.text,
-          this.sage.container.x,
-          this.sage.container.y - 160,
-        );
+        this.showDialogueLine(line, this.sage.container.x, this.sage.container.y - 160);
       }
     };
     this.container.addChild(minigame.container);
@@ -428,6 +438,19 @@ export class OwlsOverlook extends Scene {
 
     this.animBg?.resume();
     this.ambientAudio.play();
+    this.tryShowThought();
+  }
+
+  private tryShowThought(): void {
+    if (this.dialogueRunner.isActive()) return;
+    const id = pickThoughtId('owls_overlook', this.gameState);
+    if (!id) return;
+    const line = this.dialogueRunner.start(id);
+    if (line) {
+      this.scruff.setTalking(true);
+      this.showDialogueLine(line, this.scruff.x, this.scruff.y - 130);
+      this.gameState.markThoughtShown(id);
+    }
   }
 
   update(deltaMs: number): void {

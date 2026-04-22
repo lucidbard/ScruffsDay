@@ -138,11 +138,17 @@ export class ScruffAnimator {
   }
 
   private sliceSheet(texture: Texture, frameW: number, frameH: number, count: number): Texture[] {
+    // Prefer actual per-frame width inferred from sheet size / count.
+    // Several legacy sheets (e.g. idle) were exported at 232×256 while the
+    // constant is 256 — using the constant would walk the crop window and
+    // cause a "bird scrolling left" illusion.
+    const actualW = Math.floor(texture.source.width / count);
+    const w = actualW > 0 ? actualW : frameW;
     const frames: Texture[] = [];
     for (let i = 0; i < count; i++) {
       frames.push(new Texture({
         source: texture.source,
-        frame: new Rectangle(i * frameW, 0, frameW, frameH),
+        frame: new Rectangle(i * w, 0, w, frameH),
       }));
     }
     return frames;

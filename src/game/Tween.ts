@@ -19,6 +19,7 @@ export interface TweenConfig {
   props: Record<string, number>;
   duration: number;
   easing?: EasingFn;
+  onUpdate?: (easedT: number, t: number) => void;
   onComplete?: () => void;
   loop?: boolean;
   yoyo?: boolean;
@@ -33,6 +34,7 @@ interface ActiveTween {
   duration: number;
   elapsed: number;
   easing: EasingFn;
+  onUpdate?: (easedT: number, t: number) => void;
   onComplete?: () => void;
   loop: boolean;
   yoyo: boolean;
@@ -63,6 +65,7 @@ export class TweenManager {
       duration: config.duration,
       elapsed: 0,
       easing: config.easing ?? Easing.linear,
+      onUpdate: config.onUpdate,
       onComplete: config.onComplete,
       loop: config.loop ?? false,
       yoyo: config.yoyo ?? false,
@@ -100,6 +103,8 @@ export class TweenManager {
         const end = tween.endValues[key];
         tween.target[key] = start + (end - start) * easedT;
       }
+
+      tween.onUpdate?.(easedT, t);
 
       if (t >= 1) {
         if (tween.loop) {

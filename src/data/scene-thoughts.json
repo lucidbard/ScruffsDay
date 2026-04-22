@@ -1,0 +1,28 @@
+{
+  "_meta": "Scruff's self-talk hints shown on scene entry. Scene key -> priority-ordered list. First matching entry whose conditions pass is shown. Each thought has dialogueId (→ dialogue.json node) + conditions { flags: [name], notFlags: [name], items: [itemId], notItems: [itemId] }.",
+  "scrub_thicket": [
+    { "dialogueId": "thought_bring_fronds", "items": ["saw_palmetto_fronds"], "notFlags": ["shelly_helped"] },
+    { "dialogueId": "thought_find_fronds", "flags": ["knows_saw_palmetto"], "notItems": ["saw_palmetto_fronds"], "notFlags": ["shelly_helped"] },
+    { "dialogueId": "thought_sage_awaits", "flags": ["shelly_helped"], "notFlags": ["game_complete"] }
+  ],
+  "tortoise_burrow": [
+    { "dialogueId": "thought_pip_hungry", "flags": ["shelly_helped"], "notFlags": ["pip_helped"], "notItems": ["scrub_hickory_nuts"] },
+    { "dialogueId": "thought_feed_pip", "flags": ["shelly_helped"], "items": ["scrub_hickory_nuts"], "notFlags": ["pip_helped"] }
+  ],
+  "central_trail": [
+    { "dialogueId": "thought_sunny_ready", "items": ["flicker_feather", "florida_rosemary_cuttings"], "notFlags": ["sunny_helped"] },
+    { "dialogueId": "thought_need_feather", "items": ["florida_rosemary_cuttings"], "notFlags": ["flicker_helped"] },
+    { "dialogueId": "thought_pip_map_hint", "items": ["pip_map"], "notFlags": ["sunny_helped"] },
+    { "dialogueId": "thought_signpost_hint", "notFlags": ["fast_travel_unlocked"], "flags": ["shelly_helped"] }
+  ],
+  "pine_clearing": [
+    { "dialogueId": "thought_vines_bad", "notFlags": ["flicker_helped"] }
+  ],
+  "sandy_barrens": [
+    { "dialogueId": "thought_sunny_cold", "notFlags": ["sunny_helped"], "notItems": ["florida_rosemary_cuttings"] },
+    { "dialogueId": "thought_plant_seeds", "items": ["florida_rosemary_cuttings", "flicker_feather"], "notFlags": ["sunny_helped"] }
+  ],
+  "owls_overlook": [
+    { "dialogueId": "thought_proof_list", "notFlags": ["game_complete"] }
+  ]
+}

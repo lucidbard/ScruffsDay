@@ -25,37 +25,37 @@ NPCS = [
     {
         "name": "shelly",
         "source": CHARS_DIR / "shelly-new.png",
-        "prompt": "cartoon tortoise on green screen, barely perceptible breathing, very subtle shell movement, perfectly still, minimal motion, closed mouth",
-        "negative": "walking, moving, head turning, mouth opening, deformation, morphing, fast motion, large movement, extra limbs, text, watermark, new objects",
-        "seed": 501,
+        "prompt": "cartoon old wise gopher tortoise on green screen, slow deep breathing with visible shell rise and fall, slow sagely head nod up and down, drooping eyelids softly blinking, thick neck slowly extending and retracting, patient contemplative movement, grandfatherly cadence, closed mouth in gentle smile",
+        "negative": "bowing, tipping forward, wide eyes, surprised, fast motion, walking away, head turning around, mouth opening, pose reset, frame jumping, deformation, morphing, extra limbs, text, watermark, new objects",
+        "seed": 8001,
     },
     {
         "name": "pip",
         "source": CHARS_DIR / "pip-new.png",
-        "prompt": "cartoon robin bird on green screen, very subtle chest breathing, barely perceptible, still pose, closed beak, minimal motion",
-        "negative": "hopping, flying, walking, beak opening, head turning, deformation, morphing, fast motion, large movement, extra limbs, text, watermark, new objects",
-        "seed": 502,
+        "prompt": "cartoon small brown Florida mouse on green screen, quick twitching tiny nose, small whiskers quivering, large pink ears flicking subtly, tail slowly curling and uncurling behind body, tiny alert head movements, quick little breaths, perky rodent idle, sitting upright on hind legs",
+        "negative": "hopping away, running, standing up tall, flying, wings, beak, opening mouth, wide eyes, scared expression, deformation, morphing, extra limbs, text, watermark, new objects",
+        "seed": 8002,
     },
     {
         "name": "flicker",
         "source": CHARS_DIR / "flicker-new.png",
-        "prompt": "cartoon woodpecker bird on branch on green screen, very subtle breathing, barely perceptible, still on branch, closed beak, minimal motion",
-        "negative": "pecking, flying, hopping, beak opening, head turning fast, deformation, morphing, fast motion, large movement, extra limbs, text, watermark, new objects",
-        "seed": 503,
+        "prompt": "cartoon northern flicker woodpecker bird on green screen, quick small head bobs side to side, tiny chest puffing breathing, subtle feather ruffle, short tail flick, alert perky idle, wings remain tucked against body, closed beak",
+        "negative": "pecking wood, flying, hopping, wings flapping open, beak opening wide, head spinning, wide eyes, deformation, morphing, extra limbs, text, watermark, new objects",
+        "seed": 8003,
     },
     {
         "name": "sunny",
         "source": CHARS_DIR / "sunny-new.png",
-        "prompt": "cartoon snake on green screen, very subtle breathing, barely perceptible body shifting, still coiled pose, minimal motion, tongue stays in",
-        "negative": "slithering, moving, tongue flicking, striking, deformation, morphing, fast motion, large movement, extra limbs, text, watermark, new objects",
-        "seed": 504,
+        "prompt": "cartoon sand skink lizard on green screen, slow lazy sunbathing breath, tail gently swaying side to side, tiny head turn left and right, slow sleepy blink, drowsy basking idle, body stays low to the ground",
+        "negative": "slithering away, striking, standing up, flying, fast motion, tongue flicking out repeatedly, biting, wide eyes, deformation, morphing, extra limbs, text, watermark, new objects",
+        "seed": 8004,
     },
     {
         "name": "sage",
         "source": CHARS_DIR / "sage-new.png",
-        "prompt": "cartoon owl on green screen, very subtle breathing, barely perceptible, still pose, occasional slow blink, minimal motion, closed beak",
-        "negative": "flying, hopping, head spinning, beak opening, deformation, morphing, fast motion, large movement, extra limbs, text, watermark, new objects",
-        "seed": 505,
+        "prompt": "cartoon wise old great horned owl on green screen, slow sagely head tilt, deep slow blink with heavy eyelids, subtle chest breathing, ear tufts slightly twitching, occasional gentle head rotation, stately wise bird idle, closed beak",
+        "negative": "flying away, hopping, head spinning 360 degrees, beak opening wide, wings flapping open, wide eyes, surprised, deformation, morphing, extra limbs, text, watermark, new objects",
+        "seed": 8005,
     },
 ]
 
@@ -192,12 +192,17 @@ async def generate_npc(session, npc):
     print(f"  Spritesheet: {output} ({len(keyed)} frames @ {FRAME_SIZE}x{FRAME_SIZE})")
 
 
-async def main():
+async def main(only=None):
     print("=== NPC Idle Animation Pipeline ===")
     WORK_DIR.mkdir(parents=True, exist_ok=True)
 
+    targets = [n for n in NPCS if only is None or n["name"] in only]
+    if only and not targets:
+        print(f"No NPCs matched filter: {only}. Valid names: {[n['name'] for n in NPCS]}")
+        return
+
     async with aiohttp.ClientSession() as session:
-        for npc in NPCS:
+        for npc in targets:
             try:
                 await generate_npc(session, npc)
             except Exception as e:
@@ -207,4 +212,6 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    import sys
+    only = set(sys.argv[1:]) or None
+    asyncio.run(main(only))

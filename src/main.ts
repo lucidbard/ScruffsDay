@@ -31,6 +31,8 @@ async function init() {
     resizeTo: window,
     resolution: window.devicePixelRatio || 1,
     autoDensity: true,
+    // Force WebGL renderer — Safari's WebGPU backend has had regressions.
+    preference: 'webgl',
   });
   document.body.appendChild(app.canvas);
 
@@ -48,7 +50,7 @@ async function init() {
   const itemTexturePaths: Record<string, string> = {
     saw_palmetto_fronds: 'assets/items/saw-palmetto-fronds.png',
     scrub_hickory_nuts: 'assets/items/scrub-hickory-nuts.png',
-    sand_pine_cones: 'assets/items/saw-palmetto-fronds.png', // placeholder
+    sand_pine_cones: 'assets/items/sand-pine-cones.png',
     florida_rosemary_cuttings: 'assets/items/florida-rosemary-cuttings.png',
     rusty_lyonia_flowers: 'assets/items/rusty-lyonia-flowers.png',
     chapman_oak_acorns: 'assets/items/chapman-oak-acorns.png',
@@ -189,9 +191,10 @@ async function init() {
       window.innerHeight / GAME_HEIGHT
     );
     gameContainer.scale.set(scale);
+    // Anchor to top so a docked-bottom debug panel never overlaps game content
     gameContainer.position.set(
       (window.innerWidth - GAME_WIDTH * scale) / 2,
-      (window.innerHeight - GAME_HEIGHT * scale) / 2
+      0,
     );
   }
   window.addEventListener('resize', resize);

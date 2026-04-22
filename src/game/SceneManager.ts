@@ -1,4 +1,4 @@
-import { Application, Container, Graphics } from 'pixi.js';
+import { Application, Container, Graphics, Text, TextStyle } from 'pixi.js';
 import type { Scene } from './Scene';
 import type { SceneId, GameState, SceneDirection } from './GameState';
 import { Easing, type TweenManager } from './Tween';
@@ -63,6 +63,21 @@ export class SceneManager {
         this.container.removeChild(this.activeScene.container);
       }
 
+      // Show a loading label on top of the fade while the new scene sets up.
+      // First-time scene setup loads a lot of textures and can take several seconds.
+      const loadingLabel = new Text({
+        text: 'Loading...',
+        style: new TextStyle({
+          fontFamily: "'Fredoka', 'Comic Sans MS', sans-serif",
+          fontSize: 48,
+          fontWeight: 'bold',
+          fill: '#FFF8DC',
+        }),
+      });
+      loadingLabel.anchor.set(0.5);
+      loadingLabel.position.set(640, 360);
+      this.container.addChild(loadingLabel);
+
       // Get or create target scene
       let scene = this.scenes.get(id);
       if (!scene) {
@@ -72,6 +87,9 @@ export class SceneManager {
         await scene.setup();
         this.scenes.set(id, scene);
       }
+
+      this.container.removeChild(loadingLabel);
+      loadingLabel.destroy();
 
       // Enter new scene (insert behind overlay)
       this.container.addChildAt(

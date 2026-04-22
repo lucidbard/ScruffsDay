@@ -1,10 +1,12 @@
 import { Scene } from '../game/Scene';
+import { pickThoughtId } from '../game/ThoughtPicker';
 import { Scruff } from '../characters/Scruff';
 import { NPC } from '../characters/NPC';
 import { SceneArrow } from '../game/SceneArrow';
 import { DialogueBubble, DialogueRunner } from '../game/DialogueSystem';
 import { WalkableArea, resolveEntryPoint } from '../game/WalkableArea';
 import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
+import { LayoutEditor, saveWalkableAreas } from '../game/LayoutEditor';
 import { ForegroundObject } from '../game/ForegroundObject';
 import { PerchSystem } from '../game/PerchSystem';
 import { PerchDebugOverlay } from '../game/PerchDebugOverlay';
@@ -28,6 +30,7 @@ export class PineClearing extends Scene {
   private dialogueBubble!: DialogueBubble;
   private dialogueRunner!: DialogueRunner;
   private lastDialogueId: string | null = null;
+  private dialogueAnchor = { x: 0, y: 0 };
   private walkableArea!: WalkableArea;
   private activeMinigame: VineBuster | null = null;
   private depthScaleConfig: DepthScaleConfig | null = null;
@@ -95,12 +98,7 @@ export class PineClearing extends Scene {
           this.lastDialogueId = dialogueId;
           const line = this.dialogueRunner.start(dialogueId);
           if (line) {
-            this.dialogueBubble.show(
-              line.speaker,
-              line.text,
-              this.flicker.container.x,
-              this.flicker.container.y - 160,
-            );
+            this.showDialogueLine(line, this.flicker.container.x, this.flicker.container.y - 160);
           }
         });
     });
@@ -120,45 +118,34 @@ export class PineClearing extends Scene {
       (flag: string) => this.gameState.getFlag(flag as FlagId),
       (flag: string) => this.gameState.setFlag(flag as FlagId),
     );
-    this.dialogueBubble = new DialogueBubble();
+    this.dialogueBubble = new DialogueBubble(this.gameState);
     this.container.addChild(this.dialogueBubble.container);
 
-    // 10. Navigation arrows (above depthContainer)
-    const rightArrow = new SceneArrow(
-      'right',
-      'central_trail',
-      'Central Trail',
-      1210,
-      360,
-      this.tweens,
-    );
-    rightArrow.container.on('pointertap', () => {
-      if (!this.scruff.isMoving() && !this.dialogueRunner.isActive() && !this.activeMinigame) {
-        this.onSceneChange?.('central_trail');
-      }
-    });
-    this.arrows.push(rightArrow);
-    this.container.addChild(rightArrow.container);
+    // 10. Navigation arrows (read from walkable-areas.json)
+    const arrowConfigs = ((sceneData.arrows as { direction: 'left'|'right'|'up'|'down'; target: SceneId; label: string; x: number; y: number; requiresFlag?: FlagId }[] | undefined) ?? []);
+    const arrowIndexMap = new Map<SceneArrow, number>();
+    for (let i = 0; i < arrowConfigs.length; i++) {
+      const cfg = arrowConfigs[i];
+      if (cfg.requiresFlag && !this.gameState.getFlag(cfg.requiresFlag)) continue;
+      const arrow = new SceneArrow(cfg.direction, cfg.target, cfg.label, cfg.x, cfg.y, this.tweens);
+      arrow.container.on('pointertap', () => {
+        if (!this.scruff.isMoving() && !this.dialogueRunner.isActive() && !this.activeMinigame) {
+          this.onSceneChange?.(cfg.target);
+        }
+      });
+      this.arrows.push(arrow);
+      arrowIndexMap.set(arrow, i);
+      this.container.addChild(arrow.container);
+    }
 
     // 11. Ground tap handler (background receives taps)
     bg.eventMode = 'static';
     bg.on('pointertap', (e) => {
       if (this.scruff.isMoving() || this.activeMinigame) return;
 
-      // While dialogue is active, advance it on tap
+      // While dialogue is active, advance it on tap (blocked until voice ends)
       if (this.dialogueRunner.isActive()) {
-        const nextLine = this.dialogueRunner.next();
-        if (nextLine) {
-          this.dialogueBubble.show(
-            nextLine.speaker,
-            nextLine.text,
-            this.flicker.container.x,
-            this.flicker.container.y - 160,
-          );
-        } else {
-          this.dialogueBubble.hide();
-          this.handleDialogueEnd();
-        }
+        if (this.dialogueBubble.canAdvance()) this.advanceDialogue();
         return;
       }
 
@@ -186,12 +173,38 @@ export class PineClearing extends Scene {
         this.foregrounds,
       );
       this.container.addChild(debug.container);
+
+      const editor = new LayoutEditor(this.app, this.container, this.container);
+      for (const [arrow, idx] of arrowIndexMap) {
+        editor.attach({
+          id: `arrow[${idx}]`,
+          target: arrow.container,
+          onDrop: async (x, y) => { arrowConfigs[idx].x = x; arrowConfigs[idx].y = y; await saveWalkableAreas(); },
+        });
+      }
     }
 
     // 13. Perch debug overlay (editable in debug mode)
     if (WalkableAreaDebug.isEnabled()) {
       const perchOverlay = new PerchDebugOverlay(this.perchSystem, 'pine_clearing', [1376, 768]);
       this.container.addChild(perchOverlay.container);
+    }
+  }
+
+  private showDialogueLine(line: { speaker: string; text: string; audioPath: string }, x: number, y: number): void {
+    this.dialogueAnchor = { x, y };
+    this.dialogueBubble.show(line, x, y);
+    this.dialogueBubble.onSkip = () => this.advanceDialogue();
+  }
+
+  private advanceDialogue(): void {
+    const next = this.dialogueRunner.next();
+    if (next) {
+      this.showDialogueLine(next, this.dialogueAnchor.x, this.dialogueAnchor.y);
+    } else {
+      this.dialogueBubble.hide();
+      this.dialogueBubble.onSkip = null;
+      void this.handleDialogueEnd();
     }
   }
 
@@ -210,10 +223,12 @@ export class PineClearing extends Scene {
     // Create VineBuster as a child overlay within PineClearing
     const minigame = new VineBuster(this.app, this.gameState, this.tweens);
     await minigame.setup();
+    this.ambientAudio.pause();
     minigame.onComplete = async () => {
       // Remove minigame overlay
       this.container.removeChild(minigame.container);
       this.activeMinigame = null;
+      this.ambientAudio.resume();
       // Process rewards
       this.gameState.setFlag('flicker_helped');
       this.gameState.addItem('flicker_feather');
@@ -248,6 +263,19 @@ export class PineClearing extends Scene {
 
     this.animBg?.resume();
     this.ambientAudio.play();
+    this.tryShowThought();
+  }
+
+  private tryShowThought(): void {
+    if (this.dialogueRunner.isActive()) return;
+    const id = pickThoughtId('pine_clearing', this.gameState);
+    if (!id) return;
+    const line = this.dialogueRunner.start(id);
+    if (line) {
+      this.scruff.setTalking(true);
+      this.showDialogueLine(line, this.scruff.x, this.scruff.y - 130);
+      this.gameState.markThoughtShown(id);
+    }
   }
 
   update(deltaMs: number): void {

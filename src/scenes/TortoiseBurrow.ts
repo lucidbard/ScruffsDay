@@ -1,10 +1,12 @@
 import { Scene } from '../game/Scene';
+import { pickThoughtId } from '../game/ThoughtPicker';
 import { Scruff } from '../characters/Scruff';
 import { NPC } from '../characters/NPC';
 import { SceneArrow } from '../game/SceneArrow';
 import { DialogueBubble, DialogueRunner } from '../game/DialogueSystem';
 import { WalkableArea, resolveEntryPoint } from '../game/WalkableArea';
 import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
+import { LayoutEditor, saveWalkableAreas } from '../game/LayoutEditor';
 import { ForegroundObject } from '../game/ForegroundObject';
 import { PerchSystem } from '../game/PerchSystem';
 import { PerchDebugOverlay } from '../game/PerchDebugOverlay';
@@ -135,12 +137,8 @@ export class TortoiseBurrow extends Scene {
           this.lastDialogueId = dialogueId;
           const line = this.dialogueRunner.start(dialogueId);
           if (line) {
-            this.dialogueBubble.show(
-              line.speaker,
-              line.text,
-              this.shelly.container.x,
-              this.shelly.container.y - 120,
-            );
+            this.dialogueBubble.show(line, this.shelly.container.x, this.shelly.container.y - 120);
+            this.dialogueBubble.onSkip = () => this.advanceDialogue();
           }
         });
     });
@@ -151,47 +149,32 @@ export class TortoiseBurrow extends Scene {
       (flag: string) => this.gameState.getFlag(flag as FlagId),
       (flag: string) => this.gameState.setFlag(flag as FlagId),
     );
-    this.dialogueBubble = new DialogueBubble();
+    this.dialogueBubble = new DialogueBubble(this.gameState);
     this.container.addChild(this.dialogueBubble.container);
 
-    // 10. Navigation arrows (above depthContainer, on surfaceContainer)
-    const downArrow = new SceneArrow(
-      'down',
-      'scrub_thicket',
-      'Scrub Thicket',
-      620,
-      660,
-      this.tweens,
-    );
-    downArrow.container.on('pointertap', () => {
-      if (!this.scruff.isMoving() && !this.dialogueRunner.isActive()) {
-        this.onSceneChange?.('scrub_thicket');
-      }
-    });
-    this.arrows.push(downArrow);
-    this.surfaceContainer.addChild(downArrow.container);
+    // 10. Navigation arrows (read from walkable-areas.json surface.arrows)
+    const surfaceArrowConfigs = ((surfaceData.arrows as { direction: 'left'|'right'|'up'|'down'; target: SceneId; label: string; x: number; y: number; requiresFlag?: FlagId }[] | undefined) ?? []);
+    const surfaceArrowIndexMap = new Map<SceneArrow, number>();
+    for (let i = 0; i < surfaceArrowConfigs.length; i++) {
+      const cfg = surfaceArrowConfigs[i];
+      if (cfg.requiresFlag && !this.gameState.getFlag(cfg.requiresFlag)) continue;
+      const arrow = new SceneArrow(cfg.direction, cfg.target, cfg.label, cfg.x, cfg.y, this.tweens);
+      arrow.container.on('pointertap', () => {
+        if (!this.scruff.isMoving() && !this.dialogueRunner.isActive()) {
+          this.onSceneChange?.(cfg.target);
+        }
+      });
+      this.arrows.push(arrow);
+      surfaceArrowIndexMap.set(arrow, i);
+      this.surfaceContainer.addChild(arrow.container);
+    }
 
-    const upArrow = new SceneArrow(
-      'up',
-      'central_trail',
-      'Central Trail',
-      620,
-      30,
-      this.tweens,
-    );
-    upArrow.container.on('pointertap', () => {
-      if (!this.scruff.isMoving() && !this.dialogueRunner.isActive()) {
-        this.onSceneChange?.('central_trail');
-      }
-    });
-    this.arrows.push(upArrow);
-    this.surfaceContainer.addChild(upArrow.container);
-
-    // 11. Burrow entrance (aligned with dark hole in background art)
-    const burrowX = 670, burrowY = 380, burrowRX = 90, burrowRY = 55;
+    // 11. Burrow entrance (position read from walkable-areas.json)
+    const burrow = this.readBurrowConfig(surfaceData);
     this.burrowEntrance = new Graphics();
-    this.burrowEntrance.ellipse(burrowX, burrowY, burrowRX, burrowRY);
+    this.burrowEntrance.ellipse(0, 0, burrow.rx, burrow.ry);
     this.burrowEntrance.fill({ color: 0x000000, alpha: 0.001 });
+    this.burrowEntrance.position.set(burrow.x, burrow.y);
     this.burrowEntrance.eventMode = 'static';
     this.burrowEntrance.cursor = 'pointer';
     this.burrowEntrance.on('pointertap', () => {
@@ -202,48 +185,25 @@ export class TortoiseBurrow extends Scene {
           // Hint that they need to help Shelly first
           const line = this.dialogueRunner.start('shelly_intro');
           if (line) {
-            this.dialogueBubble.show(line.speaker, line.text, this.scruff.x, this.scruff.y - 100);
+            this.dialogueBubble.show(line, this.scruff.x, this.scruff.y - 100);
+            this.dialogueBubble.onSkip = () => this.advanceDialogue();
           }
         }
       }
     });
     this.surfaceContainer.addChild(this.burrowEntrance);
 
-    // Debug: show burrow entrance area, draggable to reposition
+    // Debug: draggable burrow entrance overlay + arrows; autosaves to walkable-areas.json
     if (WalkableAreaDebug.isEnabled()) {
-      const burrowDebug = new Graphics();
-      burrowDebug.ellipse(0, 0, burrowRX, burrowRY);
-      burrowDebug.stroke({ width: 3, color: 0xFF00FF, alpha: 0.9 });
-      burrowDebug.fill({ color: 0xFF00FF, alpha: 0.2 });
-      burrowDebug.position.set(burrowX, burrowY);
-      burrowDebug.eventMode = 'static';
-      burrowDebug.cursor = 'grab';
-      this.surfaceContainer.addChild(burrowDebug);
-
-      const { Text: T, TextStyle: TS } = await import('pixi.js');
-      const coordLabel = new T({
-        text: `Burrow (${burrowX}, ${burrowY})`,
-        style: new TS({ fontSize: 14, fill: '#FF00FF', fontWeight: 'bold' }),
-      });
-      coordLabel.position.set(burrowX + burrowRX + 8, burrowY - 8);
-      this.surfaceContainer.addChild(coordLabel);
-
-      // Draggable
-      let dragging = false;
-      burrowDebug.on('pointerdown', () => { dragging = true; burrowDebug.cursor = 'grabbing'; });
-      this.surfaceContainer.eventMode = 'static';
-      this.surfaceContainer.on('pointermove', (e) => {
-        if (!dragging) return;
-        const pos = e.getLocalPosition(this.surfaceContainer);
-        burrowDebug.position.set(pos.x, pos.y);
-        coordLabel.text = `Burrow (${Math.round(pos.x)}, ${Math.round(pos.y)})`;
-        coordLabel.position.set(pos.x + burrowRX + 8, pos.y - 8);
-        // Update the actual entrance hitbox
-        this.burrowEntrance.clear();
-        this.burrowEntrance.ellipse(pos.x, pos.y, burrowRX, burrowRY);
-        this.burrowEntrance.fill({ color: 0x000000, alpha: 0.001 });
-      });
-      this.surfaceContainer.on('pointerup', () => { dragging = false; burrowDebug.cursor = 'grab'; });
+      await this.setupBurrowDebug(burrow);
+      const editor = new LayoutEditor(this.app, this.surfaceContainer, this.surfaceContainer);
+      for (const [arrow, idx] of surfaceArrowIndexMap) {
+        editor.attach({
+          id: `arrow[${idx}]`,
+          target: arrow.container,
+          onDrop: async (x, y) => { surfaceArrowConfigs[idx].x = x; surfaceArrowConfigs[idx].y = y; await saveWalkableAreas(); },
+        });
+      }
     }
 
     // 12. Underground sub-area
@@ -254,9 +214,9 @@ export class TortoiseBurrow extends Scene {
     bg.on('pointertap', (e) => {
       if (this.scruff.isMoving()) return;
 
-      // While dialogue is active, advance it on tap
+      // While dialogue is active, advance it on tap (blocked until voice ends)
       if (this.dialogueRunner.isActive()) {
-        this.advanceDialogue();
+        if (this.dialogueBubble.canAdvance()) this.advanceDialogue();
         return;
       }
 
@@ -345,40 +305,46 @@ export class TortoiseBurrow extends Scene {
           this.lastDialogueId = dialogueId;
           const line = this.dialogueRunner.start(dialogueId);
           if (line) {
-            this.dialogueBubble.show(
-              line.speaker,
-              line.text,
-              this.pip.container.x,
-              this.pip.container.y - 100,
-            );
+            this.dialogueBubble.show(line, this.pip.container.x, this.pip.container.y - 100);
+            this.dialogueBubble.onSkip = () => this.advanceDialogue();
           }
         });
     });
 
-    // Back arrow to return to surface (above depth container, on underground)
-    const backArrow = new SceneArrow(
-      'up',
-      'tortoise_burrow',
-      'Go Up',
-      620,
-      30,
-      this.tweens,
-    );
-    backArrow.container.on('pointertap', () => {
-      if (!this.scruff.isMoving() && !this.dialogueRunner.isActive()) {
-        this.switchToSurface();
+    // Back arrows (read from walkable-areas.json underground.arrows)
+    const ugArrowConfigs = ((undergroundData.arrows as { direction: 'left'|'right'|'up'|'down'; target: SceneId; label: string; x: number; y: number; requiresFlag?: FlagId }[] | undefined) ?? []);
+    const ugArrowIndexMap = new Map<SceneArrow, number>();
+    for (let i = 0; i < ugArrowConfigs.length; i++) {
+      const cfg = ugArrowConfigs[i];
+      if (cfg.requiresFlag && !this.gameState.getFlag(cfg.requiresFlag)) continue;
+      const arrow = new SceneArrow(cfg.direction, cfg.target, cfg.label, cfg.x, cfg.y, this.tweens);
+      arrow.container.on('pointertap', () => {
+        if (!this.scruff.isMoving() && !this.dialogueRunner.isActive()) {
+          this.switchToSurface();
+        }
+      });
+      ugArrowIndexMap.set(arrow, i);
+      this.underground.addChild(arrow.container);
+    }
+    if (WalkableAreaDebug.isEnabled()) {
+      const editor = new LayoutEditor(this.app, this.underground, this.underground);
+      for (const [arrow, idx] of ugArrowIndexMap) {
+        editor.attach({
+          id: `arrow[${idx}]`,
+          target: arrow.container,
+          onDrop: async (x, y) => { ugArrowConfigs[idx].x = x; ugArrowConfigs[idx].y = y; await saveWalkableAreas(); },
+        });
       }
-    });
-    this.underground.addChild(backArrow.container);
+    }
 
     // Underground ground tap handler
     ugBg.eventMode = 'static';
     ugBg.on('pointertap', (e) => {
       if (this.scruff.isMoving()) return;
 
-      // While dialogue is active, advance it on tap
+      // While dialogue is active, advance it on tap (blocked until voice ends)
       if (this.dialogueRunner.isActive()) {
-        this.advanceDialogue();
+        if (this.dialogueBubble.canAdvance()) this.advanceDialogue();
         return;
       }
 
@@ -403,6 +369,121 @@ export class TortoiseBurrow extends Scene {
     }
   }
 
+  /** Burrow ellipse position + radii, sourced from walkable-areas.json. */
+  private readBurrowConfig(surfaceData: Record<string, unknown>): { x: number; y: number; rx: number; ry: number } {
+    const raw = surfaceData.burrow as Partial<{ x: number; y: number; rx: number; ry: number }> | undefined;
+    return {
+      x: raw?.x ?? 670,
+      y: raw?.y ?? 380,
+      rx: raw?.rx ?? 90,
+      ry: raw?.ry ?? 55,
+    };
+  }
+
+  /** Debug-mode draggable burrow ellipse. Drag to reposition (autosaves on drop);
+   *  tap without dragging still triggers the underground transition. */
+  private async setupBurrowDebug(burrow: { x: number; y: number; rx: number; ry: number }): Promise<void> {
+    const { Text, TextStyle } = await import('pixi.js');
+    this.surfaceContainer.sortableChildren = true;
+
+    // Visible magenta ellipse + full-ellipse hit area
+    const rx = burrow.rx, ry = burrow.ry;
+    this.burrowEntrance.clear();
+    this.burrowEntrance.ellipse(0, 0, rx, ry);
+    this.burrowEntrance.fill({ color: 0xFF00FF, alpha: 0.25 });
+    this.burrowEntrance.ellipse(0, 0, rx, ry);
+    this.burrowEntrance.stroke({ width: 3, color: 0xFF00FF, alpha: 0.9 });
+    this.burrowEntrance.hitArea = {
+      contains: (x: number, y: number) => (x * x) / (rx * rx) + (y * y) / (ry * ry) <= 1,
+    };
+    this.burrowEntrance.zIndex = 10000;
+    this.burrowEntrance.cursor = 'grab';
+
+    const label = new Text({
+      text: `Burrow (${burrow.x}, ${burrow.y})`,
+      style: new TextStyle({
+        fontSize: 14,
+        fill: '#FF00FF',
+        fontWeight: 'bold',
+        stroke: { color: 0x000000, width: 3 },
+      }),
+    });
+    label.position.set(burrow.x + rx + 8, burrow.y - 8);
+    label.zIndex = 10001;
+    this.surfaceContainer.addChild(label);
+
+    // Swap the tap handler (underground transition) for a drag-or-tap handler
+    this.burrowEntrance.removeAllListeners();
+
+    let dragging = false;
+    let moved = false;
+    let offX = 0, offY = 0;
+    const DRAG_THRESHOLD = 3; // px — distinguish tap vs drag
+
+    this.burrowEntrance.on('pointerdown', (e) => {
+      const local = e.getLocalPosition(this.surfaceContainer);
+      offX = local.x - this.burrowEntrance.position.x;
+      offY = local.y - this.burrowEntrance.position.y;
+      dragging = true;
+      moved = false;
+      this.burrowEntrance.cursor = 'grabbing';
+      e.stopPropagation();
+      console.info('[burrow] pointerdown at', Math.round(local.x), Math.round(local.y));
+    });
+
+    this.burrowEntrance.on('globalpointermove', (e) => {
+      if (!dragging) return;
+      const local = e.getLocalPosition(this.surfaceContainer);
+      const nx = local.x - offX;
+      const ny = local.y - offY;
+      const dx = nx - this.burrowEntrance.position.x;
+      const dy = ny - this.burrowEntrance.position.y;
+      if (!moved && (dx * dx + dy * dy) >= DRAG_THRESHOLD * DRAG_THRESHOLD) moved = true;
+      this.burrowEntrance.position.set(nx, ny);
+      label.text = `Burrow (${Math.round(nx)}, ${Math.round(ny)})`;
+      label.position.set(nx + rx + 8, ny - 8);
+    });
+
+    const drop = async () => {
+      if (!dragging) return;
+      dragging = false;
+      this.burrowEntrance.cursor = 'grab';
+      const nx = Math.round(this.burrowEntrance.position.x);
+      const ny = Math.round(this.burrowEntrance.position.y);
+      if (moved) {
+        burrow.x = nx;
+        burrow.y = ny;
+        console.info('[burrow] drop at', nx, ny);
+        try {
+          await this.saveBurrowConfig(burrow);
+          console.info('[burrow] saved');
+        } catch (err) {
+          console.warn('[burrow] save failed', err);
+        }
+      } else if (!this.isUnderground) {
+        // Treat as tap: same behavior as the non-debug pointertap handler
+        if (this.gameState.getFlag('shelly_helped')) {
+          this.switchToUnderground();
+        } else {
+          const line = this.dialogueRunner.start('shelly_intro');
+          if (line) {
+            this.dialogueBubble.show(line, this.scruff.x, this.scruff.y - 100);
+            this.dialogueBubble.onSkip = () => this.advanceDialogue();
+          }
+        }
+      }
+    };
+    this.burrowEntrance.on('pointerup', drop);
+    this.burrowEntrance.on('pointerupoutside', drop);
+  }
+
+  /** Persist burrow position to src/data/walkable-areas.json via the dev plugin. */
+  private async saveBurrowConfig(burrow: { x: number; y: number; rx: number; ry: number }): Promise<void> {
+    const surface = (walkableAreasData as WalkableAreasJson).tortoise_burrow.surface as Record<string, unknown>;
+    surface.burrow = burrow;
+    await saveWalkableAreas();
+  }
+
   /** Advance current dialogue, showing next line or ending it. */
   private advanceDialogue(): void {
     const nextLine = this.dialogueRunner.next();
@@ -412,15 +493,11 @@ export class TortoiseBurrow extends Scene {
         ? this.pip.container
         : this.shelly.container;
       const yOffset = this.isUnderground ? -100 : -120;
-      this.dialogueBubble.show(
-        nextLine.speaker,
-        nextLine.text,
-        speakerContainer.x,
-        speakerContainer.y + yOffset,
-      );
+      this.dialogueBubble.show(nextLine, speakerContainer.x, speakerContainer.y + yOffset);
     } else {
       this.dialogueBubble.hide();
-      this.handleDialogueEnd();
+      this.dialogueBubble.onSkip = null;
+      void this.handleDialogueEnd();
     }
   }
 
@@ -528,6 +605,20 @@ export class TortoiseBurrow extends Scene {
 
     this.animBg?.resume();
     this.ambientAudio.play();
+    this.tryShowThought();
+  }
+
+  private tryShowThought(): void {
+    if (this.dialogueRunner.isActive()) return;
+    const id = pickThoughtId('tortoise_burrow', this.gameState);
+    if (!id) return;
+    const line = this.dialogueRunner.start(id);
+    if (line) {
+      this.scruff.setTalking(true);
+      this.dialogueBubble.show(line, this.scruff.x, this.scruff.y - 130);
+      this.dialogueBubble.onSkip = () => this.advanceDialogue();
+      this.gameState.markThoughtShown(id);
+    }
   }
 
   update(_deltaMs: number): void {

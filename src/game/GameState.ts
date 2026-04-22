@@ -42,12 +42,16 @@ interface SerializedState {
   flags: FlagId[];
   currentScene: SceneId;
   visitedScenes: SceneId[];
+  playedDialogueLines?: string[];
+  shownThoughts?: string[];
 }
 
 export class GameState {
   private inventory: Set<ItemId> = new Set();
   private flags: Set<FlagId> = new Set();
   private visitedScenes: Set<SceneId> = new Set(['scrub_thicket']);
+  private playedDialogueLines: Set<string> = new Set();
+  private shownThoughts: Set<string> = new Set();
   currentScene: SceneId = 'scrub_thicket';
 
   getInventory(): ItemId[] {
@@ -91,12 +95,38 @@ export class GameState {
     return [...this.visitedScenes];
   }
 
+  /** Mark a dialogue line as having played to completion — gates skip-button access. */
+  markLinePlayed(key: string): void {
+    if (!this.playedDialogueLines.has(key)) {
+      this.playedDialogueLines.add(key);
+      this.save();
+    }
+  }
+
+  hasLinePlayed(key: string): boolean {
+    return this.playedDialogueLines.has(key);
+  }
+
+  /** Mark a Scruff thought as shown — scenes use this to avoid repeating hints. */
+  markThoughtShown(id: string): void {
+    if (!this.shownThoughts.has(id)) {
+      this.shownThoughts.add(id);
+      this.save();
+    }
+  }
+
+  hasShownThought(id: string): boolean {
+    return this.shownThoughts.has(id);
+  }
+
   serialize(): string {
     const data: SerializedState = {
       inventory: [...this.inventory],
       flags: [...this.flags],
       currentScene: this.currentScene,
       visitedScenes: [...this.visitedScenes],
+      playedDialogueLines: [...this.playedDialogueLines],
+      shownThoughts: [...this.shownThoughts],
     };
     return JSON.stringify(data);
   }
@@ -108,6 +138,8 @@ export class GameState {
     data.flags.forEach((flag) => state.setFlag(flag));
     data.visitedScenes.forEach((scene) => state.visitedScenes.add(scene));
     state.currentScene = data.currentScene;
+    data.playedDialogueLines?.forEach((key) => state.playedDialogueLines.add(key));
+    data.shownThoughts?.forEach((id) => state.shownThoughts.add(id));
     return state;
   }
 

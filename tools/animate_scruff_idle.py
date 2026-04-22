@@ -26,7 +26,7 @@ SOURCE_PNG = PROJECT_ROOT / "public" / "assets" / "characters" / "scruff-idle-fr
 OUTPUT_SHEET = PROJECT_ROOT / "public" / "assets" / "characters" / "scruff-idle-sheet.png"
 WORK_DIR = PROJECT_ROOT / "tools" / "_scruff_idle_work"
 FRAMES_PER_PASS = 25
-SEED = 789
+SEED = 8675
 
 # Character dimensions - will be scaled up for Wan (needs min ~480px)
 CHAR_W = 232
@@ -38,8 +38,8 @@ WAN_H = 528  # ~2x height, multiple of 16 -> actually 512 is closer. Let's use 4
 WAN_W = 480
 WAN_H = 544
 
-PROMPT = "cartoon bird preening feathers on green screen, bird turning head to groom chest feathers, gentle preening motion, closed beak tucked into feathers, natural bird grooming behavior"
-NEGATIVE = "open mouth, talking, beak opening, flying, walking, hopping, deformation, morphing, fast motion, large movement, extra limbs, text, watermark, blurry, new objects"
+PROMPT = "cartoon scrub jay on green screen, gentle breathing with subtle chest rise and fall, small tail flicks side to side, tiny feather ruffle, slight wing shimmer, natural calm idle animation, eyes stay the same small round black dots, head stays upright at the same height, loopable seamless idle cycle"
+NEGATIVE = "bowing, bending forward, dipping head, head lowering, leaning downward, crouching, wide eyes, widening eyes, eye size change, surprised expression, shocked face, open beak, open mouth, talking, flying away, walking, hopping, jumping, spinning, extra limbs, extra legs, text, watermark, blurry, new objects, character drift, color change, background change"
 
 
 def make_flf2v_workflow(start_image: str, end_image: str, prompt: str, negative: str,

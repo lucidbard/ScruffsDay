@@ -67,7 +67,12 @@ export class AmbientAudio {
   /** Pause playback. */
   pause(): void {
     this.playing = false;
-    this.audio?.pause();
+    if (this.audio) {
+      this.audio.pause();
+      // Reset position so the next play() starts cleanly and never overlaps
+      // with a lingering tail from the outgoing scene.
+      this.audio.currentTime = 0;
+    }
     this.stopCallDetection();
     if (this.inCall) {
       this.inCall = false;
@@ -78,6 +83,7 @@ export class AmbientAudio {
   /** Resume playback. */
   resume(): void {
     if (!this.audio) return;
+    this.playing = true;
     this.audio.play().catch(() => {});
     this.startCallDetection();
   }

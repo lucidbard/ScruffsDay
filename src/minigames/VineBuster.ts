@@ -689,65 +689,19 @@ export class VineBuster extends Scene {
     this.vines = [];
 
     if (this.round < 3) {
-      this.showFactPopup();
+      this.advanceRound();
     } else {
       this.showResult();
     }
   }
 
-  private showFactPopup(): void {
-    const facts = [
-      'Did you know? Air potato is an invasive vine from Asia that can grow 8 inches per day!',
-      'Did you know? Native grape vines provide food for birds and small mammals!',
-      'Did you know? Sand pines are specially adapted to Florida\'s dry, sandy soil!',
-    ];
-    const fact = facts[this.round - 1] || facts[0];
-
-    const overlay = new Container();
-    const bg = new Graphics();
-    bg.roundRect(200, 200, 880, 300, 20);
-    bg.fill({ color: 0xfff8dc });
-    bg.stroke({ width: 4, color: 0x3e2723 });
-    overlay.addChild(bg);
-
-    const text = new Text({
-      text: fact,
-      style: new TextStyle({
-        fontSize: 24,
-        fill: '#3E2723',
-        wordWrap: true,
-        wordWrapWidth: 820,
-        lineHeight: 32,
-        fontFamily: 'Arial, sans-serif',
-      }),
-    });
-    text.position.set(230, 230);
-    overlay.addChild(text);
-
-    const tapText = new Text({
-      text: 'Tap to continue...',
-      style: new TextStyle({
-        fontSize: 18,
-        fill: '#999999',
-        fontStyle: 'italic',
-        fontFamily: 'Arial, sans-serif',
-      }),
-    });
-    tapText.position.set(500, 440);
-    overlay.addChild(tapText);
-
-    bg.eventMode = 'static';
-    bg.on('pointertap', () => {
-      this.container.removeChild(overlay);
-      this.round++;
-      this.roundTimer = 30;
-      this.spawnTimer = 0;
-      this.spawnInterval = Math.max(0.5, this.spawnInterval - 0.3);
-      this.gameActive = true;
-      this.updateUI();
-    });
-
-    this.container.addChild(overlay);
+  private advanceRound(): void {
+    this.round++;
+    this.roundTimer = 30;
+    this.spawnTimer = 0;
+    this.spawnInterval = Math.max(0.5, this.spawnInterval - 0.3);
+    this.gameActive = true;
+    this.updateUI();
   }
 
   private showResult(): void {

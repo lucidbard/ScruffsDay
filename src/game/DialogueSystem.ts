@@ -1,6 +1,8 @@
-import { Assets, Container, Graphics, Sprite, Text, Texture, TextStyle } from 'pixi.js';
+import { Assets, Container, Graphics, Sprite, Text, Texture, TextStyle, Ticker } from 'pixi.js';
+import { DialogueVoice } from './DialogueVoice';
 import type { TweenManager } from './Tween';
 import { Easing } from './Tween';
+import type { GameState } from './GameState';
 
 export interface DialogueLine {
   text: string;
@@ -20,6 +22,11 @@ export type DialogueData = Record<string, DialogueNode>;
 export interface ActiveLine {
   speaker: string;
   text: string;
+  audioPath: string;
+}
+
+function audioPathFor(nodeId: string, lineIndex: number): string {
+  return `assets/sounds/dialogue/${nodeId}__${lineIndex.toString().padStart(2, '0')}.wav`;
 }
 
 export class DialogueRunner {
@@ -27,6 +34,7 @@ export class DialogueRunner {
   private checkFlag: (flag: string) => boolean;
   private onSetFlag: ((flag: string) => void) | null;
   private currentNode: DialogueNode | null = null;
+  private currentNodeId: string | null = null;
   private lineIndex = 0;
   private active = false;
 
@@ -40,6 +48,7 @@ export class DialogueRunner {
     const node = this.data[nodeId];
     if (!node) return null;
     this.currentNode = node;
+    this.currentNodeId = nodeId;
     this.lineIndex = 0;
     this.active = true;
     return this.getCurrentLine();
@@ -56,6 +65,7 @@ export class DialogueRunner {
       }
       this.active = false;
       this.currentNode = null;
+      this.currentNodeId = null;
     }
     return line;
   }
@@ -69,11 +79,15 @@ export class DialogueRunner {
   }
 
   private getCurrentLine(): ActiveLine | null {
-    if (!this.currentNode) return null;
+    if (!this.currentNode || !this.currentNodeId) return null;
     while (this.lineIndex < this.currentNode.lines.length) {
       const line = this.currentNode.lines[this.lineIndex];
       if (line.condition === null || this.checkFlag(line.condition)) {
-        return { speaker: this.currentNode.speaker, text: line.text };
+        return {
+          speaker: this.currentNode.speaker,
+          text: line.text,
+          audioPath: audioPathFor(this.currentNodeId, this.lineIndex),
+        };
       }
       this.lineIndex++;
     }
@@ -99,7 +113,7 @@ export class DialogueBubble {
   private label = new Text({
     text: '',
     style: new TextStyle({
-      fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+      fontFamily: "'Fredoka', 'Comic Sans MS', sans-serif",
       fontSize: 24,
       fill: '#2B1B17',
       wordWrap: true,
@@ -110,7 +124,7 @@ export class DialogueBubble {
   private speakerLabel = new Text({
     text: '',
     style: new TextStyle({
-      fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+      fontFamily: "'Fredoka', 'Comic Sans MS', sans-serif",
       fontSize: 20,
       fontWeight: 'bold',
       fill: '#1a5276',
@@ -119,16 +133,115 @@ export class DialogueBubble {
   private tapPrompt = new Text({
     text: 'tap to continue...',
     style: new TextStyle({
-      fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+      fontFamily: "'Fredoka', 'Comic Sans MS', sans-serif",
       fontSize: 15,
       fill: '#5D4037',
       fontStyle: 'italic',
     }),
   });
+  private skipButton = new Container();
+  private voice = new DialogueVoice();
+  private tapOverlay = new Graphics();
+  private countdownRing = new Graphics();
+  private currentLineKey: string | null = null;
+  private tickerUpdate: (() => void) | null = null;
+  /** Called when the user hits the skip arrow. Scenes should advance dialogue. */
+  onSkip: (() => void) | null = null;
 
-  constructor() {
-    this.container.addChild(this.bg, this.textBg, this.speakerLabel, this.label, this.tapPrompt);
+  constructor(private gameState?: GameState) {
+    // Full-screen invisible hit area — tap anywhere to advance (when allowed)
+    this.tapOverlay.rect(0, 0, 1280, 720);
+    this.tapOverlay.fill({ color: 0x000000, alpha: 0.001 });
+    this.tapOverlay.eventMode = 'static';
+    this.tapOverlay.on('pointertap', (e) => {
+      e.stopPropagation();
+      if (this.canAdvance()) {
+        this.onSkip?.(); // reuse onSkip callback — scene's advanceDialogue
+      }
+    });
+    this.tapOverlay.visible = false;
+
+    this.buildSkipButton();
+    // Order: fullscreen tap layer at index 0 (behind bubble), then bg, labels, countdown, skip
+    this.container.addChild(
+      this.tapOverlay,
+      this.bg,
+      this.textBg,
+      this.speakerLabel,
+      this.label,
+      this.tapPrompt,
+      this.countdownRing,
+      this.skipButton,
+    );
     this.container.visible = false;
+
+    // Tick progress while visible
+    this.tickerUpdate = () => this.updateCountdown();
+    Ticker.shared.add(this.tickerUpdate);
+  }
+
+  private buildSkipButton(): void {
+    const bg = new Graphics();
+    bg.roundRect(-18, -14, 36, 28, 8);
+    bg.fill({ color: 0x3E2723, alpha: 0.35 });
+    const arrow = new Text({
+      text: '\u00BB',
+      style: new TextStyle({
+        fontFamily: "'Fredoka', 'Comic Sans MS', sans-serif",
+        fontSize: 22,
+        fontWeight: 'bold',
+        fill: '#FFF8DC',
+      }),
+    });
+    arrow.anchor.set(0.5, 0.5);
+    this.skipButton.addChild(bg, arrow);
+    this.skipButton.eventMode = 'static';
+    this.skipButton.cursor = 'pointer';
+    this.skipButton.on('pointertap', (e) => {
+      e.stopPropagation();
+      this.voice.cut();
+      this.onSkip?.();
+    });
+  }
+
+  /** True when the current line may be advanced by tap (audio done + min time). */
+  canAdvance(): boolean {
+    return this.voice.canAdvance();
+  }
+
+  private setTapPromptReady(ready: boolean): void {
+    this.tapPrompt.alpha = ready ? 1 : 0.25;
+  }
+
+  private updateSkipVisibility(): void {
+    const played = this.currentLineKey
+      ? !!this.gameState?.hasLinePlayed(this.currentLineKey)
+      : false;
+    this.skipButton.visible = played;
+  }
+
+  /** Draw a small filling pie next to the tap prompt as audio + min timer progress. */
+  private updateCountdown(): void {
+    if (!this.container.visible) {
+      this.countdownRing.clear();
+      return;
+    }
+    const p = this.voice.getProgress();
+    // Position: right of the tap prompt text, one line up from bottom
+    const cx = this.tapPrompt.position.x + this.tapPrompt.width + 18;
+    const cy = this.tapPrompt.position.y + this.tapPrompt.height / 2;
+    const r = 9;
+    this.countdownRing.clear();
+    // Outer ring
+    this.countdownRing.circle(cx, cy, r);
+    this.countdownRing.stroke({ width: 2, color: 0x3E2723, alpha: 0.55 });
+    // Filled sector
+    if (p > 0) {
+      this.countdownRing.moveTo(cx, cy);
+      this.countdownRing.arc(cx, cy, r - 1, -Math.PI / 2, -Math.PI / 2 + p * Math.PI * 2);
+      this.countdownRing.lineTo(cx, cy);
+      this.countdownRing.fill({ color: p >= 1 ? 0x2E8B57 : 0xFFD54F, alpha: 0.95 });
+    }
   }
 
   private ensureBgSprite(): void {
@@ -142,10 +255,25 @@ export class DialogueBubble {
     }
   }
 
-  show(speaker: string, text: string, x: number, y: number): void {
+  show(line: ActiveLine | { speaker: string; text: string; audioPath?: string }, x: number, y: number): void {
     this.ensureBgSprite();
-    this.speakerLabel.text = speaker;
-    this.label.text = text;
+    this.speakerLabel.text = line.speaker;
+    this.label.text = line.text;
+    this.setTapPromptReady(false);
+
+    // Derive per-line key from audioPath (e.g. "assets/sounds/dialogue/tutorial__00.wav" → "tutorial__00")
+    const key = line.audioPath ? line.audioPath.replace(/^.*\/([^/]+)\.wav$/, '$1') : null;
+    this.currentLineKey = key;
+    this.updateSkipVisibility();
+
+    this.voice.play(line.audioPath ?? null, () => {
+      // Natural completion only — skip-cut doesn't mark played
+      if (key && this.gameState) {
+        this.gameState.markLinePlayed(key);
+        this.updateSkipVisibility();
+      }
+    });
+    this.voice.onReady(() => this.setTapPromptReady(true));
 
     const padding = 16;
     const contentWidth = Math.max(this.label.width, this.speakerLabel.width, 200);
@@ -173,6 +301,7 @@ export class DialogueBubble {
       this.speakerLabel.position.set(innerPad, innerPad);
       this.label.position.set(innerPad, innerPad + this.speakerLabel.height + 8);
       this.tapPrompt.position.set(innerPad, innerPad + this.speakerLabel.height + 8 + this.label.height + 8);
+      this.skipButton.position.set(innerPad + contentWidth - 18, innerPad + contentHeight - 14);
 
       // The tail tip in the bubble image is near the bottom-left.
       // Position so the tail points at the speaker, clamped to stay on-screen.
@@ -194,15 +323,21 @@ export class DialogueBubble {
       this.speakerLabel.position.set(padding, padding);
       this.label.position.set(padding, padding + this.speakerLabel.height + 8);
       this.tapPrompt.position.set(padding, padding + this.speakerLabel.height + 8 + this.label.height + 8);
+      this.skipButton.position.set(bubbleWidth - padding - 18, bubbleHeight - padding - 14);
 
       this.container.position.set(x - bubbleWidth / 2, y - bubbleHeight - 20);
     }
 
+    this.tapOverlay.visible = true;
     this.container.visible = true;
   }
 
   hide(): void {
+    this.voice.stop();
     this.container.visible = false;
+    this.tapOverlay.visible = false;
+    this.countdownRing.clear();
     if (this.bgSprite) this.bgSprite.visible = false;
+    this.currentLineKey = null;
   }
 }

@@ -1,9 +1,14 @@
 import { Scene } from '../game/Scene';
+import { pickThoughtId } from '../game/ThoughtPicker';
 import { Scruff } from '../characters/Scruff';
 import { NPC } from '../characters/NPC';
 import { InteractiveItem } from '../game/InteractiveItem';
+import type { ItemConfig } from '../game/InteractiveItem';
+import { LayoutEditor, saveWalkableAreas } from '../game/LayoutEditor';
 import { SceneArrow } from '../game/SceneArrow';
 import { DialogueBubble, DialogueRunner } from '../game/DialogueSystem';
+import { ItemInspectCard } from '../game/ItemInspectCard';
+import { wireItemTap } from '../game/ItemCollector';
 import { WalkableArea, resolveEntryPoint } from '../game/WalkableArea';
 import { WalkableAreaDebug } from '../game/WalkableAreaDebug';
 import { ForegroundObject } from '../game/ForegroundObject';
@@ -25,10 +30,12 @@ export class CentralTrail extends Scene {
   private scruff!: Scruff;
   private sage!: NPC;
   private items: InteractiveItem[] = [];
+  private itemCard!: ItemInspectCard;
   private arrows: SceneArrow[] = [];
   private dialogueBubble!: DialogueBubble;
   private dialogueRunner!: DialogueRunner;
   private lastDialogueId: string | null = null;
+  private dialogueAnchor = { x: 0, y: 0 };
   private walkableArea!: WalkableArea;
   private upArrow!: SceneArrow;
   private signpost!: Container;
@@ -96,61 +103,23 @@ export class CentralTrail extends Scene {
           this.lastDialogueId = dialogueId;
           const line = this.dialogueRunner.start(dialogueId);
           if (line) {
-            this.dialogueBubble.show(
-              line.speaker,
-              line.text,
-              this.sage.container.x,
-              this.sage.container.y - 160,
-            );
+            this.showDialogueLine(line, this.sage.container.x, this.sage.container.y - 160);
           }
         });
     });
 
-    // 8. Collectible items (only if not already in inventory)
-    if (!this.gameState.hasItem('saw_palmetto_fronds') && this.gameState.getFlag('knows_saw_palmetto')) {
-      const palmetto = new InteractiveItem(
-        {
-          itemId: 'saw_palmetto_fronds',
-          texturePath: 'assets/items/saw-palmetto-fronds.png',
-          x: 900,
-          y: 470,
-          height: 100,
-        },
-        this.tweens,
-      );
-      await palmetto.setup();
-      this.items.push(palmetto);
-      this.depthContainer.addChild(palmetto.container);
-    }
-
-    if (!this.gameState.hasItem('chapman_oak_acorns')) {
-      const acorns = new InteractiveItem(
-        {
-          itemId: 'chapman_oak_acorns',
-          texturePath: 'assets/items/chapman-oak-acorns.png',
-          x: 200,
-          y: 480,
-        },
-        this.tweens,
-      );
-      await acorns.setup();
-      this.items.push(acorns);
-      this.depthContainer.addChild(acorns.container);
-    }
-
-    if (!this.gameState.hasItem('scrub_hickory_nuts')) {
-      const nuts = new InteractiveItem(
-        {
-          itemId: 'scrub_hickory_nuts',
-          texturePath: 'assets/items/scrub-hickory-nuts.png',
-          x: 700,
-          y: 500,
-        },
-        this.tweens,
-      );
-      await nuts.setup();
-      this.items.push(nuts);
-      this.depthContainer.addChild(nuts.container);
+    // 8. Collectible items (read from walkable-areas.json)
+    const itemConfigs = ((sceneData.items as (ItemConfig & { requiresFlag?: FlagId })[] | undefined) ?? []);
+    const itemIndexMap = new Map<InteractiveItem, number>();
+    for (let i = 0; i < itemConfigs.length; i++) {
+      const cfg = itemConfigs[i];
+      if (this.gameState.hasItem(cfg.itemId)) continue;
+      if (cfg.requiresFlag && !this.gameState.getFlag(cfg.requiresFlag)) continue;
+      const item = new InteractiveItem(cfg, this.tweens);
+      await item.setup();
+      this.items.push(item);
+      itemIndexMap.set(item, i);
+      this.depthContainer.addChild(item.container);
     }
 
     // 9. Foreground objects
@@ -168,80 +137,28 @@ export class CentralTrail extends Scene {
       (flag: string) => this.gameState.getFlag(flag as FlagId),
       (flag: string) => this.gameState.setFlag(flag as FlagId),
     );
-    this.dialogueBubble = new DialogueBubble();
+    this.dialogueBubble = new DialogueBubble(this.gameState);
     this.container.addChild(this.dialogueBubble.container);
 
-    // 11. Navigation arrows (above depthContainer)
-
-    // Down -> Tortoise Burrow
-    const downArrow = new SceneArrow(
-      'down',
-      'tortoise_burrow',
-      'Tortoise Burrow',
-      620,
-      660,
-      this.tweens,
-    );
-    downArrow.container.on('pointertap', () => {
-      if (!this.scruff.isMoving() && !this.dialogueRunner.isActive()) {
-        this.onSceneChange?.('tortoise_burrow');
-      }
-    });
-    this.arrows.push(downArrow);
-    this.container.addChild(downArrow.container);
-
-    // Left -> Pine Clearing
-    const leftArrow = new SceneArrow(
-      'left',
-      'pine_clearing',
-      'Pine Clearing',
-      30,
-      360,
-      this.tweens,
-    );
-    leftArrow.container.on('pointertap', () => {
-      if (!this.scruff.isMoving() && !this.dialogueRunner.isActive()) {
-        this.onSceneChange?.('pine_clearing');
-      }
-    });
-    this.arrows.push(leftArrow);
-    this.container.addChild(leftArrow.container);
-
-    // Right -> Sandy Barrens
-    const rightArrow = new SceneArrow(
-      'right',
-      'sandy_barrens',
-      'Sandy Barrens',
-      1210,
-      360,
-      this.tweens,
-    );
-    rightArrow.container.on('pointertap', () => {
-      if (!this.scruff.isMoving() && !this.dialogueRunner.isActive()) {
-        this.onSceneChange?.('sandy_barrens');
-      }
-    });
-    this.arrows.push(rightArrow);
-    this.container.addChild(rightArrow.container);
-
-    // Up -> Owl's Overlook (conditionally visible)
-    this.upArrow = new SceneArrow(
-      'up',
-      'owls_overlook',
-      "Owl's Overlook",
-      620,
-      30,
-      this.tweens,
-    );
-    this.upArrow.container.on('pointertap', () => {
-      if (!this.scruff.isMoving() && !this.dialogueRunner.isActive()) {
-        this.onSceneChange?.('owls_overlook');
-      }
-    });
-    this.arrows.push(this.upArrow);
-    this.container.addChild(this.upArrow.container);
-    // Initially hidden; shown in enter() if sunny_helped is set
-    this.upArrow.container.visible = false;
+    // 11. Navigation arrows (read from walkable-areas.json)
+    const arrowConfigs = ((sceneData.arrows as { direction: 'left'|'right'|'up'|'down'; target: SceneId; label: string; x: number; y: number; requiresFlag?: FlagId; initiallyHidden?: boolean }[] | undefined) ?? []);
+    const arrowIndexMap = new Map<SceneArrow, number>();
+    for (let i = 0; i < arrowConfigs.length; i++) {
+      const cfg = arrowConfigs[i];
+      if (cfg.requiresFlag && !this.gameState.getFlag(cfg.requiresFlag)) continue;
+      const arrow = new SceneArrow(cfg.direction, cfg.target, cfg.label, cfg.x, cfg.y, this.tweens);
+      arrow.container.on('pointertap', () => {
+        if (!this.scruff.isMoving() && !this.dialogueRunner.isActive()) {
+          this.onSceneChange?.(cfg.target);
+        }
+      });
+      if (cfg.initiallyHidden) arrow.container.visible = false;
+      this.arrows.push(arrow);
+      arrowIndexMap.set(arrow, i);
+      // Track the up arrow so enter() can toggle visibility based on flags
+      if (cfg.target === 'owls_overlook') this.upArrow = arrow;
+      this.container.addChild(arrow.container);
+    }
 
     // 12. Signpost (tappable visual element at center — above depthContainer)
     this.signpost = new Container();
@@ -283,17 +200,18 @@ export class CentralTrail extends Scene {
     });
     this.container.addChild(this.signpost);
 
-    // 13. Item tap handlers
+    // 13. Item inspect card + tap handlers
+    this.itemCard = new ItemInspectCard();
+    this.container.addChild(this.itemCard.container);
     for (const item of this.items) {
-      item.container.on('pointertap', () => {
-        if (this.scruff.isMoving() || this.dialogueRunner.isActive()) return;
-        this.scruff.moveTo(item.container.x, item.container.y + 30).then(async () => {
-          await item.playCollect();
-          this.gameState.addItem(item.itemId);
-          await this.scruff.playPickup();
-          this.items = this.items.filter((i) => i !== item);
-        });
-      });
+      wireItemTap(
+        item,
+        this.itemCard,
+        this.scruff,
+        this.gameState,
+        () => this.scruff.isMoving() || this.dialogueRunner.isActive(),
+        (removed) => { this.items = this.items.filter((i) => i !== removed); },
+      );
     }
 
     // 14. Ground tap handler (background receives taps)
@@ -301,20 +219,9 @@ export class CentralTrail extends Scene {
     bg.on('pointertap', (e) => {
       if (this.scruff.isMoving()) return;
 
-      // While dialogue is active, advance it on tap
+      // While dialogue is active, advance it on tap (blocked until voice ends)
       if (this.dialogueRunner.isActive()) {
-        const nextLine = this.dialogueRunner.next();
-        if (nextLine) {
-          this.dialogueBubble.show(
-            nextLine.speaker,
-            nextLine.text,
-            this.sage.container.x,
-            this.sage.container.y - 160,
-          );
-        } else {
-          this.dialogueBubble.hide();
-          this.lastDialogueId = null;
-        }
+        if (this.dialogueBubble.canAdvance()) this.advanceDialogue();
         return;
       }
 
@@ -342,12 +249,46 @@ export class CentralTrail extends Scene {
         this.foregrounds,
       );
       this.container.addChild(debug.container);
+
+      const editor = new LayoutEditor(this.app, this.container, this.container);
+      for (const [arrow, idx] of arrowIndexMap) {
+        editor.attach({
+          id: `arrow[${idx}]`,
+          target: arrow.container,
+          onDrop: async (x, y) => { arrowConfigs[idx].x = x; arrowConfigs[idx].y = y; await saveWalkableAreas(); },
+        });
+      }
+      for (const [item, idx] of itemIndexMap) {
+        editor.attach({
+          id: `item[${idx}:${item.itemId}]`,
+          target: item.container,
+          color: 0xFFAA00,
+          onDrop: async (x, y) => { itemConfigs[idx].x = x; itemConfigs[idx].y = y; await saveWalkableAreas(); },
+        });
+      }
     }
 
     // 16. Perch debug overlay (editable in debug mode)
     if (WalkableAreaDebug.isEnabled()) {
       const perchOverlay = new PerchDebugOverlay(this.perchSystem, 'central_trail', [1376, 768]);
       this.container.addChild(perchOverlay.container);
+    }
+  }
+
+  private showDialogueLine(line: { speaker: string; text: string; audioPath: string }, x: number, y: number): void {
+    this.dialogueAnchor = { x, y };
+    this.dialogueBubble.show(line, x, y);
+    this.dialogueBubble.onSkip = () => this.advanceDialogue();
+  }
+
+  private advanceDialogue(): void {
+    const next = this.dialogueRunner.next();
+    if (next) {
+      this.showDialogueLine(next, this.dialogueAnchor.x, this.dialogueAnchor.y);
+    } else {
+      this.dialogueBubble.hide();
+      this.dialogueBubble.onSkip = null;
+      this.lastDialogueId = null;
     }
   }
 
@@ -384,6 +325,19 @@ export class CentralTrail extends Scene {
     // Resume animated background
     this.animBg?.resume();
     this.ambientAudio.play();
+    this.tryShowThought();
+  }
+
+  private tryShowThought(): void {
+    if (this.dialogueRunner.isActive()) return;
+    const id = pickThoughtId('central_trail', this.gameState);
+    if (!id) return;
+    const line = this.dialogueRunner.start(id);
+    if (line) {
+      this.scruff.setTalking(true);
+      this.showDialogueLine(line, this.scruff.x, this.scruff.y - 130);
+      this.gameState.markThoughtShown(id);
+    }
   }
 
   update(_deltaMs: number): void {

@@ -21,12 +21,12 @@ const MAP_W = 960;
 const MAP_H = 640;
 
 const LOCATIONS: TravelLocation[] = [
-  { id: 'owls_overlook', label: "Owl's Overlook", x: 0.52, y: 0.15 },
-  { id: 'pine_clearing', label: 'Pine Clearing', x: 0.22, y: 0.39 },
-  { id: 'central_trail', label: 'Central Trail', x: 0.5, y: 0.47 },
-  { id: 'sandy_barrens', label: 'Sandy Barrens', x: 0.8, y: 0.42 },
-  { id: 'scrub_thicket', label: 'Scrub Thicket', x: 0.23, y: 0.76 },
-  { id: 'tortoise_burrow', label: 'Tortoise Burrow', x: 0.5, y: 0.76 },
+  { id: 'owls_overlook', label: "Owl's Overlook", x: 0.43, y: 0.13 },
+  { id: 'pine_clearing', label: 'Pine Clearing', x: 0.13, y: 0.20 },
+  { id: 'central_trail', label: 'Central Trail', x: 0.45, y: 0.50 },
+  { id: 'sandy_barrens', label: 'Sandy Barrens', x: 0.78, y: 0.20 },
+  { id: 'scrub_thicket', label: 'Scrub Thicket', x: 0.20, y: 0.83 },
+  { id: 'tortoise_burrow', label: 'Tortoise Burrow', x: 0.78, y: 0.72 },
 ];
 
 export class FastTravelMapOverlay {
@@ -72,7 +72,7 @@ export class FastTravelMapOverlay {
     const subtitle = new Text({
       text: 'Pick a destination',
       style: new TextStyle({
-        fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+        fontFamily: "'Fredoka', 'Comic Sans MS', sans-serif",
         fontSize: 20,
         fill: '#5D4037',
       }),
@@ -124,7 +124,7 @@ export class FastTravelMapOverlay {
     const label = new Text({
       text: location.label,
       style: new TextStyle({
-        fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+        fontFamily: "'Fredoka', 'Comic Sans MS', sans-serif",
         fontSize: 20,
         fill: '#FFFFFF',
         fontWeight: 'bold',
