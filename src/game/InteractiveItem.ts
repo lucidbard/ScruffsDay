@@ -35,10 +35,11 @@ export class InteractiveItem {
     this.sprite.anchor.set(0.5, 1);
     // Default collectible size bumped for kid-visibility; can still be overridden.
     const targetHeight = this.config.height ?? 80;
-    const scale = targetHeight / texture.height;
-    this.sprite.scale.set(scale);
+    // Set width/height explicitly (Pixi applies correct internal scale).
+    this.sprite.height = targetHeight;
+    this.sprite.width = targetHeight * (texture.width / texture.height);
     console.info(
-      `[InteractiveItem ${this.config.itemId}] texture ${texture.width}x${texture.height}, targetHeight=${targetHeight}, scale=${scale.toFixed(4)}, displayed ≈ ${Math.round(texture.width * scale)}x${Math.round(texture.height * scale)}`,
+      `[InteractiveItem ${this.config.itemId}] texture ${texture.width}x${texture.height}, targetHeight=${targetHeight}, sprite=${Math.round(this.sprite.width)}x${Math.round(this.sprite.height)}`,
     );
 
     // Halo scaled tight to the item — previously had a hard 80px floor that
