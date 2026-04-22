@@ -78,7 +78,7 @@
     "speaker": "Pip",
     "lines": [
       { "text": "SCRUB HICKORY NUTS! Oh my oh my oh my!", "condition": null },
-      { "text": "*munch munch munch* These are PERFECT!", "condition": null },
+      { "text": "Mmm, these are PERFECT!", "condition": null },
       { "text": "Here, take this map I found. It shows where the rare plants grow!", "condition": null }
     ],
     "next": null
@@ -86,7 +86,7 @@
   "pip_after": {
     "speaker": "Pip",
     "lines": [
-      { "text": "*munch* Still working on these nuts! They're so good!", "condition": null },
+      { "text": "Still working on these nuts! They're so good!", "condition": null },
       { "text": "That map should help you find what you need. Good luck up there!", "condition": null }
     ],
     "next": null
@@ -94,7 +94,7 @@
   "sunny_intro": {
     "speaker": "Sunny",
     "lines": [
-      { "text": "*yaaawn* Oh... hello there, little bird...", "condition": null },
+      { "text": "Oh... hello there, little bird...", "condition": null },
       { "text": "I'm so cold... all this overgrowth is blocking the sun from the sand.", "condition": null },
       { "text": "I need open, warm sand to bask on. These invasive plants ruined my spot.", "condition": null },
       { "text": "If only someone could plant some native ground cover to replace them...", "condition": null }
@@ -113,7 +113,7 @@
   "sunny_after": {
     "speaker": "Sunny",
     "lines": [
-      { "text": "*stretches luxuriously* Ahhhh, warm sand at last!", "condition": null },
+      { "text": "Ahhhh, warm sand at last!", "condition": null },
       { "text": "The native plants are settling in nicely. Thank you, friend!", "condition": null },
       { "text": "The path to the overlook is clear now. Sage is waiting for you up there!", "condition": null }
     ],
