@@ -49,19 +49,24 @@ export class NPC {
 
     try {
       const sheet = await Assets.load(sheetPath);
-      if (sheet) {
+      if (sheet && sheet.source && sheet.source.width) {
+        // Infer per-frame width from sheet dimensions — some sheets were
+        // exported at non-256 frame widths.
+        const inferredW = Math.floor(sheet.source.width / IDLE_FRAMES);
+        const frameW = inferredW > 0 ? inferredW : FRAME_SIZE;
         for (let i = 0; i < IDLE_FRAMES; i++) {
           this.idleFrames.push(new Texture({
             source: sheet.source,
-            frame: new Rectangle(i * FRAME_SIZE, 0, FRAME_SIZE, FRAME_SIZE),
+            frame: new Rectangle(i * frameW, 0, frameW, FRAME_SIZE),
           }));
         }
         baseTexture = this.idleFrames[0];
+        console.info(`[NPC ${this.config.id}] idle sheet loaded: ${this.idleFrames.length} frames @ ${frameW}x${FRAME_SIZE}`);
       } else {
         throw new Error('no sheet');
       }
-    } catch {
-      // Fall back to static texture
+    } catch (err) {
+      console.info(`[NPC ${this.config.id}] no idle sheet (${err}), using static texture`);
       baseTexture = await Assets.load(this.config.texturePath);
     }
 
@@ -136,6 +141,32 @@ export class NPC {
 
   applyDepthScale(factor: number): void {
     this.container.scale.set(factor);
+  }
+
+  private talkBobTweenId: number | null = null;
+
+  /**
+   * Visual "I'm talking" cue — a gentle scale pulse layered on top of the
+   * idle sheet. Real mouth animation would be a separate sheet; this is a
+   * lightweight substitute so the player can tell who's speaking.
+   */
+  setTalking(talking: boolean): void {
+    if (talking) {
+      if (this.talkBobTweenId !== null) return;
+      const baseX = Math.abs(this.sprite.scale.x);
+      const baseY = Math.abs(this.sprite.scale.y);
+      this.talkBobTweenId = this.tweens.add({
+        target: this.sprite.scale as unknown as Record<string, number>,
+        props: { x: baseX * 1.06, y: baseY * 1.06 },
+        duration: 180,
+        yoyo: true,
+        loop: true,
+        easing: Easing.easeInOut,
+      });
+    } else if (this.talkBobTweenId !== null) {
+      this.tweens.cancel(this.talkBobTweenId);
+      this.talkBobTweenId = null;
+    }
   }
 
   playHappy(): Promise<void> {

@@ -10,6 +10,7 @@ import type { SceneId } from './GameState';
 export class SceneArrow {
   readonly container = new Container();
   readonly targetScene: SceneId;
+  readonly direction: 'left' | 'right' | 'up' | 'down';
 
   constructor(
     direction: 'left' | 'right' | 'up' | 'down',
@@ -20,6 +21,7 @@ export class SceneArrow {
     tweens: TweenManager
   ) {
     this.targetScene = targetScene;
+    this.direction = direction;
 
     const isHorizontal = direction === 'left' || direction === 'right';
 
@@ -32,6 +34,18 @@ export class SceneArrow {
     this.container.position.set(x, y);
     this.container.eventMode = 'static';
     this.container.cursor = 'pointer';
+    // Generous hit area for kid-sized fingers — ~50 px margin all around the sign.
+    const signW = isHorizontal ? 160 : 150;
+    const signH = isHorizontal ? 40 : 56;
+    const pad = 50;
+    this.container.hitArea = {
+      contains: (lx: number, ly: number) => {
+        // Local coords are relative to the container pivot (sign center).
+        const halfW = signW / 2 + pad;
+        const halfH = signH / 2 + pad;
+        return lx >= -halfW && lx <= halfW && ly >= -halfH && ly <= halfH;
+      },
+    };
 
     // Gentle sway animation
     tweens.add({

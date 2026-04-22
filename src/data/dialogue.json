@@ -245,5 +245,33 @@
       { "text": "Lyonia flowers, Chapman oak acorns, Flicker's feather, Pip's map — Sage wants proof of our work.", "condition": null }
     ],
     "next": null
+  },
+  "obs_sand_pine": {
+    "speaker": "Scruff",
+    "lines": [
+      { "text": "A sand pine! Tall and skinny. They keep their seeds locked up tight until fire sets them free.", "condition": null }
+    ],
+    "next": null
+  },
+  "obs_saw_palmetto_bush": {
+    "speaker": "Scruff",
+    "lines": [
+      { "text": "Saw palmetto. My favorite shade on hot days. Those berries feed half the preserve.", "condition": null }
+    ],
+    "next": null
+  },
+  "obs_scrub_oak": {
+    "speaker": "Scruff",
+    "lines": [
+      { "text": "A Chapman scrub oak. Tiny acorns but mighty roots — it helps hold the sand in place.", "condition": null }
+    ],
+    "next": null
+  },
+  "obs_prickly_pear": {
+    "speaker": "Scruff",
+    "lines": [
+      { "text": "Careful — prickly pear! Spiny, but the yellow flowers are gorgeous in spring.", "condition": null }
+    ],
+    "next": null
   }
 }

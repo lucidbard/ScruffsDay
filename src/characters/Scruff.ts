@@ -162,6 +162,23 @@ export class Scruff {
     this.container.scale.set(factor);
   }
 
+  /**
+   * Convenience: fly off-screen in a cardinal direction and shrink away.
+   * Use for scene-exit animations so Scruff heads toward the target scene
+   * rather than landing on the signpost.
+   */
+  flyOffInDirection(dir: 'left' | 'right' | 'up' | 'down'): Promise<void> {
+    const offX =
+      dir === 'left' ? -120 :
+      dir === 'right' ? 1400 :
+      this.container.x;
+    const offY =
+      dir === 'up' ? -120 :
+      dir === 'down' ? 840 :
+      this.container.y;
+    return this.flyToAndShrink(offX, offY, 0.18);
+  }
+
   /** Shrink into distance for scene exit transitions. */
   async flyToAndShrink(targetX: number, targetY: number, targetScale = 0.2): Promise<void> {
     this.moving = true;

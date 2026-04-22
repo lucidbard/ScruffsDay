@@ -112,12 +112,14 @@ export class SceneManager {
       // Notify listeners
       this.onSceneSwitch?.(id);
 
-      // Fade in
+      // Fade in — longer than fade-out so the arrival fly-in animation is
+      // visible through the reveal. Scruff starts off-screen and flies to the
+      // entry point; if the fade-in is too fast he "appears" at rest.
       await new Promise<void>((resolve) => {
         this.tweens.add({
           target: overlay as unknown as Record<string, number>,
           props: { alpha: 0 },
-          duration: 300,
+          duration: 800,
           easing: Easing.easeInOut,
           onComplete: () => {
             this.container.removeChild(overlay);

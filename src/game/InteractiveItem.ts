@@ -33,12 +33,19 @@ export class InteractiveItem {
     const texture = await Assets.load(this.config.texturePath);
     this.sprite = new Sprite(texture);
     this.sprite.anchor.set(0.5, 1);
-    const targetHeight = this.config.height ?? 48;
+    // Default collectible size bumped for kid-visibility; can still be overridden.
+    const targetHeight = this.config.height ?? 110;
     const scale = targetHeight / texture.height;
     this.sprite.scale.set(scale);
 
-    this.glow.circle(0, -targetHeight / 2, Math.max(30, targetHeight * 0.4));
-    this.glow.fill({ color: 0xFFD700, alpha: 0.15 });
+    // Two-layer halo: soft outer wash + crisp inner ring — much more obvious
+    // to young players than a thin glow.
+    const outerR = Math.max(80, targetHeight * 0.9);
+    const innerR = Math.max(50, targetHeight * 0.55);
+    this.glow.circle(0, -targetHeight / 2, outerR);
+    this.glow.fill({ color: 0xFFE066, alpha: 0.35 });
+    this.glow.circle(0, -targetHeight / 2, innerR);
+    this.glow.stroke({ width: 6, color: 0xFFB300, alpha: 0.8 });
     this.container.addChild(this.glow, this.sprite);
     this.container.position.set(this.config.x, this.config.y);
     this.container.eventMode = "static";
@@ -49,7 +56,7 @@ export class InteractiveItem {
   private startGlowPulse(): void {
     this.glowTweenId = this.tweens.add({
       target: this.glow.scale as unknown as Record<string, number>,
-      props: { x: 1.4, y: 1.4 },
+      props: { x: 1.3, y: 1.3 },
       duration: 900,
       yoyo: true,
       loop: true,
@@ -58,11 +65,14 @@ export class InteractiveItem {
   }
 
   setProximity(near: boolean): void {
-    const targetHeight = this.config.height ?? 48;
-    const r = Math.max(30, targetHeight * 0.4);
+    const targetHeight = this.config.height ?? 110;
+    const outerR = Math.max(80, targetHeight * 0.9);
+    const innerR = Math.max(50, targetHeight * 0.55);
     this.glow.clear();
-    this.glow.circle(0, -targetHeight / 2, near ? r * 1.2 : r);
-    this.glow.fill({ color: 0xFFD700, alpha: near ? 0.35 : 0.15 });
+    this.glow.circle(0, -targetHeight / 2, outerR);
+    this.glow.fill({ color: 0xFFE066, alpha: near ? 0.55 : 0.35 });
+    this.glow.circle(0, -targetHeight / 2, innerR);
+    this.glow.stroke({ width: near ? 8 : 6, color: 0xFFB300, alpha: near ? 0.95 : 0.8 });
   }
 
   playCollect(): Promise<void> {

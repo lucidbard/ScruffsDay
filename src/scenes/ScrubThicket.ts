@@ -17,7 +17,7 @@ import { PerchDebugOverlay } from '../game/PerchDebugOverlay';
 import { AmbientAudio } from '../game/AmbientAudio';
 import type { DepthScaleConfig } from '../game/DepthSort';
 import { AnimatedBackground } from '../game/AnimatedBackground';
-import { Sprite, Assets, Container, Texture } from 'pixi.js';
+import { Sprite, Assets, Container, Graphics, Texture } from 'pixi.js';
 import type { SceneId, FlagId, SceneDirection } from '../game/GameState';
 import dialogueData from '../data/dialogue.json';
 import walkableAreasData from '../data/walkable-areas.json';
@@ -123,8 +123,9 @@ export class ScrubThicket extends Scene {
       const arrow = new SceneArrow(cfg.direction, cfg.target, cfg.label, cfg.x, cfg.y, this.tweens);
       arrow.container.on('pointertap', () => {
         if (this.scruff.isMoving() || this.dialogueRunner.isActive()) return;
-        this.scruff.flyToAndShrink(arrow.container.x, arrow.container.y + 40, 0.3).then(() => {
-          this.onSceneChange?.(arrow.targetScene);
+        this.clearIdleHint();
+        this.scruff.flyOffInDirection(cfg.direction).then(() => {
+          this.onSceneChange?.(cfg.target);
         });
       });
       this.arrows.push(arrow);
@@ -144,6 +145,26 @@ export class ScrubThicket extends Scene {
         () => this.scruff.isMoving() || this.dialogueRunner.isActive(),
         (removed) => { this.items = this.items.filter((i) => i !== removed); },
       );
+    }
+
+    // 10b. Observation hotspots — tap a landmark, Scruff says something about it.
+    const observations = (sceneData.observations as { id: string; x: number; y: number; radius: number; dialogueId: string }[] | undefined) ?? [];
+    for (const obs of observations) {
+      const hit = new Graphics();
+      hit.circle(0, 0, obs.radius);
+      hit.fill({ color: 0x000000, alpha: 0.001 });
+      hit.position.set(obs.x, obs.y);
+      hit.eventMode = 'static';
+      hit.cursor = 'pointer';
+      hit.on('pointertap', () => {
+        if (this.scruff.isMoving() || this.dialogueRunner.isActive()) return;
+        const line = this.dialogueRunner.start(obs.dialogueId);
+        if (line) {
+          this.scruff.setTalking(true);
+          this.showDialogueLine(line, this.scruff.x, this.scruff.y - 130);
+        }
+      });
+      this.container.addChild(hit);
     }
 
     // 11. Ground tap handler (background receives taps)

@@ -138,6 +138,7 @@ export class TortoiseBurrow extends Scene {
           const line = this.dialogueRunner.start(dialogueId);
           if (line) {
             this.dialogueBubble.show(line, this.shelly.container.x, this.shelly.container.y - 120);
+            this.updateTalkingState(line.speaker);
             this.dialogueBubble.onSkip = () => this.advanceDialogue();
           }
         });
@@ -161,7 +162,7 @@ export class TortoiseBurrow extends Scene {
       const arrow = new SceneArrow(cfg.direction, cfg.target, cfg.label, cfg.x, cfg.y, this.tweens);
       arrow.container.on('pointertap', () => {
         if (!this.scruff.isMoving() && !this.dialogueRunner.isActive()) {
-          this.onSceneChange?.(cfg.target);
+          this.scruff.flyOffInDirection(cfg.direction).then(() => this.onSceneChange?.(cfg.target));
         }
       });
       this.arrows.push(arrow);
@@ -186,6 +187,7 @@ export class TortoiseBurrow extends Scene {
           const line = this.dialogueRunner.start('shelly_intro');
           if (line) {
             this.dialogueBubble.show(line, this.scruff.x, this.scruff.y - 100);
+            this.updateTalkingState(line.speaker);
             this.dialogueBubble.onSkip = () => this.advanceDialogue();
           }
         }
@@ -306,6 +308,7 @@ export class TortoiseBurrow extends Scene {
           const line = this.dialogueRunner.start(dialogueId);
           if (line) {
             this.dialogueBubble.show(line, this.pip.container.x, this.pip.container.y - 100);
+            this.updateTalkingState(line.speaker);
             this.dialogueBubble.onSkip = () => this.advanceDialogue();
           }
         });
@@ -468,6 +471,7 @@ export class TortoiseBurrow extends Scene {
           const line = this.dialogueRunner.start('shelly_intro');
           if (line) {
             this.dialogueBubble.show(line, this.scruff.x, this.scruff.y - 100);
+            this.updateTalkingState(line.speaker);
             this.dialogueBubble.onSkip = () => this.advanceDialogue();
           }
         }
@@ -494,11 +498,21 @@ export class TortoiseBurrow extends Scene {
         : this.shelly.container;
       const yOffset = this.isUnderground ? -100 : -120;
       this.dialogueBubble.show(nextLine, speakerContainer.x, speakerContainer.y + yOffset);
+      this.updateTalkingState(nextLine.speaker);
     } else {
       this.dialogueBubble.hide();
       this.dialogueBubble.onSkip = null;
+      this.updateTalkingState(null);
       void this.handleDialogueEnd();
     }
+  }
+
+  /** Toggle talking bob on the speaking NPC; stops all when null. */
+  private updateTalkingState(speaker: string | null): void {
+    this.shelly?.setTalking(speaker === 'Shelly');
+    this.pip?.setTalking(speaker === 'Pip');
+    if (speaker === 'Scruff') this.scruff.setTalking(true);
+    else this.scruff.setTalking(false);
   }
 
   private switchToUnderground(): void {
@@ -616,6 +630,7 @@ export class TortoiseBurrow extends Scene {
     if (line) {
       this.scruff.setTalking(true);
       this.dialogueBubble.show(line, this.scruff.x, this.scruff.y - 130);
+            this.updateTalkingState(line.speaker);
       this.dialogueBubble.onSkip = () => this.advanceDialogue();
       this.gameState.markThoughtShown(id);
     }

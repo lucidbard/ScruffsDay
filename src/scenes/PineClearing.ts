@@ -130,7 +130,7 @@ export class PineClearing extends Scene {
       const arrow = new SceneArrow(cfg.direction, cfg.target, cfg.label, cfg.x, cfg.y, this.tweens);
       arrow.container.on('pointertap', () => {
         if (!this.scruff.isMoving() && !this.dialogueRunner.isActive() && !this.activeMinigame) {
-          this.onSceneChange?.(cfg.target);
+          this.scruff.flyOffInDirection(cfg.direction).then(() => this.onSceneChange?.(cfg.target));
         }
       });
       this.arrows.push(arrow);
