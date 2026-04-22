@@ -125,11 +125,15 @@ export class TortoiseBurrow extends Scene {
       this.depthContainer.addChild(fg.container);
     }
 
-    // 8. Shelly tap handler
+    // 8. Shelly tap handler — Shelly faces right, so head is to the right of
+    // her container center. Bubble anchor x is offset +50 so the tail points
+    // at her head rather than her shell/tail. Scruff walks to her left side
+    // and slightly forward in depth so he renders on top of her.
     this.shelly.container.on('pointertap', () => {
       if (this.scruff.isMoving() || this.dialogueRunner.isActive()) return;
+      // Shelly faces right — walk Scruff to her right (where she's looking)
       this.scruff
-        .moveTo(this.shelly.container.x - 80, this.shelly.container.y)
+        .moveTo(this.shelly.container.x + 110, this.shelly.container.y + 20)
         .then(() => {
           const hasItem = this.gameState.hasItem('saw_palmetto_fronds');
           const isHelped = this.gameState.getFlag('shelly_helped');
@@ -137,7 +141,7 @@ export class TortoiseBurrow extends Scene {
           this.lastDialogueId = dialogueId;
           const line = this.dialogueRunner.start(dialogueId);
           if (line) {
-            this.dialogueBubble.show(line, this.shelly.container.x, this.shelly.container.y - 120);
+            this.dialogueBubble.show(line, this.shelly.container.x + 50, this.shelly.container.y - 150);
             this.updateTalkingState(line.speaker);
             this.dialogueBubble.onSkip = () => this.advanceDialogue();
           }
@@ -492,12 +496,15 @@ export class TortoiseBurrow extends Scene {
   private advanceDialogue(): void {
     const nextLine = this.dialogueRunner.next();
     if (nextLine) {
-      // Position bubble relative to whoever is speaking
+      // Position bubble relative to whoever is speaking. Shelly faces right
+      // so anchor offset +50 on X puts the tail near her head; Pip faces
+      // camera so center is fine.
       const speakerContainer = this.isUnderground
         ? this.pip.container
         : this.shelly.container;
-      const yOffset = this.isUnderground ? -100 : -120;
-      this.dialogueBubble.show(nextLine, speakerContainer.x, speakerContainer.y + yOffset);
+      const xOffset = this.isUnderground ? 0 : 50;
+      const yOffset = this.isUnderground ? -130 : -150;
+      this.dialogueBubble.show(nextLine, speakerContainer.x + xOffset, speakerContainer.y + yOffset);
       this.updateTalkingState(nextLine.speaker);
     } else {
       this.dialogueBubble.hide();

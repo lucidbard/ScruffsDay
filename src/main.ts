@@ -24,14 +24,19 @@ import { DebugPanel } from './game/DebugPanel';
 const GAME_WIDTH = 1280;
 const GAME_HEIGHT = 720;
 
+// Vite injects BASE_URL at build time; fall back to root for tests
+const BASE_URL: string =
+  (import.meta as unknown as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? '/';
+
 async function init() {
   const app = new Application();
   await app.init({
-    background: '#87CEEB',
+    // Transparent so the blurred scene-matte <div> behind the canvas fills
+    // the letterbox bars instead of a flat sky color.
+    backgroundAlpha: 0,
     resizeTo: window,
     resolution: window.devicePixelRatio || 1,
     autoDensity: true,
-    // Force WebGL renderer — Safari's WebGPU backend has had regressions.
     preference: 'webgl',
   });
   document.body.appendChild(app.canvas);
@@ -191,10 +196,16 @@ async function init() {
       window.innerHeight / GAME_HEIGHT
     );
     gameContainer.scale.set(scale);
-    // Anchor to top so a docked-bottom debug panel never overlaps game content
+    // Debug mode docks a panel at the bottom — keep game top-aligned so it
+    // doesn't overlap. Normal play centers vertically so letterboxing on
+    // iPad (4:3) is balanced top/bottom.
+    const debugActive = new URLSearchParams(window.location.search).get('debug');
+    const yOffset = debugActive
+      ? 0
+      : Math.max(0, (window.innerHeight - GAME_HEIGHT * scale) / 2);
     gameContainer.position.set(
       (window.innerWidth - GAME_WIDTH * scale) / 2,
-      0,
+      yOffset,
     );
   }
   window.addEventListener('resize', resize);
@@ -308,6 +319,24 @@ async function init() {
 
   // Hide menu during intro, show for all other scenes.
   // Inventory visibility is fully driven by the ticker (flag-based).
+  // Blurred background matte behind the letterboxed game — fills the dead
+  // space (especially on iPad 4:3) with a softly-blurred scaled-up copy of
+  // the current scene's background so the empty edges feel intentional.
+  const matteEl = document.getElementById('scene-matte');
+  const matteBgFor: Record<string, string> = {
+    splash: '',
+    intro: '',
+    scrub_thicket: 'assets/backgrounds/scrub-thicket-bg.png',
+    tortoise_burrow: 'assets/backgrounds/tortoise-burrow-bg.png',
+    central_trail: 'assets/backgrounds/central-trail-bg.png',
+    pine_clearing: 'assets/backgrounds/pine-clearing-bg.png',
+    sandy_barrens: 'assets/backgrounds/sandy-barrens-bg.png',
+    owls_overlook: 'assets/backgrounds/owls-overlook-bg.png',
+    vine_buster: 'assets/backgrounds/pine-clearing-bg.png',
+    seed_scatter: 'assets/backgrounds/sandy-barrens-bg.png',
+    night_watch: 'assets/backgrounds/owls-overlook-bg.png',
+  };
+
   const origOnSwitch = sceneManager.onSceneSwitch;
   sceneManager.onSceneSwitch = (id) => {
     fastTravelMap.hide();
@@ -316,6 +345,10 @@ async function init() {
       mapBtn.visible = false;
     } else {
       menuBtn.visible = true;
+    }
+    if (matteEl) {
+      const bg = matteBgFor[id];
+      matteEl.style.backgroundImage = bg ? `url('${BASE_URL}${bg}')` : '';
     }
     origOnSwitch?.(id);
   };
