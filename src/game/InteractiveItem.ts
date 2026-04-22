@@ -44,8 +44,10 @@ export class InteractiveItem {
 
     // Halo scaled tight to the item — previously had a hard 80px floor that
     // made small items (acorns, nuts) look huge.
-    const outerR = targetHeight * 0.75;
-    const innerR = targetHeight * 0.5;
+    // Halo bigger than the sprite so it reads as "something glowing under
+    // a small item" rather than a glow covering/hiding the item.
+    const outerR = targetHeight * 1.8;
+    const innerR = targetHeight * 1.2;
     this.glow.circle(0, -targetHeight / 2, outerR);
     this.glow.fill({ color: 0xFFE066, alpha: 0.35 });
     this.glow.circle(0, -targetHeight / 2, innerR);
@@ -80,8 +82,10 @@ export class InteractiveItem {
 
   setProximity(near: boolean): void {
     const targetHeight = this.config.height ?? 80;
-    const outerR = targetHeight * 0.75;
-    const innerR = targetHeight * 0.5;
+    // Halo bigger than the sprite so it reads as "something glowing under
+    // a small item" rather than a glow covering/hiding the item.
+    const outerR = targetHeight * 1.8;
+    const innerR = targetHeight * 1.2;
     this.glow.clear();
     this.glow.circle(0, -targetHeight / 2, outerR);
     this.glow.fill({ color: 0xFFE066, alpha: near ? 0.55 : 0.35 });
