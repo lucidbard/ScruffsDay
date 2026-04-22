@@ -34,7 +34,7 @@ export class InteractiveItem {
     this.sprite = new Sprite(texture);
     this.sprite.anchor.set(0.5, 1);
     // Default collectible size bumped for kid-visibility; can still be overridden.
-    const targetHeight = this.config.height ?? 110;
+    const targetHeight = this.config.height ?? 80;
     const scale = targetHeight / texture.height;
     this.sprite.scale.set(scale);
 
@@ -65,7 +65,7 @@ export class InteractiveItem {
   }
 
   setProximity(near: boolean): void {
-    const targetHeight = this.config.height ?? 110;
+    const targetHeight = this.config.height ?? 80;
     const outerR = Math.max(80, targetHeight * 0.9);
     const innerR = Math.max(50, targetHeight * 0.55);
     this.glow.clear();

@@ -125,6 +125,29 @@ export class TortoiseBurrow extends Scene {
       this.depthContainer.addChild(fg.container);
     }
 
+    // 7b. Surface observation hotspots — tap, Scruff says something.
+    const surfaceObs = (surfaceData.observations as { id: string; x: number; y: number; radius: number; dialogueId: string }[] | undefined) ?? [];
+    for (const obs of surfaceObs) {
+      const hit = new Graphics();
+      hit.circle(0, 0, obs.radius);
+      hit.fill({ color: 0x000000, alpha: 0.001 });
+      hit.position.set(obs.x, obs.y);
+      hit.eventMode = 'static';
+      hit.cursor = 'pointer';
+      hit.on('pointertap', () => {
+        if (this.scruff.isMoving() || this.dialogueRunner.isActive()) return;
+        const line = this.dialogueRunner.start(obs.dialogueId);
+        if (line) {
+          this.lastDialogueId = obs.dialogueId;
+          this.scruff.setTalking(true);
+          this.dialogueBubble.show(line, this.scruff.x, this.scruff.y - 130);
+          this.updateTalkingState(line.speaker);
+          this.dialogueBubble.onSkip = () => this.advanceDialogue();
+        }
+      });
+      this.surfaceContainer.addChild(hit);
+    }
+
     // 8. Shelly tap handler — Shelly faces right, so head is to the right of
     // her container center. Bubble anchor x is offset +50 so the tail points
     // at her head rather than her shell/tail. Scruff walks to her left side
@@ -510,7 +533,19 @@ export class TortoiseBurrow extends Scene {
       this.dialogueBubble.hide();
       this.dialogueBubble.onSkip = null;
       this.updateTalkingState(null);
+      const finishedId = this.lastDialogueId;
       void this.handleDialogueEnd();
+
+      // After Shelly explains her problem, Scruff reflects on where to find fronds.
+      if (finishedId === 'shelly_intro') {
+        const follow = this.dialogueRunner.start('scruff_after_shelly_intro');
+        if (follow) {
+          this.lastDialogueId = 'scruff_after_shelly_intro';
+          this.dialogueBubble.show(follow, this.scruff.x, this.scruff.y - 130);
+          this.updateTalkingState(follow.speaker);
+          this.dialogueBubble.onSkip = () => this.advanceDialogue();
+        }
+      }
     }
   }
 

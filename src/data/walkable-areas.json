@@ -97,18 +97,19 @@
     ],
     "items": [
       {
+        "itemId": "saw_palmetto_fronds",
+        "texturePath": "assets/items/saw-palmetto-fronds.png",
+        "x": 329,
+        "y": 545,
+        "height": 140,
+        "requiresFlag": "knows_saw_palmetto"
+      },
+      {
         "itemId": "rusty_lyonia_flowers",
         "texturePath": "assets/items/rusty-lyonia-flowers.png",
         "x": 510,
-        "y": 520,
-        "height": 110
+        "y": 520
       }
-    ],
-    "observations": [
-      { "id": "sand_pine", "x": 950, "y": 220, "radius": 90, "dialogueId": "obs_sand_pine" },
-      { "id": "saw_palmetto_bush", "x": 250, "y": 440, "radius": 80, "dialogueId": "obs_saw_palmetto_bush" },
-      { "id": "scrub_oak", "x": 900, "y": 400, "radius": 80, "dialogueId": "obs_scrub_oak" },
-      { "id": "prickly_pear", "x": 700, "y": 560, "radius": 70, "dialogueId": "obs_prickly_pear" }
     ]
   },
   "central_trail": {
@@ -221,8 +222,8 @@
   "tortoise_burrow": {
     "surface": {
       "burrow": {
-        "x": 658,
-        "y": 482,
+        "x": 638,
+        "y": 494,
         "rx": 90,
         "ry": 55
       },
@@ -315,6 +316,18 @@
           "x": 620,
           "y": 30
         }
+      ],
+      "foregrounds": [
+        {
+          "id": "brazilian_pepper_invasive",
+          "texturePath": "assets/items/brazilian-pepper-invasive.png",
+          "x": 638,
+          "y": 540,
+          "depthY": 540
+        }
+      ],
+      "observations": [
+        { "id": "brazilian_pepper", "x": 638, "y": 500, "radius": 100, "dialogueId": "obs_brazilian_pepper" }
       ]
     },
     "underground": {

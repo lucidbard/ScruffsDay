@@ -273,5 +273,19 @@
       { "text": "Careful — prickly pear! Spiny, but the yellow flowers are gorgeous in spring.", "condition": null }
     ],
     "next": null
+  },
+  "scruff_after_shelly_intro": {
+    "speaker": "Scruff",
+    "lines": [
+      { "text": "Saw palmetto fronds... I think I saw some growing out on the Central Trail. I'll fly over and bring some back!", "condition": null }
+    ],
+    "next": null
+  },
+  "obs_brazilian_pepper": {
+    "speaker": "Scruff",
+    "lines": [
+      { "text": "Brazilian pepper! This invasive bush is choking Shelly's burrow. We need to get rid of it someday.", "condition": null }
+    ],
+    "next": null
   }
 }

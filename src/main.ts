@@ -51,6 +51,15 @@ async function init() {
   hitArea.fill({ color: 0x000000, alpha: 0 });
   gameContainer.addChild(hitArea);
 
+  // Mask the game to its internal 1280x720 bounds so characters flying off-
+  // screen disappear at the scene edge instead of drifting out over the
+  // blurred matte behind the canvas.
+  const gameMask = new Graphics();
+  gameMask.rect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+  gameMask.fill({ color: 0xffffff });
+  gameContainer.addChild(gameMask);
+  gameContainer.mask = gameMask;
+
   // Preload item textures for inventory display
   const itemTexturePaths: Record<string, string> = {
     saw_palmetto_fronds: 'assets/items/saw-palmetto-fronds.png',
@@ -230,7 +239,7 @@ async function init() {
     const mapAvailable =
       activeSceneId !== 'splash' &&
       activeSceneId !== 'intro' &&
-      gameState.getFlag('fast_travel_unlocked');
+      gameState.hasItem('pip_map');
     mapBtn.visible = mapAvailable;
     if (!mapAvailable && fastTravelMap.isVisible()) {
       fastTravelMap.hide();

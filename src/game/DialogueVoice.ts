@@ -4,11 +4,16 @@
  * Missing files (404) resolve as "already ended" so the flow never stalls.
  */
 const MIN_DISPLAY_MS = 1500;
+// Fallback when audio never successfully plays — generous enough that a child
+// could read the bubble text at an unhurried pace.
+const FALLBACK_DISPLAY_MS = 6000;
 
 export class DialogueVoice {
   private audio: HTMLAudioElement | null = null;
   private lineStart = 0;
   private audioEnded = true;
+  private endedNaturally = false;
+  private hadAudioPath = false;
   private onReadyCb: (() => void) | null = null;
   private readyTimeout: number | null = null;
 
@@ -17,11 +22,12 @@ export class DialogueVoice {
     this.stopInternal();
     this.lineStart = performance.now();
     this.audioEnded = false;
+    this.endedNaturally = false;
+    this.hadAudioPath = !!audioPath;
     console.debug('[DialogueVoice] play', audioPath ?? '(no-audio)');
 
     if (!audioPath) {
       this.audioEnded = true;
-      // No audio = no natural completion (don't mark as "played through")
       this.maybeFireReady();
       return;
     }
@@ -31,16 +37,17 @@ export class DialogueVoice {
     a.addEventListener('ended', () => {
       console.debug('[DialogueVoice] ended naturally', audioPath);
       this.audioEnded = true;
+      this.endedNaturally = true;
       onCompleteNaturally?.();
       this.maybeFireReady();
     });
     a.addEventListener('error', (e) => {
-      console.warn('[DialogueVoice] audio error — treating as ended', audioPath, e);
+      console.warn('[DialogueVoice] audio error — fallback wait', audioPath, e);
       this.audioEnded = true;
       this.maybeFireReady();
     });
     a.play().catch((err) => {
-      console.warn('[DialogueVoice] play() rejected — treating as ended', audioPath, err);
+      console.warn('[DialogueVoice] play() rejected — fallback wait', audioPath, err);
       this.audioEnded = true;
       this.maybeFireReady();
     });
@@ -59,26 +66,36 @@ export class DialogueVoice {
   }
 
   /**
-   * Returns a 0..1 progress ratio combining audio completion and min-display timer.
-   * 1.0 means canAdvance() is (or will be) true.
+   * 0..1 progress toward canAdvance() being true. Matches the gate in
+   * canAdvance(): either audio-completion or a fallback timer.
    */
   getProgress(): number {
-    if (!this.audio && this.audioEnded) {
-      const elapsed = performance.now() - this.lineStart;
-      return Math.min(1, elapsed / MIN_DISPLAY_MS);
-    }
-    if (this.audio && this.audio.duration > 0) {
-      const audioRatio = Math.min(1, this.audio.currentTime / this.audio.duration);
-      const timerRatio = Math.min(1, (performance.now() - this.lineStart) / MIN_DISPLAY_MS);
-      return Math.min(audioRatio, timerRatio);
-    }
     const elapsed = performance.now() - this.lineStart;
-    return Math.min(1, elapsed / MIN_DISPLAY_MS);
+    if (!this.hadAudioPath) return Math.min(1, elapsed / MIN_DISPLAY_MS);
+    if (this.endedNaturally) return Math.min(1, elapsed / MIN_DISPLAY_MS);
+    if (this.audio && this.audio.duration > 0) {
+      return Math.min(
+        this.audio.currentTime / this.audio.duration,
+        elapsed / FALLBACK_DISPLAY_MS,
+      );
+    }
+    return Math.min(1, elapsed / FALLBACK_DISPLAY_MS);
   }
 
-  /** True when the line may be advanced (audio done AND min time elapsed). */
+  /**
+   * True when the line may be advanced by tap.
+   * - If audio was supposed to play and reached its natural 'ended' event →
+   *   gate is audio-done + 1.5 s min-display.
+   * - If audio had a path but never ended naturally (autoplay blocked, error,
+   *   play rejected) → use a generous 6 s fallback so young readers still get
+   *   time to read the bubble even when audio is silently broken.
+   * - If no audioPath was given at all → 1.5 s is fine.
+   */
   canAdvance(): boolean {
-    return this.audioEnded && performance.now() - this.lineStart >= MIN_DISPLAY_MS;
+    const elapsed = performance.now() - this.lineStart;
+    if (!this.hadAudioPath) return elapsed >= MIN_DISPLAY_MS;
+    if (this.endedNaturally) return elapsed >= MIN_DISPLAY_MS;
+    return elapsed >= FALLBACK_DISPLAY_MS;
   }
 
   /** Fires once when canAdvance() flips to true. Cleared on next play(). */
