@@ -209,13 +209,15 @@
         "itemId": "chapman_oak_acorns",
         "texturePath": "assets/items/chapman-oak-acorns.png",
         "x": 200,
-        "y": 480
+        "y": 480,
+        "height": 55
       },
       {
         "itemId": "scrub_hickory_nuts",
         "texturePath": "assets/items/scrub-hickory-nuts.png",
         "x": 700,
-        "y": 500
+        "y": 500,
+        "height": 55
       }
     ]
   },
