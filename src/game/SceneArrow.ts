@@ -104,10 +104,13 @@ export class SceneArrow {
       text: labelText,
       style: new TextStyle({
         fontFamily: "'Fredoka', 'Comic Sans MS', sans-serif",
-        fontSize: 18,
+        fontSize: 16,
         fill: '#FFF8DC',
         fontWeight: 'bold',
         align: 'center',
+        wordWrap: true,
+        wordWrapWidth: 110,
+        lineHeight: 18,
       }),
     });
     label.anchor.set(0.5, 0.5);
@@ -157,10 +160,13 @@ export class SceneArrow {
       text: labelText,
       style: new TextStyle({
         fontFamily: "'Fredoka', 'Comic Sans MS', sans-serif",
-        fontSize: 18,
+        fontSize: 16,
         fill: '#FFF8DC',
         fontWeight: 'bold',
         align: 'center',
+        wordWrap: true,
+        wordWrapWidth: 110,
+        lineHeight: 18,
       }),
     });
     label.anchor.set(0.5, 0.5);

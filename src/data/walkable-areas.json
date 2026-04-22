@@ -177,14 +177,14 @@
         "direction": "left",
         "target": "pine_clearing",
         "label": "Pine Clearing",
-        "x": 30,
+        "x": 95,
         "y": 360
       },
       {
         "direction": "right",
         "target": "sandy_barrens",
         "label": "Sandy Barrens",
-        "x": 1201,
+        "x": 1185,
         "y": 400
       },
       {
