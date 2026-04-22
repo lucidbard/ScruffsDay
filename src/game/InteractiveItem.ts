@@ -38,14 +38,14 @@ export class InteractiveItem {
     const scale = targetHeight / texture.height;
     this.sprite.scale.set(scale);
 
-    // Two-layer halo: soft outer wash + crisp inner ring — much more obvious
-    // to young players than a thin glow.
-    const outerR = Math.max(80, targetHeight * 0.9);
-    const innerR = Math.max(50, targetHeight * 0.55);
+    // Halo scaled tight to the item — previously had a hard 80px floor that
+    // made small items (acorns, nuts) look huge.
+    const outerR = targetHeight * 0.75;
+    const innerR = targetHeight * 0.5;
     this.glow.circle(0, -targetHeight / 2, outerR);
     this.glow.fill({ color: 0xFFE066, alpha: 0.35 });
     this.glow.circle(0, -targetHeight / 2, innerR);
-    this.glow.stroke({ width: 6, color: 0xFFB300, alpha: 0.8 });
+    this.glow.stroke({ width: 4, color: 0xFFB300, alpha: 0.8 });
     this.container.addChild(this.glow, this.sprite);
     this.container.position.set(this.config.x, this.config.y);
     this.container.eventMode = "static";
@@ -66,13 +66,13 @@ export class InteractiveItem {
 
   setProximity(near: boolean): void {
     const targetHeight = this.config.height ?? 80;
-    const outerR = Math.max(80, targetHeight * 0.9);
-    const innerR = Math.max(50, targetHeight * 0.55);
+    const outerR = targetHeight * 0.75;
+    const innerR = targetHeight * 0.5;
     this.glow.clear();
     this.glow.circle(0, -targetHeight / 2, outerR);
     this.glow.fill({ color: 0xFFE066, alpha: near ? 0.55 : 0.35 });
     this.glow.circle(0, -targetHeight / 2, innerR);
-    this.glow.stroke({ width: near ? 8 : 6, color: 0xFFB300, alpha: near ? 0.95 : 0.8 });
+    this.glow.stroke({ width: near ? 5 : 4, color: 0xFFB300, alpha: near ? 0.95 : 0.8 });
   }
 
   playCollect(): Promise<void> {
