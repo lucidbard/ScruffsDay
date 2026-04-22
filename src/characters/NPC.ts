@@ -143,31 +143,8 @@ export class NPC {
     this.container.scale.set(factor);
   }
 
-  private talkBobTweenId: number | null = null;
-
-  /**
-   * Visual "I'm talking" cue — a gentle scale pulse layered on top of the
-   * idle sheet. Real mouth animation would be a separate sheet; this is a
-   * lightweight substitute so the player can tell who's speaking.
-   */
-  setTalking(talking: boolean): void {
-    if (talking) {
-      if (this.talkBobTweenId !== null) return;
-      const baseX = Math.abs(this.sprite.scale.x);
-      const baseY = Math.abs(this.sprite.scale.y);
-      this.talkBobTweenId = this.tweens.add({
-        target: this.sprite.scale as unknown as Record<string, number>,
-        props: { x: baseX * 1.06, y: baseY * 1.06 },
-        duration: 180,
-        yoyo: true,
-        loop: true,
-        easing: Easing.easeInOut,
-      });
-    } else if (this.talkBobTweenId !== null) {
-      this.tweens.cancel(this.talkBobTweenId);
-      this.talkBobTweenId = null;
-    }
-  }
+  /** No-op placeholder. Real mouth animation will replace this later. */
+  setTalking(_talking: boolean): void {}
 
   playHappy(): Promise<void> {
     return new Promise((resolve) => {
