@@ -25,9 +25,9 @@ NPCS = [
     {
         "name": "shelly",
         "source": CHARS_DIR / "shelly-new.png",
-        "prompt": "cartoon old wise gopher tortoise on green screen, slow deep breathing with visible shell rise and fall, slow sagely head nod up and down, drooping eyelids softly blinking, thick neck slowly extending and retracting, patient contemplative movement, grandfatherly cadence, closed mouth in gentle smile",
-        "negative": "bowing, tipping forward, wide eyes, surprised, fast motion, walking away, head turning around, mouth opening, pose reset, frame jumping, deformation, morphing, extra limbs, text, watermark, new objects",
-        "seed": 8001,
+        "prompt": "cartoon old gopher tortoise animated idle cycle, head visibly extends forward out of shell then retracts back, mouth opens and closes in talking motion, shell visibly rises and falls with deep breathing, front legs shift weight side to side, eyes slowly blink with heavy drooping lids, clear obvious motion every frame, exaggerated cartoon animation, not static, not subtle, definitely moving, green screen background",
+        "negative": "frozen still, static pose, no motion, identical frames, perfectly still, completely motionless, bowing forward, tipping over, walking away, character sliding across frame, wide startled eyes, surprised expression, deformation, morphing into another shape, extra limbs, text, watermark, new objects, background change",
+        "seed": 20250422,
     },
     {
         "name": "pip",
